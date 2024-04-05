@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Face Mesh Editor</title>
+  <link rel="icon" type="image/x-icon" href="/favicon.21b6e204.ico">
+
+  <!-- Stylesheets -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+  <link rel="stylesheet" href="/standard.7f0044f5.css">
+  <!-- Scripts -->
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
+<script src="/standard.7f0044f5.js"></script></head>
+<body>
+<div class="position-absolute start-0 top-0 p-3 h-100 z-1 rounded-end shadow bg-white overflow-y-auto" style="width: 16vw;">
+  <table class="text-center w-100">
+    <tr>
+      <td>
+        <img src="/FaceMesh.b9a10102.png" class="rounded-circle border border-dark border-2" style="width: 4vw; height: 4vw;" alt="Icon">
+      </td>
+      <td>
+        <h2>Face Mesh Editor</h2>
+      </td>
+    </tr>
+  </table>
+  <!-- File Options-->
+  <h5 class="mt-4">File</h5>
+  <a id="openFile" class="nav-link btn btn-light" href="#" aria-keyshortcuts="Control+O"><i class="bi bi-folder2-open"></i> Open Images</a>
+  <a id="openAnno" class="nav-link btn btn-light" href="#" aria-keyshortcuts="Control+A"><i class="bi bi-folder2-open"></i> Open Annotations</a>
+  <a id="saveAnno" class="nav-link btn btn-light" href="#" aria-keyshortcuts="Control+S"><i class="bi bi-download"></i> Download</a>
+  <!-- Edit Options-->
+  <h5 class="mt-4">Edit</h5>
+  <a id="undo" class="nav-link btn btn-light" href="#" aria-keyshortcuts="Control+Z"><i class="bi bi-arrow-counterclockwise"></i> Undo</a>
+  <a id="redo" class="nav-link btn btn-light" href="#" aria-keyshortcuts="Control+Y"><i class="bi bi-arrow-clockwise"></i> Redo</a>
+  <hr>
+  <a id="reset" class="nav-link btn btn-light" href="#" aria-keyshortcuts="Control+R"><i class="bi bi-x-square"></i> Reset</a>
+  <hr>
+  <div class="form" style="padding-top: .2vw; padding-bottom: .2vw;">
+    <label for="feature_drag" class="form-label" aria-keyshortcuts="Shift+Wheel"><i class="bi bi-bounding-box-circles"></i> Drag Depth: <output id="num">0</output></label>
+    <input type="range" class="form-range" min="0" max="5" value="0" step="1" id="feature_drag" style="padding-left: .2vw; padding-right: .2vw;">
+  </div>
+<!--  <button id="model" class="nav-link btn btn-light" aria-keyshortcuts="Control+M" data-bs-toggle="modal" data-bs-target="#modelSettingsModel"><i class="bi bi-cpu"></i> Model</button>-->
+  <span class="nav-link" style="padding: .2vw;"><i class="bi bi-cpu"></i> Model</span>
+  <div class="btn-group" role="group" style="padding: .2vw; width: 100%;">
+    <input type="radio" class="btn-check" name="btnradio" id="btnMediapipe" autocomplete="off" checked="">
+    <label class="btn btn-outline-secondary" for="btnMediapipe">Mediapipe<br><small>Offline</small></label>
+    <input type="radio" class="btn-check" name="btnradio" id="btnCustom" autocomplete="off" data-bs-toggle="modal" data-bs-target="#modelSettingsModel">
+    <label class="btn btn-outline-secondary" for="btnCustom">Custom<br><small>Online</small></label>
+  </div>
+  <!-- View Options-->
+  <h5 class="mt-4">View</h5>
+  <div class="form-check form-switch">
+    <input class="form-check-input" type="checkbox" role="switch" id="view_tesselation">
+    <label class="form-check-label" for="view_tesselation" style="text-align: start;">Tesselation</label>
+  </div>
+  <!-- Feature Options-->
+  <h5 class="mt-4">Features</h5>
+  <a id="feat_le" class="nav-link btn btn-light" href="#" aria-keyshortcuts=""><i class="bi bi-trash"></i> Left Eye</a>
+  <a id="feat_leb" class="nav-link btn btn-light" href="#" aria-keyshortcuts=""><i class="bi bi-trash"></i> Left Eyebrow</a>
+  <a id="feat_re" class="nav-link btn btn-light" href="#" aria-keyshortcuts=""><i class="bi bi-trash"></i> Right Eye</a>
+  <a id="feat_reb" class="nav-link btn btn-light" href="#" aria-keyshortcuts=""><i class="bi bi-trash"></i> Right Eyebrow</a>
+  <a id="feat_n" class="nav-link btn btn-light" href="#" aria-keyshortcuts=""><i class="bi bi-trash"></i> Nose</a>
+  <a id="feat_m" class="nav-link btn btn-light" href="#" aria-keyshortcuts=""><i class="bi bi-trash"></i> Mouth</a>
+</div>
+
+<div class="position-absolute end-0 top-0 p-3 h-100 z-1 rounded-end shadow bg-white" style="width: 9vw; min-width: 150px;">
+  <!-- Image Selection -->
+  <h5>Images <small>(<output id="num_images">0</output>)</small></h5>
+  <div id="thumbnailgallery" class="overflow-y-auto" style="max-height: 95%;"></div>
+</div>
+
+<canvas id="canvas" class="position-absolute z-0"></canvas>
+
+<div id="modelSettingsModel" class="modal fade" tabindex="-1" aria-labelledby="modelSettingsModelLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title" id="modelSettingsModelLabel">Model Settings</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <form>
+          <div class="mb-3">
+            <label for="modelurl" class="col-form-label">URL:</label>
+            <input type="text" class="form-control" id="modelurl">
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="button" class="btn btn-primary">Save</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="/app.5cec07dd.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+</body>
+</html>
