@@ -176,7 +176,7 @@ export class Editor2D {
             }
             this.ctx.beginPath();
             this.ctx.fillStyle = '#4642ff';
-            this.ctx.arc(projectedPoint.x, projectedPoint.y, 1 / this.zoomScale, 0, Math.PI * 2);
+            this.ctx.arc(projectedPoint.x, projectedPoint.y, 2 / this.zoomScale, 0, Math.PI * 2);
             this.ctx.fill();
         }
     }
@@ -236,7 +236,8 @@ export class Editor2D {
                 // Go through each depth step
                 var tmpPoints: Point2D[] = [];
                 for (const neigP of neighbourPoints) {
-                    const influenceFactor = Math.min(2 / Math.pow(depth + 1, 2), 1);
+                    // const influenceFactor = Math.min(2 / Math.pow(depth + 1, 2), 1);
+                    const influenceFactor = Math.exp(-depth);
                     const newX = neigP.x + deltaX * influenceFactor;
                     const newY = neigP.y + deltaY * influenceFactor;
                     const newPoint = new Point2D(-1, newX, newY, []);
