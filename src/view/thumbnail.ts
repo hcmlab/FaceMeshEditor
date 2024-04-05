@@ -1,3 +1,6 @@
+/**
+ * Represents a canvas-based thumbnail for an image.
+ */
 export class Thumbnail {
     private readonly a: HTMLAnchorElement;
     private readonly canvas: HTMLCanvasElement;
@@ -6,10 +9,9 @@ export class Thumbnail {
     private image: HTMLImageElement = new Image();
 
     /**
-     * Creates a new thumbnail canvas.
-     *
-     * @param onClickCallback when clicked on the thumbnail this will be called.
-     * @param imageSize of the image to be displayed.
+     * Creates a new Thumbnail instance.
+     * @param {(filename: string) => void} onClickCallback - A callback function to execute when the thumbnail is clicked.
+     * @param {number} imageSize - The desired size (width and height) of the thumbnail canvas.
      */
     constructor(onClickCallback: (filename: string) => void, imageSize: number = 100) {
         this.onClickCallback = onClickCallback;
@@ -28,9 +30,8 @@ export class Thumbnail {
     }
 
     /**
-     * Set the source to the image to be displayed and update the on click callback reference.
-     *
-     * @param file of the image.
+     * Sets the image source for the thumbnail.
+     * @param {File} file - The image file.
      */
     setSource(file: File): void {
         const reader = new FileReader();
@@ -47,15 +48,18 @@ export class Thumbnail {
         };
     }
 
-    toHtml() : HTMLElement {
+    /**
+     * Converts the Thumbnail to an HTML element.
+     * @returns {HTMLElement} - The HTML anchor element containing the thumbnail canvas.
+     */
+    toHtml(): HTMLElement {
         return this.a;
     }
 
     /**
-     * Draws the image to the canvas in the correct size and ratio.
+     * Draws the image on the canvas, maintaining aspect ratio and centering it.
      */
     private draw(): void {
-        // Compute scale factor
         const scaleX = this.canvas.width / this.image.width;
         const scaleY = this.canvas.height / this.image.height;
         const zoomScale = scaleX < scaleY ? scaleX : scaleY;
@@ -64,8 +68,5 @@ export class Thumbnail {
         this.ctx.fillStyle = 'rgba(0,0,0,1)';
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
         this.ctx.drawImage(this.image, offX, offY, this.image.width * zoomScale, this.image.height * zoomScale);
-        this.ctx.restore();
     }
 }
-
-// customElements.define('a-thumbnail', Thumbnail, {extends: 'a'});

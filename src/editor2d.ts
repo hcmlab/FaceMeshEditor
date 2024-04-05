@@ -244,7 +244,7 @@ export class Editor2D {
                     alreadyUpdated.add(neigP.getId());
                     // extract next depth of neighbours
                     // @ts-ignore
-                    tmpPoints = tmpPoints.concat(neigP.getNeighbourIds().map(id => this._graph.getById(id)));
+                    tmpPoints = tmpPoints.concat(this.graph.getNeighbourPointsOf(neigP));
                 }
                 neighbourPoints = tmpPoints.filter(p => !alreadyUpdated.has(p.getId()));
             }

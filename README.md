@@ -6,6 +6,8 @@ ______________________________________________________________________
 #### An Editor to manually adjust automatic Face Mesh Detections
 ______________________________________________________________________
 
+[**Demo**](https://hcmlab.github.io/FaceMeshEditor/)
+
 </div>
 
 

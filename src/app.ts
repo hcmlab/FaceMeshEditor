@@ -5,16 +5,16 @@ import {FileAnnotationHistory} from "./cache/fileAnnotationHistory";
 import {Point2D} from "./graph/point2d";
 import {Editor2D} from "./editor2d";
 import {Graph} from "./graph/graph";
-import {FaceLandmarker, FilesetResolver} from "@mediapipe/tasks-vision";
 import {
     FACE_FEATURE_LEFT_EYE,
     FACE_FEATURE_LEFT_EYEBROW,
     FACE_FEATURE_LIPS,
     FACE_FEATURE_NOSE,
     FACE_FEATURE_RIGHT_EYE,
-    FACE_FEATURE_RIGHT_EYEBROW,
-    findNeighbourPointIds
+    FACE_FEATURE_RIGHT_EYEBROW
 } from "./graph/face_landmarks_features";
+import {ModelApi} from "./model/modelApi";
+import {MediapipeModel} from "./model/mediapipe";
 
 export class App {
     private featureDrag: Slider;
@@ -24,8 +24,11 @@ export class App {
     private fileCache: FileAnnotationHistory<Point2D>[] = [];
     private editor: Editor2D = new Editor2D();
     private readonly cacheSize: number;
+    private readonly models = {
+        "mediapipe": {"model": new MediapipeModel(), "selected": true},
+        "custom": {"model": null, "selected": false}
+    }
     private selectedFile: string | null = null;
-    private meshLandmarker: FaceLandmarker | null = null;
 
     constructor(cacheSize: number) {
         this.cacheSize = cacheSize;
@@ -39,32 +42,13 @@ export class App {
         this.thumbnailGallery = document.getElementById('thumbnailgallery') as HTMLDivElement;
         this.numImages = document.getElementById('num_images') as HTMLOutputElement;
         this.editor.setOnPointsEditedCallback(graph => this.getSelectedFileHistory()?.add(graph));
-        FilesetResolver.forVisionTasks(
-            "https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest/wasm"
-        ).then(filesetResolver => FaceLandmarker.createFromOptions(
-            filesetResolver,
-            {
-                baseOptions: {
-                    modelAssetPath: "https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task",
-                    // TODO When adding user model -> modelAssetBuffer
-                    delegate: "CPU"
-                },
-                minFaceDetectionConfidence: 0.3,
-                minFacePresenceConfidence: 0.3,
-                runningMode: "IMAGE",
-                numFaces: 1
-            })).then(landmarker => this.meshLandmarker = landmarker);
-        this.editor.setOnBackgroundLoadedCallback(image => {
+        this.editor.setOnBackgroundLoadedCallback(_ => {
             if (this.getSelectedFileHistory()?.isEmpty()) {
-                this.runFaceMeshModel(image);
+                this.runDetection();
             } else {
                 this.editor.graph = this.getSelectedFileHistory()?.get();
             }
         });
-    }
-
-    addFeatureDrag(value: number): void {
-        this.featureDrag.setValue(this.featureDrag.getValue() + value);
     }
 
     openImage(): boolean {
@@ -102,7 +86,7 @@ export class App {
                 const annotationFile: File = input.files[0];
                 const reader: FileReader = new FileReader();
                 reader.onload = _ => {
-                    const jsonString = <{string: Point2D[]}>JSON.parse(reader.result as string);
+                    const jsonString = <{ string: Point2D[] }>JSON.parse(reader.result as string);
                     for (const filename of Object.keys(jsonString)) {
                         const graph: Graph<Point2D> = Graph.fromJson(jsonString[filename], () => new Point2D(-1, 0, 0, []));
                         const cache = this.fileCache.find(f => f.file.name === filename);
@@ -129,6 +113,7 @@ export class App {
                 }
             }
             const jsonData: string = JSON.stringify(result);
+            this.getModel().uploadAnnotations(jsonData);
             const dataStr: string = "data:text/json;charset=utf-8," + encodeURIComponent(jsonData);
             const a: HTMLAnchorElement = document.createElement('a');
             a.href = dataStr;
@@ -152,8 +137,39 @@ export class App {
 
     reset(): boolean {
         this.getSelectedFileHistory()?.clear();
-        this.runFaceMeshModel(this.editor.getBackgroundImage());
+        this.runDetection();
         return false;
+    }
+
+    addFeatureDrag(value: number): void {
+        this.featureDrag.setValue(this.featureDrag.getValue() + value);
+    }
+
+    setModel(name: string): boolean {
+        const btnMediapipe = document.getElementById('btnModelMediapipe') as HTMLInputElement;
+        const btnCustom = document.getElementById('btnModelCustom') as HTMLInputElement;
+        this.models.mediapipe.selected = false;
+        this.models.custom.selected = false;
+        switch (name) {
+            case "mediapipe":
+                btnMediapipe.checked = true;
+                this.models.mediapipe.selected = true;
+                break;
+            case "custom":
+                btnCustom.checked = true;
+                this.models.custom.selected = true;
+                const textModelUrl = document.getElementById('modelurl') as HTMLInputElement;
+                console.log(textModelUrl.value);
+                break;
+            default:
+                console.error('No model "' + name + '" found to change to!');
+                break;
+        }
+        return false;
+    }
+
+    getModel(): ModelApi<Point2D> {
+        return undefined;
     }
 
     deleteFeature(feature: string): boolean {
@@ -196,22 +212,13 @@ export class App {
         this.editor.draw();
     }
 
-    private runFaceMeshModel(image: HTMLImageElement): void {
-        const result = this.meshLandmarker?.detect(image);
-        if (result) {
-            result.faceLandmarks
-                .map(landmarks => landmarks.map((dict, idx) => {
-                    const ids = Array.from(findNeighbourPointIds(idx, FaceLandmarker.FACE_LANDMARKS_TESSELATION, 1));
-                    return new Point2D(idx, dict.x, dict.y, ids);
-                }))
-                .map(landmarks => new Graph(landmarks))
-                .map(graph => {
-                        this.getSelectedFileHistory()?.add(graph);
-                        this.editor.center();
-                        this.editor.graph = graph;
-                    }
-                );
-        }
+    private runDetection() {
+        this.getModel().detect(this.getSelectedFileHistory().file)
+            .then(graph => {
+                this.getSelectedFileHistory()?.add(graph);
+                this.editor.center();
+                this.editor.graph = graph;
+            });
     }
 
     private getSelectedFileHistory(): FileAnnotationHistory<Point2D> | undefined {
@@ -261,6 +268,10 @@ window.onload = _ => {
     document.getElementById('undo').onclick = () => app.undo();
     document.getElementById('redo').onclick = () => app.redo();
     document.getElementById('reset').onclick = () => app.reset();
+    document.getElementById('btnModelMediapipe').onclick = () => app.setModel('mediapipe');
+    document.getElementById('btnCloseModal').onclick = () => app.setModel('mediapipe');
+    document.getElementById('btnCancelModal').onclick = () => app.setModel('mediapipe');
+    document.getElementById('btnSaveCustomModel').onclick = () => app.setModel('custom');
     document.getElementById('feat_le').onclick = _ => app.deleteFeature('left_eye');
     document.getElementById('feat_leb').onclick = _ => app.deleteFeature('left_eyebrow');
     document.getElementById('feat_re').onclick = _ => app.deleteFeature('right_eye');

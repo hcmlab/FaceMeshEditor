@@ -1,19 +1,46 @@
 import {FaceLandmarker} from "@mediapipe/tasks-vision";
 
+/**
+ * Represents a connection between two points.
+ */
 export class Connection {
-    public start: number;
-    public end: number;
-
+    /**
+     * Creates a new Connection instance.
+     * @param {number} start - The ID of the starting point.
+     * @param {number} end - The ID of the ending point.
+     */
     constructor(start: number, end: number) {
         this.start = start;
         this.end = end;
     }
+
+    /**
+     * The ID of the starting point.
+     */
+    public start: number;
+
+    /**
+     * The ID of the ending point.
+     */
+    public end: number;
 }
 
+/**
+ * Converts an array of connections (given as pairs of start and end point IDs) into an array of Connection instances.
+ * @param {...number[][]} connections - Arrays of start and end point IDs.
+ * @returns {Connection[]} - An array of Connection instances.
+ */
 function convertToConnections(...connections: number[][]): Connection[] {
     return connections.map(([start, end]) => new Connection(start, end));
 }
 
+/**
+ * Finds neighboring point IDs recursively up to a specified depth.
+ * @param {number} pointId - The ID of the starting point.
+ * @param {Connection[]} connections - An array of connections.
+ * @param {number} depth - The depth of neighbor search.
+ * @returns {number[]} - An array of unique neighboring point IDs.
+ */
 export function findNeighbourPointIds(pointId: number, connections: Connection[], depth: number) : number[] {
     if (depth === 0) {
         return Array.from(new Set([pointId]));
@@ -31,6 +58,9 @@ export function findNeighbourPointIds(pointId: number, connections: Connection[]
     return Array.from(neighbourIds);
 }
 
+/**
+ * Array of unique face feature point IDs related to lips.
+ */
 export const FACE_FEATURE_LIPS = Array.from(new Set(
     FaceLandmarker.FACE_LANDMARKS_LIPS.map(con => con.start).concat(
         [62, 76, 184, 183, 42, 74, 41, 73, 38, 72, 12, 11, 268, 302, 271, 303,
@@ -38,30 +68,48 @@ export const FACE_FEATURE_LIPS = Array.from(new Set(
             179, 180, 89, 90, 96, 77, 291, 308])
 ));
 
+/**
+ * Array of unique face feature point IDs related to the left eye.
+ */
 export const FACE_FEATURE_LEFT_EYE = Array.from(new Set(
     FaceLandmarker.FACE_LANDMARKS_LEFT_EYE.map(con => con.start).concat(FaceLandmarker.FACE_LANDMARKS_LEFT_EYE.map(con => con.end)).concat(
         FaceLandmarker.FACE_LANDMARKS_LEFT_IRIS.map(con => con.start).concat(FaceLandmarker.FACE_LANDMARKS_LEFT_IRIS.map(con => con.end)))
 ));
 
+/**
+ * Array of unique face feature point IDs related to the left eyebrow.
+ */
 export const FACE_FEATURE_LEFT_EYEBROW = Array.from(new Set(
     FaceLandmarker.FACE_LANDMARKS_LEFT_EYEBROW.map(con => con.start).concat(FaceLandmarker.FACE_LANDMARKS_LEFT_EYEBROW.map(con => con.end))
 ));
 
+/**
+ * Array of unique face feature point IDs related to the right eye.
+ */
 export const FACE_FEATURE_RIGHT_EYE = Array.from(new Set(
     FaceLandmarker.FACE_LANDMARKS_RIGHT_EYE.map(con => con.start).concat(FaceLandmarker.FACE_LANDMARKS_RIGHT_EYE.map(con => con.end)).concat(
         FaceLandmarker.FACE_LANDMARKS_RIGHT_IRIS.map(con => con.start).concat(FaceLandmarker.FACE_LANDMARKS_RIGHT_IRIS.map(con => con.end)))
 ));
 
+/**
+ * Array of unique face feature point IDs related to the right eyebrow.
+ */
 export const FACE_FEATURE_RIGHT_EYEBROW = Array.from(new Set(
     FaceLandmarker.FACE_LANDMARKS_RIGHT_EYEBROW.map(con => con.start).concat(FaceLandmarker.FACE_LANDMARKS_RIGHT_EYEBROW.map(con => con.end))
 ));
 
+/**
+ * Array of unique face landmark point IDs related to the nose.
+ */
 export const FACE_LANDMARKS_NOSE = convertToConnections(
     [2, 97], [97, 98], [98, 64], [64, 48], [48, 115], [115, 220], [220, 45],
     [45, 4], [4, 275], [275, 440], [440, 344], [344, 278], [278, 294], [294, 327], [327, 326], [326, 2], [2, 19],
     [19, 1], [1, 4], [4, 5], [5, 195], [195, 197], [197, 6], [6, 168]
 );
 
+/**
+ * Array of unique face feature point IDs related to the nose.
+ */
 export const FACE_FEATURE_NOSE = Array.from(new Set(
     FACE_LANDMARKS_NOSE.map(con => con.start).concat(FACE_LANDMARKS_NOSE.map(con => con.end)).concat(
         [
