@@ -5507,7 +5507,7 @@ var Editor2D = /*#__PURE__*/function () {
         }
         this.ctx.beginPath();
         this.ctx.fillStyle = '#4642ff';
-        this.ctx.arc(projectedPoint.x, projectedPoint.y, 1 / this.zoomScale, 0, Math.PI * 2);
+        this.ctx.arc(projectedPoint.x, projectedPoint.y, 2 / this.zoomScale, 0, Math.PI * 2);
         this.ctx.fill();
       }
     }
@@ -5579,7 +5579,8 @@ var Editor2D = /*#__PURE__*/function () {
           try {
             for (_iterator.s(); !(_step = _iterator.n()).done;) {
               var neigP = _step.value;
-              var influenceFactor = Math.min(2 / Math.pow(depth + 1, 2), 1);
+              // const influenceFactor = Math.min(2 / Math.pow(depth + 1, 2), 1);
+              var influenceFactor = Math.exp(-depth);
               var newX = neigP.x + deltaX * influenceFactor;
               var newY = neigP.y + deltaY * influenceFactor;
               var newPoint = new point2d_1.Point2D(-1, newX, newY, []);
@@ -6103,6 +6104,11 @@ var App = /*#__PURE__*/function () {
   }, {
     key: "getModel",
     value: function getModel() {
+      for (var modelName in this.models) {
+        if (this.models[modelName].selected) {
+          return this.models[modelName].model;
+        }
+      }
       return undefined;
     }
   }, {
@@ -6153,7 +6159,8 @@ var App = /*#__PURE__*/function () {
     key: "runDetection",
     value: function runDetection() {
       var _this4 = this;
-      this.getModel().detect(this.getSelectedFileHistory().file).then(function (graph) {
+      var _a;
+      (_a = this.getModel()) === null || _a === void 0 ? void 0 : _a.detect(this.getSelectedFileHistory().file).then(function (graph) {
         var _a;
         (_a = _this4.getSelectedFileHistory()) === null || _a === void 0 ? void 0 : _a.add(graph);
         _this4.editor.center();
@@ -6302,7 +6309,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "56650" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "57855" + '/');
   ws.onmessage = function (event) {
     checkedAssets = {};
     assetsToAccept = [];
