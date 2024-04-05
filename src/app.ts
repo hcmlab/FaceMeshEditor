@@ -15,6 +15,7 @@ import {
 } from "./graph/face_landmarks_features";
 import {ModelApi} from "./model/modelApi";
 import {MediapipeModel} from "./model/mediapipe";
+import {WebServiceModel} from "./model/webservice";
 
 export class App {
     private featureDrag: Slider;
@@ -159,7 +160,20 @@ export class App {
                 btnCustom.checked = true;
                 this.models.custom.selected = true;
                 const textModelUrl = document.getElementById('modelurl') as HTMLInputElement;
-                console.log(textModelUrl.value);
+                const url = textModelUrl.value;
+                const pattern = new RegExp('^(https?:\\/\\/)?'+ // protocol
+                    '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|'+ // domain name
+                    '((\\d{1,3}\\.){3}\\d{1,3}))'+ // OR ip (v4) address
+                    '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*'+ // port and path
+                    '(\\?[;&a-z\\d%_.~+=-]*)?'+ // query string
+                    '(\\#[-a-z\\d_]*)?$','i'); // fragment locator
+                // @ts-ignore
+                document.getElementById('modalSettingsModel').hide();
+                if (!!pattern.test(url)) {
+                    this.models.custom.model = new WebServiceModel(url);
+                } else {
+                    this.setModel('mediapipe');
+                }
                 break;
             default:
                 console.error('No model "' + name + '" found to change to!');

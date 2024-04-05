@@ -40,7 +40,8 @@
   },
   "dependencies": {
     "@bitauth/libauth": "^1.17.1",
-    "@mediapipe/tasks-vision": "^0.10.12"
+    "@mediapipe/tasks-vision": "^0.10.12",
+    "bootstrap": "^5.3.3"
   },
   "devDependencies": {
     "@ava/typescript": "^1.1.1",
