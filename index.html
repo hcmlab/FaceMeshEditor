@@ -46,7 +46,7 @@
     <input type="radio" class="btn-check" name="btnradio" id="btnModelMediapipe" autocomplete="off" checked>
     <label class="btn btn-outline-secondary" for="btnModelMediapipe">Mediapipe<br><small>Offline</small></label>
     <input type="radio" class="btn-check" name="btnradio" id="btnModelCustom" autocomplete="off" data-bs-toggle="modal" data-bs-target="#modelSettingsModel">
-    <label class="btn btn-outline-secondary" for="btnModelCustom">Custom<br><small>Online</small></label>
+    <label class="btn btn-outline-secondary" for="btnModelCustom">Webservice<br><small>Online</small></label>
   </div>
   <!-- View Options-->
   <h5 class="mt-4">View</h5>
@@ -76,13 +76,32 @@
   <div class="modal-dialog modal-dialog-centered">
     <div class="modal-content">
       <div class="modal-header">
-        <h5 class="modal-title" id="modelSettingsModelLabel">Model Settings</h5>
+        <h5 class="modal-title" id="modelSettingsModelLabel">Webservice</h5>
         <button id="btnCloseModal" type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
+        <p>
+          The webservice address will be used to detect a face mesh on selected images.
+          Therefore, the images must be transferred to the webservice for processing.
+          The open format allows it to create individual webservices by everyone and can be easily swapped.
+        </p>
+        <div class="alert alert-warning" role="alert">
+          IMPORTANT: Be aware, that the webservice owner might store your images and annotations!
+        </div>
+        <hr>
+        <h6>API</h6>
+        <p>
+          The webservice API must provide the following addresses:
+          <br><code>/detect</code><br>
+          This call is used to detect a single face on a provided image file inside a POST request.
+          <br><code>/annotations</code><br>
+          This call is used to sync the annotations inside a POST request when the user triggers the download.
+        </p>
+        <hr>
+        <h6>URL</h6>
+        <p>Insert the webservice URL in the text field below and submit with hitting the Save button.</p>
         <form>
           <div class="mb-3">
-            <label for="modelurl" class="col-form-label">URL:</label>
             <input type="text" class="form-control" id="modelurl">
           </div>
         </form>
