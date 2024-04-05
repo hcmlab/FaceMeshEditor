@@ -395,7 +395,6 @@ var FileAnnotationHistory = /*#__PURE__*/function () {
         index = this.history.length - 1;
       }
       this.currentHistoryIndex = index;
-      console.log("History: length=".concat(this.history.length, ", index=").concat(index));
     }
     /**
      * Moves to the next history entry.
@@ -5483,8 +5482,6 @@ var Editor2D = /*#__PURE__*/function () {
       this.drawFaceTrait(tasks_vision_1.FaceLandmarker.FACE_LANDMARKS_LEFT_EYE, '#42c6ff');
       this.drawFaceTrait(tasks_vision_1.FaceLandmarker.FACE_LANDMARKS_LEFT_IRIS, '#b5ebff');
       this.drawFaceTrait(face_landmarks_features_1.FACE_LANDMARKS_NOSE, '#eada70');
-      // Reset Transformations
-      this.ctx.restore();
     }
   }, {
     key: "drawPoint",
@@ -5515,24 +5512,54 @@ var Editor2D = /*#__PURE__*/function () {
     key: "drawFaceTrait",
     value: function drawFaceTrait(connections, color) {
       var _this4 = this;
-      connections.forEach(function (connection) {
-        if (_this4.graph) {
-          var startPoint = _this4.graph.getById(connection.start);
-          _this4.drawPoint(startPoint);
-          var endPoint = _this4.graph.getById(connection.end);
-          _this4.drawPoint(endPoint);
-          if (startPoint && endPoint && !startPoint.deleted && !endPoint.deleted) {
-            startPoint = perspective2d_1.Perspective2D.project(_this4.image, startPoint);
-            endPoint = perspective2d_1.Perspective2D.project(_this4.image, endPoint);
-            _this4.ctx.beginPath();
-            _this4.ctx.strokeStyle = color;
-            _this4.ctx.lineWidth = 1 / _this4.zoomScale;
-            _this4.ctx.moveTo(startPoint.x, startPoint.y);
-            _this4.ctx.lineTo(endPoint.x, endPoint.y);
-            _this4.ctx.stroke();
+      if (this.graph) {
+        var pointPairs = connections.map(function (connection) {
+          return {
+            start: _this4.graph.getById(connection.start),
+            end: _this4.graph.getById(connection.end)
+          };
+        });
+        // Draw edges
+        this.ctx.beginPath();
+        this.ctx.strokeStyle = color;
+        this.ctx.lineWidth = 1 / this.zoomScale;
+        var _iterator = _createForOfIteratorHelper(pointPairs),
+          _step;
+        try {
+          for (_iterator.s(); !(_step = _iterator.n()).done;) {
+            var connection = _step.value;
+            var startPoint = connection.start;
+            var endPoint = connection.end;
+            if (startPoint && endPoint && !startPoint.deleted && !endPoint.deleted) {
+              startPoint = perspective2d_1.Perspective2D.project(this.image, startPoint);
+              endPoint = perspective2d_1.Perspective2D.project(this.image, endPoint);
+              this.ctx.moveTo(startPoint.x, startPoint.y);
+              this.ctx.lineTo(endPoint.x, endPoint.y);
+            }
           }
+        } catch (err) {
+          _iterator.e(err);
+        } finally {
+          _iterator.f();
         }
-      });
+        this.ctx.stroke();
+        // Draw points
+        var _iterator2 = _createForOfIteratorHelper(pointPairs),
+          _step2;
+        try {
+          for (_iterator2.s(); !(_step2 = _iterator2.n()).done;) {
+            var _connection = _step2.value;
+            var _startPoint = _connection.start;
+            var _endPoint = _connection.end;
+            this.drawPoint(_startPoint);
+            this.drawPoint(_endPoint);
+          }
+        } catch (err) {
+          _iterator2.e(err);
+        } finally {
+          _iterator2.f();
+        }
+      }
     }
   }, {
     key: "handleMouseDown",
@@ -5574,12 +5601,11 @@ var Editor2D = /*#__PURE__*/function () {
         for (var depth = 0; depth <= this.dragDepth; depth++) {
           // Go through each depth step
           var tmpPoints = [];
-          var _iterator = _createForOfIteratorHelper(neighbourPoints),
-            _step;
+          var _iterator3 = _createForOfIteratorHelper(neighbourPoints),
+            _step3;
           try {
-            for (_iterator.s(); !(_step = _iterator.n()).done;) {
-              var neigP = _step.value;
-              // const influenceFactor = Math.min(2 / Math.pow(depth + 1, 2), 1);
+            for (_iterator3.s(); !(_step3 = _iterator3.n()).done;) {
+              var neigP = _step3.value;
               var influenceFactor = Math.exp(-depth);
               var newX = neigP.x + deltaX * influenceFactor;
               var newY = neigP.y + deltaY * influenceFactor;
@@ -5591,9 +5617,9 @@ var Editor2D = /*#__PURE__*/function () {
               tmpPoints = tmpPoints.concat(this.graph.getNeighbourPointsOf(neigP));
             }
           } catch (err) {
-            _iterator.e(err);
+            _iterator3.e(err);
           } finally {
-            _iterator.f();
+            _iterator3.f();
           }
           neighbourPoints = tmpPoints.filter(function (p) {
             return !alreadyUpdated.has(p.getId());
@@ -6309,7 +6335,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "57855" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "60720" + '/');
   ws.onmessage = function (event) {
     checkedAssets = {};
     assetsToAccept = [];
