@@ -232,7 +232,7 @@ export class App {
     }
 
     private runDetection() {
-        this.getModel().detect(this.getSelectedFileHistory().file)
+        this.getModel()?.detect(this.getSelectedFileHistory().file)
             .then(graph => {
                 this.getSelectedFileHistory()?.add(graph);
                 this.editor.center();
