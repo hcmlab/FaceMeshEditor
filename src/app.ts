@@ -183,6 +183,11 @@ export class App {
     }
 
     getModel(): ModelApi<Point2D> {
+        for (const modelName in this.models) {
+            if (this.models[modelName].selected) {
+                return this.models[modelName].model;
+            }
+        }
         return undefined;
     }
 
