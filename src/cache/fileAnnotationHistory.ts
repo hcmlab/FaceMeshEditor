@@ -58,7 +58,6 @@ export class FileAnnotationHistory<T extends Point2D> {
             index = this.history.length - 1;
         }
         this.currentHistoryIndex = index;
-        console.log(`History: length=${this.history.length}, index=${index}`);
     }
 
     /**

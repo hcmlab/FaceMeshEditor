@@ -153,8 +153,6 @@ export class Editor2D {
         this.drawFaceTrait(FaceLandmarker.FACE_LANDMARKS_LEFT_EYE, '#42c6ff');
         this.drawFaceTrait(FaceLandmarker.FACE_LANDMARKS_LEFT_IRIS, '#b5ebff');
         this.drawFaceTrait(FACE_LANDMARKS_NOSE, '#eada70');
-        // Reset Transformations
-        this.ctx.restore();
     }
 
     private drawPoint(point: Point2D): void {
@@ -182,24 +180,33 @@ export class Editor2D {
     }
 
     private drawFaceTrait(connections: Connection[], color: string | CanvasGradient | CanvasPattern): void {
-        connections.forEach(connection => {
-            if (this.graph) {
-                let startPoint = this.graph.getById(connection.start);
-                this.drawPoint(startPoint);
-                let endPoint = this.graph.getById(connection.end);
-                this.drawPoint(endPoint);
+        if (this.graph) {
+            const pointPairs = connections.map(connection => {
+                return {start: this.graph.getById(connection.start), end: this.graph.getById(connection.end)};
+            });
+            // Draw edges
+            this.ctx.beginPath();
+            this.ctx.strokeStyle = color;
+            this.ctx.lineWidth = 1 / this.zoomScale;
+            for (const connection of pointPairs) {
+                let startPoint = connection.start;
+                let endPoint = connection.end;
                 if (startPoint && endPoint && !startPoint.deleted && !endPoint.deleted) {
                     startPoint = Perspective2D.project(this.image, startPoint);
                     endPoint = Perspective2D.project(this.image, endPoint);
-                    this.ctx.beginPath();
-                    this.ctx.strokeStyle = color;
-                    this.ctx.lineWidth = 1 / this.zoomScale;
                     this.ctx.moveTo(startPoint.x, startPoint.y);
                     this.ctx.lineTo(endPoint.x, endPoint.y);
-                    this.ctx.stroke();
                 }
             }
-        });
+            this.ctx.stroke();
+            // Draw points
+            for (const connection of pointPairs) {
+                let startPoint = connection.start;
+                let endPoint = connection.end;
+                this.drawPoint(startPoint);
+                this.drawPoint(endPoint);
+            }
+        }
     }
 
     private handleMouseDown(event: MouseEvent): void {
@@ -226,17 +233,16 @@ export class Editor2D {
         if (this.isMoving) {
             this.canvas.style.cursor = "pointer";
             // Update normalized coordinates based on mouse position
-            var alreadyUpdated = new Set();
+            const alreadyUpdated = new Set();
             const relativeMouse = Perspective2D.unproject(this.image, new Point2D(-1, relativeMouseX, relativeMouseY, []))
             const selectedPoint = this.graph.getSelected();
-            var neighbourPoints = [selectedPoint];
+            let neighbourPoints = [selectedPoint];
             const deltaX = relativeMouse.x - selectedPoint.x;
             const deltaY = relativeMouse.y - selectedPoint.y;
-            for (var depth = 0; depth <= this.dragDepth; depth++) {
+            for (let depth = 0; depth <= this.dragDepth; depth++) {
                 // Go through each depth step
-                var tmpPoints: Point2D[] = [];
+                let tmpPoints: Point2D[] = [];
                 for (const neigP of neighbourPoints) {
-                    // const influenceFactor = Math.min(2 / Math.pow(depth + 1, 2), 1);
                     const influenceFactor = Math.exp(-depth);
                     const newX = neigP.x + deltaX * influenceFactor;
                     const newY = neigP.y + deltaY * influenceFactor;
