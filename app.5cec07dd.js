@@ -130,12 +130,14 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.Slider = void 0;
+/**
+ * Represents a slider input element.
+ */
 var Slider = /*#__PURE__*/function () {
   /**
-   * Creates a new slider.
-   *
-   * @param id of the html element.
-   * @param onChangeCallback called when the slider value changes.
+   * Creates a new Slider instance.
+   * @param {string} id - The ID of the slider element.
+   * @param {() => void} onChangeCallback - A callback function to execute when the slider value changes.
    */
   function Slider(id, onChangeCallback) {
     _classCallCheck(this, Slider);
@@ -144,7 +146,8 @@ var Slider = /*#__PURE__*/function () {
     this.onChangeCallback = onChangeCallback;
   }
   /**
-   * Get the minimum slider value possible.
+   * Gets the minimum value of the slider.
+   * @returns {number} - The minimum value.
    */
   return _createClass(Slider, [{
     key: "getMin",
@@ -152,7 +155,8 @@ var Slider = /*#__PURE__*/function () {
       return parseInt(this.slider.min);
     }
     /**
-     * Get the maximum slider value possible.
+     * Gets the maximum value of the slider.
+     * @returns {number} - The maximum value.
      */
   }, {
     key: "getMax",
@@ -160,7 +164,8 @@ var Slider = /*#__PURE__*/function () {
       return parseInt(this.slider.max);
     }
     /**
-     * Get the slider value.
+     * Gets the current value of the slider.
+     * @returns {number} - The current value.
      */
   }, {
     key: "getValue",
@@ -168,9 +173,8 @@ var Slider = /*#__PURE__*/function () {
       return parseInt(this.slider.value);
     }
     /**
-     * Set the slider value.
-     *
-     * @param value to set.
+     * Sets the value of the slider.
+     * @param {number} value - The desired value.
      */
   }, {
     key: "setValue",
@@ -194,17 +198,33 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.CheckBox = void 0;
+/**
+ * Represents a checkbox element.
+ */
 var CheckBox = /*#__PURE__*/function () {
+  /**
+   * Creates a new CheckBox instance.
+   * @param {string} id - The ID of the checkbox element.
+   * @param {() => void} onChangeCallback - A callback function to execute when the checkbox value changes.
+   */
   function CheckBox(id, onChangeCallback) {
     _classCallCheck(this, CheckBox);
     this.elem = document.getElementById(id);
     this.elem.onchange = onChangeCallback;
   }
+  /**
+   * Checks whether the checkbox is currently checked.
+   * @returns {boolean} - True if checked, false otherwise.
+   */
   return _createClass(CheckBox, [{
     key: "isChecked",
     value: function isChecked() {
       return this.elem.checked;
     }
+    /**
+     * Sets the checkbox to the specified checked state.
+     * @param {boolean} checked - The desired checked state (true or false).
+     */
   }, {
     key: "setChecked",
     value: function setChecked(checked) {
@@ -226,12 +246,14 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.Thumbnail = void 0;
+/**
+ * Represents a canvas-based thumbnail for an image.
+ */
 var Thumbnail = /*#__PURE__*/function () {
   /**
-   * Creates a new thumbnail canvas.
-   *
-   * @param onClickCallback when clicked on the thumbnail this will be called.
-   * @param imageSize of the image to be displayed.
+   * Creates a new Thumbnail instance.
+   * @param {(filename: string) => void} onClickCallback - A callback function to execute when the thumbnail is clicked.
+   * @param {number} imageSize - The desired size (width and height) of the thumbnail canvas.
    */
   function Thumbnail(onClickCallback) {
     var _this = this;
@@ -255,9 +277,8 @@ var Thumbnail = /*#__PURE__*/function () {
     this.a.appendChild(this.canvas);
   }
   /**
-   * Set the source to the image to be displayed and update the on click callback reference.
-   *
-   * @param file of the image.
+   * Sets the image source for the thumbnail.
+   * @param {File} file - The image file.
    */
   return _createClass(Thumbnail, [{
     key: "setSource",
@@ -276,18 +297,21 @@ var Thumbnail = /*#__PURE__*/function () {
         return false;
       };
     }
+    /**
+     * Converts the Thumbnail to an HTML element.
+     * @returns {HTMLElement} - The HTML anchor element containing the thumbnail canvas.
+     */
   }, {
     key: "toHtml",
     value: function toHtml() {
       return this.a;
     }
     /**
-     * Draws the image to the canvas in the correct size and ratio.
+     * Draws the image on the canvas, maintaining aspect ratio and centering it.
      */
   }, {
     key: "draw",
     value: function draw() {
-      // Compute scale factor
       var scaleX = this.canvas.width / this.image.width;
       var scaleY = this.canvas.height / this.image.height;
       var zoomScale = scaleX < scaleY ? scaleX : scaleY;
@@ -296,12 +320,10 @@ var Thumbnail = /*#__PURE__*/function () {
       this.ctx.fillStyle = 'rgba(0,0,0,1)';
       this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
       this.ctx.drawImage(this.image, offX, offY, this.image.width * zoomScale, this.image.height * zoomScale);
-      this.ctx.restore();
     }
   }]);
 }();
 exports.Thumbnail = Thumbnail;
-// customElements.define('a-thumbnail', Thumbnail, {extends: 'a'});
 },{}],"src/cache/fileAnnotationHistory.ts":[function(require,module,exports) {
 "use strict";
 
@@ -315,7 +337,17 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.FileAnnotationHistory = void 0;
+/**
+ * Represents a history of annotations for a specific file.
+ * Keeps track of changes made to a graph of points (e.g., annotations on an image).
+ * @template T - Type of the points (must extend Point2D).
+ */
 var FileAnnotationHistory = /*#__PURE__*/function () {
+  /**
+   * Creates a new FileAnnotationHistory instance.
+   * @param {File} file - The file associated with the annotations.
+   * @param {number} cacheSize - The maximum number of history entries to retain.
+   */
   function FileAnnotationHistory(file, cacheSize) {
     _classCallCheck(this, FileAnnotationHistory);
     this.history = [];
@@ -323,11 +355,19 @@ var FileAnnotationHistory = /*#__PURE__*/function () {
     this._file = file;
     this.cacheSize = cacheSize;
   }
+  /**
+   * Gets the associated file.
+   * @returns {File} - The file associated with the annotations.
+   */
   return _createClass(FileAnnotationHistory, [{
     key: "file",
     get: function get() {
       return this._file;
     }
+    /**
+     * Adds a new annotation item to the history.
+     * @param {Graph<T>} item - The graph of points representing the annotation.
+     */
   }, {
     key: "add",
     value: function add(item) {
@@ -336,12 +376,16 @@ var FileAnnotationHistory = /*#__PURE__*/function () {
         this.history.length = this.currentHistoryIndex + 1;
       }
       if (this.cacheSize === this.history.length) {
-        // Remove first item as it is too old and cache limit is reached!
+        // Remove the first item as it is too old and cache limit is reached
         this.history.shift();
       }
       this.history.push(item.clone());
       this.currentHistoryIndex = this.history.length - 1;
     }
+    /**
+     * Sets the current history index to the specified value.
+     * @param {number} index - The desired history index.
+     */
   }, {
     key: "setIndex",
     value: function setIndex(index) {
@@ -351,18 +395,28 @@ var FileAnnotationHistory = /*#__PURE__*/function () {
         index = this.history.length - 1;
       }
       this.currentHistoryIndex = index;
-      console.log('History: length=' + this.history.length + ', index=' + index);
+      console.log("History: length=".concat(this.history.length, ", index=").concat(index));
     }
+    /**
+     * Moves to the next history entry.
+     */
   }, {
     key: "next",
     value: function next() {
       this.setIndex(this.currentHistoryIndex + 1);
     }
+    /**
+     * Moves to the previous history entry.
+     */
   }, {
     key: "previous",
     value: function previous() {
       this.setIndex(this.currentHistoryIndex - 1);
     }
+    /**
+     * Retrieves the current annotation graph.
+     * @returns {null | Graph<T>} - The current annotation graph or null if empty.
+     */
   }, {
     key: "get",
     value: function get() {
@@ -371,11 +425,18 @@ var FileAnnotationHistory = /*#__PURE__*/function () {
       }
       return null;
     }
+    /**
+     * Checks if the history is empty.
+     * @returns {boolean} - True if empty, false otherwise.
+     */
   }, {
     key: "isEmpty",
     value: function isEmpty() {
       return this.history.length === 0;
     }
+    /**
+     * Clears the entire history.
+     */
   }, {
     key: "clear",
     value: function clear() {
@@ -404,7 +465,17 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.Point2D = void 0;
+/**
+ * Represents a 2D point with an ID, coordinates, and neighbor information.
+ */
 var Point2D = /*#__PURE__*/function () {
+  /**
+   * Creates a new Point2D instance.
+   * @param {number} id - The unique identifier for the point.
+   * @param {number} x - The x-coordinate of the point.
+   * @param {number} y - The y-coordinate of the point.
+   * @param {number[]} neighbourIds - An array of neighbor IDs.
+   */
   function Point2D(id, x, y, neighbourIds) {
     _classCallCheck(this, Point2D);
     this._selected = false;
@@ -415,6 +486,10 @@ var Point2D = /*#__PURE__*/function () {
     this._y = y;
     this.neighbourIds = neighbourIds;
   }
+  /**
+   * Gets or sets whether the point is selected.
+   * @returns {boolean} - True if selected, false otherwise.
+   */
   return _createClass(Point2D, [{
     key: "selected",
     get: function get() {
@@ -423,6 +498,10 @@ var Point2D = /*#__PURE__*/function () {
     set: function set(value) {
       this._selected = value;
     }
+    /**
+     * Gets or sets whether the point is hovered.
+     * @returns {boolean} - True if hovered, false otherwise.
+     */
   }, {
     key: "hovered",
     get: function get() {
@@ -431,6 +510,10 @@ var Point2D = /*#__PURE__*/function () {
     set: function set(value) {
       this._hovered = value;
     }
+    /**
+     * Gets or sets whether the point is marked as deleted.
+     * @returns {boolean} - True if deleted, false otherwise.
+     */
   }, {
     key: "deleted",
     get: function get() {
@@ -439,6 +522,10 @@ var Point2D = /*#__PURE__*/function () {
     set: function set(value) {
       this._deleted = value;
     }
+    /**
+     * Gets or sets the x-coordinate of the point.
+     * @returns {number} - The x-coordinate.
+     */
   }, {
     key: "x",
     get: function get() {
@@ -447,6 +534,10 @@ var Point2D = /*#__PURE__*/function () {
     set: function set(value) {
       this._x = value;
     }
+    /**
+     * Gets or sets the y-coordinate of the point.
+     * @returns {number} - The y-coordinate.
+     */
   }, {
     key: "y",
     get: function get() {
@@ -455,27 +546,47 @@ var Point2D = /*#__PURE__*/function () {
     set: function set(value) {
       this._y = value;
     }
+    /**
+     * Returns a string representation of the point.
+     * @returns {string} - A formatted string with point details.
+     */
   }, {
     key: "toString",
     value: function toString() {
-      return 'Point2D(id=' + this.id + ', x=' + this._x + ', y=' + this._y + ')';
+      return "Point2D(id=".concat(this.id, ", x=").concat(this._x, ", y=").concat(this._y, ")");
     }
+    /**
+     * Retrieves the unique ID of the point.
+     * @returns {number} - The point's ID.
+     */
   }, {
     key: "getId",
     value: function getId() {
       return this.id;
     }
+    /**
+     * Retrieves a copy of the neighbor IDs.
+     * @returns {number[]} - An array of neighbor IDs.
+     */
   }, {
     key: "getNeighbourIds",
     value: function getNeighbourIds() {
       return _toConsumableArray(this.neighbourIds);
     }
+    /**
+     * Moves the point to the specified coordinates.
+     * @param {Point2D} point - The target point.
+     */
   }, {
     key: "moveTo",
     value: function moveTo(point) {
       this.x = point.x;
       this.y = point.y;
     }
+    /**
+     * Creates a shallow copy of the point.
+     * @returns {Point2D} - A new Point2D instance with cloned properties.
+     */
   }, {
     key: "clone",
     value: function clone() {
@@ -485,6 +596,10 @@ var Point2D = /*#__PURE__*/function () {
       copy.selected = this.selected;
       return copy;
     }
+    /**
+     * Converts the point to a dictionary object.
+     * @returns {object} - A dictionary containing point properties.
+     */
   }, {
     key: "toDict",
     value: function toDict() {
@@ -512,18 +627,34 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.Perspective2D = void 0;
+/**
+ * Represents a utility class for 2D perspective transformations.
+ */
 var Perspective2D = /*#__PURE__*/function () {
   function Perspective2D() {
     _classCallCheck(this, Perspective2D);
   }
   return _createClass(Perspective2D, null, [{
     key: "normalizedToDisplay",
-    value: function normalizedToDisplay(image, point) {
+    value:
+    /**
+     * Converts a normalized point (in the range [0, 1]) to display coordinates (pixel values).
+     * @param {HTMLImageElement} image - The image on which the point is defined.
+     * @param {Point2D} point - The normalized point.
+     * @returns {Point2D} - The corresponding point in display coordinates.
+     */
+    function normalizedToDisplay(image, point) {
       var copy = point.clone();
       copy.x = point.x * image.width;
       copy.y = point.y * image.height;
       return copy;
     }
+    /**
+     * Projects a point from normalized coordinates to display coordinates.
+     * @param {HTMLImageElement} image - The image on which the point is defined.
+     * @param {Point2D} point - The normalized point.
+     * @returns {Point2D} - The projected point in display coordinates.
+     */
   }, {
     key: "project",
     value: function project(image, point) {
@@ -533,6 +664,13 @@ var Perspective2D = /*#__PURE__*/function () {
       copy.y = displayedPoint.y;
       return copy;
     }
+    /**
+     * Calculates the Euclidean distance between two points in display coordinates.
+     * @param {HTMLImageElement} image - The image on which the points are defined.
+     * @param {Point2D} pointFrom - The starting point.
+     * @param {Point2D} pointTo - The ending point.
+     * @returns {number} - The distance between the two points.
+     */
   }, {
     key: "distanceTo",
     value: function distanceTo(image, pointFrom, pointTo) {
@@ -540,11 +678,25 @@ var Perspective2D = /*#__PURE__*/function () {
       var projectPointTo = Perspective2D.project(image, pointTo);
       return Math.sqrt(Math.pow(projectPointFrom.x - projectPointTo.x, 2) + Math.pow(projectPointFrom.y - projectPointTo.y, 2));
     }
+    /**
+     * Checks if two points intersect within a specified delta distance.
+     * @param {HTMLImageElement} image - The image on which the points are defined.
+     * @param {Point2D} point - The first point.
+     * @param {Point2D} pointCheck - The second point to check against.
+     * @param {number} delta - The maximum allowed distance for intersection.
+     * @returns {boolean} - True if the points intersect within the specified delta, false otherwise.
+     */
   }, {
     key: "intersects",
     value: function intersects(image, point, pointCheck, delta) {
       return this.distanceTo(image, point, pointCheck) <= delta;
     }
+    /**
+     * Converts a point from display coordinates to normalized coordinates.
+     * @param {HTMLImageElement} image - The image on which the point is defined.
+     * @param {Point2D} point - The point in display coordinates.
+     * @returns {Point2D} - The corresponding point in normalized coordinates.
+     */
   }, {
     key: "displayToNormalized",
     value: function displayToNormalized(image, point) {
@@ -553,6 +705,12 @@ var Perspective2D = /*#__PURE__*/function () {
       copy.y = point.y / image.height;
       return copy;
     }
+    /**
+     * Unprojects a point from display coordinates to normalized coordinates.
+     * @param {HTMLImageElement} image - The image on which the point is defined.
+     * @param {Point2D} point - The point in display coordinates.
+     * @returns {Point2D} - The corresponding point in normalized coordinates.
+     */
   }, {
     key: "unproject",
     value: function unproject(image, point) {
@@ -578,24 +736,65 @@ Object.defineProperty(exports, "__esModule", {
   value: true
 });
 exports.Graph = void 0;
+/**
+ * Represents a graph of points in a 2D space.
+ * @template P - Type of the points (must extend Point2D).
+ */
 var Graph = /*#__PURE__*/function () {
+  /**
+   * Creates a new Graph instance with the given points.
+   * @param {P[]} points - An array of points.
+   */
   function Graph(points) {
     _classCallCheck(this, Graph);
     this._points = points;
   }
+  /**
+   * Gets the array of points in the graph.
+   * @returns {P[]} - An array of points.
+   */
   return _createClass(Graph, [{
     key: "points",
     get: function get() {
       return this._points;
     }
+    /**
+     * Creates a Graph instance from a JSON object.
+     * @param {P[]} jsonObject - An array of point objects in JSON format.
+     * @param {() => P} newObject - A function to create a new point object.
+     * @returns {Graph<P>} - A new Graph instance.
+     */
   }, {
     key: "getById",
-    value: function getById(id) {
+    value:
+    /**
+     * Retrieves a point from the graph by its ID.
+     * @param {number} id - The ID of the point.
+     * @returns {P} - The point with the specified ID.
+     */
+    function getById(id) {
       // @ts-ignore
       return this.points.find(function (p) {
         return p.getId() === id;
       });
     }
+    /**
+     * Retrieves the neighboring points of a given point.
+     * @param {P} point - The point for which neighbors are requested.
+     * @returns {P[]} - An array of neighboring points.
+     */
+  }, {
+    key: "getNeighbourPointsOf",
+    value: function getNeighbourPointsOf(point) {
+      var _this = this;
+      return point.getNeighbourIds().map(function (id) {
+        return _this.getById(id);
+      });
+    }
+    /**
+     * Gets the selected point (if any) from the graph.
+     * @returns {P | undefined} - The selected point or undefined if none is selected.
+     */
   }, {
     key: "getSelected",
     value: function getSelected() {
@@ -603,6 +802,10 @@ var Graph = /*#__PURE__*/function () {
         return p.selected && p.hovered;
       });
     }
+    /**
+     * Creates a shallow copy of the graph.
+     * @returns {Graph<P>} - A new Graph instance with cloned points.
+     */
   }, {
     key: "clone",
     value: function clone() {
@@ -611,6 +814,10 @@ var Graph = /*#__PURE__*/function () {
         return p.clone();
       }));
     }
+    /**
+     * Converts the graph to an array of dictionaries.
+     * @returns {any[]} - An array of dictionaries representing the points.
+     */
   }, {
     key: "toDictArray",
     value: function toDictArray() {
@@ -4954,12 +5161,26 @@ Object.defineProperty(exports, "__esModule", {
 });
 exports.FACE_FEATURE_NOSE = exports.FACE_LANDMARKS_NOSE = exports.FACE_FEATURE_RIGHT_EYEBROW = exports.FACE_FEATURE_RIGHT_EYE = exports.FACE_FEATURE_LEFT_EYEBROW = exports.FACE_FEATURE_LEFT_EYE = exports.FACE_FEATURE_LIPS = exports.findNeighbourPointIds = exports.Connection = void 0;
 var tasks_vision_1 = require("@mediapipe/tasks-vision");
-var Connection = /*#__PURE__*/_createClass(function Connection(start, end) {
+/**
+ * Represents a connection between two points.
+ */
+var Connection = /*#__PURE__*/_createClass(
+/**
+ * Creates a new Connection instance.
+ * @param {number} start - The ID of the starting point.
+ * @param {number} end - The ID of the ending point.
+ */
+function Connection(start, end) {
   _classCallCheck(this, Connection);
   this.start = start;
   this.end = end;
 });
 exports.Connection = Connection;
+/**
+ * Converts an array of connections (given as pairs of start and end point IDs) into an array of Connection instances.
+ * @param {...number[][]} connections - Arrays of start and end point IDs.
+ * @returns {Connection[]} - An array of Connection instances.
+ */
 function convertToConnections() {
   for (var _len = arguments.length, connections = new Array(_len), _key = 0; _key < _len; _key++) {
     connections[_key] = arguments[_key];
@@ -4971,6 +5192,13 @@ function convertToConnections() {
     return new Connection(start, end);
   });
 }
+/**
+ * Finds neighboring point IDs recursively up to a specified depth.
+ * @param {number} pointId - The ID of the starting point.
+ * @param {Connection[]} connections - An array of connections.
+ * @param {number} depth - The depth of neighbor search.
+ * @returns {number[]} - An array of unique neighboring point IDs.
+ */
 function findNeighbourPointIds(pointId, connections, depth) {
   if (depth === 0) {
     return Array.from(new Set([pointId]));
@@ -5008,9 +5236,15 @@ function findNeighbourPointIds(pointId, connections, depth) {
   return Array.from(neighbourIds);
 }
 exports.findNeighbourPointIds = findNeighbourPointIds;
+/**
+ * Array of unique face feature point IDs related to lips.
+ */
 exports.FACE_FEATURE_LIPS = Array.from(new Set(tasks_vision_1.FaceLandmarker.FACE_LANDMARKS_LIPS.map(function (con) {
   return con.start;
 }).concat([62, 76, 184, 183, 42, 74, 41, 73, 38, 72, 12, 11, 268, 302, 271, 303, 272, 304, 407, 408, 292, 306, 325, 307, 319, 320, 403, 404, 316, 315, 15, 16, 86, 85, 179, 180, 89, 90, 96, 77, 291, 308])));
+/**
+ * Array of unique face feature point IDs related to the left eye.
+ */
 exports.FACE_FEATURE_LEFT_EYE = Array.from(new Set(tasks_vision_1.FaceLandmarker.FACE_LANDMARKS_LEFT_EYE.map(function (con) {
   return con.start;
 }).concat(tasks_vision_1.FaceLandmarker.FACE_LANDMARKS_LEFT_EYE.map(function (con) {
@@ -5020,11 +5254,17 @@ exports.FACE_FEATURE_LEFT_EYE = Array.from(new Set(tasks_vision_1.FaceLandmarker
 }).concat(tasks_vision_1.FaceLandmarker.FACE_LANDMARKS_LEFT_IRIS.map(function (con) {
   return con.end;
 })))));
+/**
+ * Array of unique face feature point IDs related to the left eyebrow.
+ */
 exports.FACE_FEATURE_LEFT_EYEBROW = Array.from(new Set(tasks_vision_1.FaceLandmarker.FACE_LANDMARKS_LEFT_EYEBROW.map(function (con) {
   return con.start;
 }).concat(tasks_vision_1.FaceLandmarker.FACE_LANDMARKS_LEFT_EYEBROW.map(function (con) {
   return con.end;
 }))));
+/**
+ * Array of unique face feature point IDs related to the right eye.
+ */
 exports.FACE_FEATURE_RIGHT_EYE = Array.from(new Set(tasks_vision_1.FaceLandmarker.FACE_LANDMARKS_RIGHT_EYE.map(function (con) {
   return con.start;
 }).concat(tasks_vision_1.FaceLandmarker.FACE_LANDMARKS_RIGHT_EYE.map(function (con) {
@@ -5034,12 +5274,21 @@ exports.FACE_FEATURE_RIGHT_EYE = Array.from(new Set(tasks_vision_1.FaceLandmarke
 }).concat(tasks_vision_1.FaceLandmarker.FACE_LANDMARKS_RIGHT_IRIS.map(function (con) {
   return con.end;
 })))));
+/**
+ * Array of unique face feature point IDs related to the right eyebrow.
+ */
 exports.FACE_FEATURE_RIGHT_EYEBROW = Array.from(new Set(tasks_vision_1.FaceLandmarker.FACE_LANDMARKS_RIGHT_EYEBROW.map(function (con) {
   return con.start;
 }).concat(tasks_vision_1.FaceLandmarker.FACE_LANDMARKS_RIGHT_EYEBROW.map(function (con) {
   return con.end;
 }))));
+/**
+ * Array of unique face landmark point IDs related to the nose.
+ */
 exports.FACE_LANDMARKS_NOSE = convertToConnections([2, 97], [97, 98], [98, 64], [64, 48], [48, 115], [115, 220], [220, 45], [45, 4], [4, 275], [275, 440], [440, 344], [344, 278], [278, 294], [294, 327], [327, 326], [326, 2], [2, 19], [19, 1], [1, 4], [4, 5], [5, 195], [195, 197], [197, 6], [6, 168]);
+/**
+ * Array of unique face feature point IDs related to the nose.
+ */
 exports.FACE_FEATURE_NOSE = Array.from(new Set(exports.FACE_LANDMARKS_NOSE.map(function (con) {
   return con.start;
 }).concat(exports.FACE_LANDMARKS_NOSE.map(function (con) {
@@ -5338,9 +5587,7 @@ var Editor2D = /*#__PURE__*/function () {
               alreadyUpdated.add(neigP.getId());
               // extract next depth of neighbours
               // @ts-ignore
-              tmpPoints = tmpPoints.concat(neigP.getNeighbourIds().map(function (id) {
-                return _this6._graph.getById(id);
-              }));
+              tmpPoints = tmpPoints.concat(this.graph.getNeighbourPointsOf(neigP));
             }
           } catch (err) {
             _iterator.e(err);
@@ -5396,7 +5643,228 @@ var Editor2D = /*#__PURE__*/function () {
   }]);
 }();
 exports.Editor2D = Editor2D;
-},{"./graph/point2d":"src/graph/point2d.ts","./graph/perspective2d":"src/graph/perspective2d.ts","./graph/graph":"src/graph/graph.ts","@mediapipe/tasks-vision":"node_modules/@mediapipe/tasks-vision/vision_bundle.mjs","./graph/face_landmarks_features":"src/graph/face_landmarks_features.ts"}],"src/app.ts":[function(require,module,exports) {
+},{"./graph/point2d":"src/graph/point2d.ts","./graph/perspective2d":"src/graph/perspective2d.ts","./graph/graph":"src/graph/graph.ts","@mediapipe/tasks-vision":"node_modules/@mediapipe/tasks-vision/vision_bundle.mjs","./graph/face_landmarks_features":"src/graph/face_landmarks_features.ts"}],"src/model/mediapipe.ts":[function(require,module,exports) {
+"use strict";
+
+function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
+function _regeneratorRuntime() { "use strict"; /*! regenerator-runtime -- Copyright (c) 2014-present, Facebook, Inc. -- license (MIT): https://github.com/facebook/regenerator/blob/main/LICENSE */ _regeneratorRuntime = function _regeneratorRuntime() { return e; }; var t, e = {}, r = Object.prototype, n = r.hasOwnProperty, o = Object.defineProperty || function (t, e, r) { t[e] = r.value; }, i = "function" == typeof Symbol ? Symbol : {}, a = i.iterator || "@@iterator", c = i.asyncIterator || "@@asyncIterator", u = i.toStringTag || "@@toStringTag"; function define(t, e, r) { return Object.defineProperty(t, e, { value: r, enumerable: !0, configurable: !0, writable: !0 }), t[e]; } try { define({}, ""); } catch (t) { define = function define(t, e, r) { return t[e] = r; }; } function wrap(t, e, r, n) { var i = e && e.prototype instanceof Generator ? e : Generator, a = Object.create(i.prototype), c = new Context(n || []); return o(a, "_invoke", { value: makeInvokeMethod(t, r, c) }), a; } function tryCatch(t, e, r) { try { return { type: "normal", arg: t.call(e, r) }; } catch (t) { return { type: "throw", arg: t }; } } e.wrap = wrap; var h = "suspendedStart", l = "suspendedYield", f = "executing", s = "completed", y = {}; function Generator() {} function GeneratorFunction() {} function GeneratorFunctionPrototype() {} var p = {}; define(p, a, function () { return this; }); var d = Object.getPrototypeOf, v = d && d(d(values([]))); v && v !== r && n.call(v, a) && (p = v); var g = GeneratorFunctionPrototype.prototype = Generator.prototype = Object.create(p); function defineIteratorMethods(t) { ["next", "throw", "return"].forEach(function (e) { define(t, e, function (t) { return this._invoke(e, t); }); }); } function AsyncIterator(t, e) { function invoke(r, o, i, a) { var c = tryCatch(t[r], t, o); if ("throw" !== c.type) { var u = c.arg, h = u.value; return h && "object" == _typeof(h) && n.call(h, "__await") ? e.resolve(h.__await).then(function (t) { invoke("next", t, i, a); }, function (t) { invoke("throw", t, i, a); }) : e.resolve(h).then(function (t) { u.value = t, i(u); }, function (t) { return invoke("throw", t, i, a); }); } a(c.arg); } var r; o(this, "_invoke", { value: function value(t, n) { function callInvokeWithMethodAndArg() { return new e(function (e, r) { invoke(t, n, e, r); }); } return r = r ? r.then(callInvokeWithMethodAndArg, callInvokeWithMethodAndArg) : callInvokeWithMethodAndArg(); } }); } function makeInvokeMethod(e, r, n) { var o = h; return function (i, a) { if (o === f) throw Error("Generator is already running"); if (o === s) { if ("throw" === i) throw a; return { value: t, done: !0 }; } for (n.method = i, n.arg = a;;) { var c = n.delegate; if (c) { var u = maybeInvokeDelegate(c, n); if (u) { if (u === y) continue; return u; } } if ("next" === n.method) n.sent = n._sent = n.arg;else if ("throw" === n.method) { if (o === h) throw o = s, n.arg; n.dispatchException(n.arg); } else "return" === n.method && n.abrupt("return", n.arg); o = f; var p = tryCatch(e, r, n); if ("normal" === p.type) { if (o = n.done ? s : l, p.arg === y) continue; return { value: p.arg, done: n.done }; } "throw" === p.type && (o = s, n.method = "throw", n.arg = p.arg); } }; } function maybeInvokeDelegate(e, r) { var n = r.method, o = e.iterator[n]; if (o === t) return r.delegate = null, "throw" === n && e.iterator.return && (r.method = "return", r.arg = t, maybeInvokeDelegate(e, r), "throw" === r.method) || "return" !== n && (r.method = "throw", r.arg = new TypeError("The iterator does not provide a '" + n + "' method")), y; var i = tryCatch(o, e.iterator, r.arg); if ("throw" === i.type) return r.method = "throw", r.arg = i.arg, r.delegate = null, y; var a = i.arg; return a ? a.done ? (r[e.resultName] = a.value, r.next = e.nextLoc, "return" !== r.method && (r.method = "next", r.arg = t), r.delegate = null, y) : a : (r.method = "throw", r.arg = new TypeError("iterator result is not an object"), r.delegate = null, y); } function pushTryEntry(t) { var e = { tryLoc: t[0] }; 1 in t && (e.catchLoc = t[1]), 2 in t && (e.finallyLoc = t[2], e.afterLoc = t[3]), this.tryEntries.push(e); } function resetTryEntry(t) { var e = t.completion || {}; e.type = "normal", delete e.arg, t.completion = e; } function Context(t) { this.tryEntries = [{ tryLoc: "root" }], t.forEach(pushTryEntry, this), this.reset(!0); } function values(e) { if (e || "" === e) { var r = e[a]; if (r) return r.call(e); if ("function" == typeof e.next) return e; if (!isNaN(e.length)) { var o = -1, i = function next() { for (; ++o < e.length;) if (n.call(e, o)) return next.value = e[o], next.done = !1, next; return next.value = t, next.done = !0, next; }; return i.next = i; } } throw new TypeError(_typeof(e) + " is not iterable"); } return GeneratorFunction.prototype = GeneratorFunctionPrototype, o(g, "constructor", { value: GeneratorFunctionPrototype, configurable: !0 }), o(GeneratorFunctionPrototype, "constructor", { value: GeneratorFunction, configurable: !0 }), GeneratorFunction.displayName = define(GeneratorFunctionPrototype, u, "GeneratorFunction"), e.isGeneratorFunction = function (t) { var e = "function" == typeof t && t.constructor; return !!e && (e === GeneratorFunction || "GeneratorFunction" === (e.displayName || e.name)); }, e.mark = function (t) { return Object.setPrototypeOf ? Object.setPrototypeOf(t, GeneratorFunctionPrototype) : (t.__proto__ = GeneratorFunctionPrototype, define(t, u, "GeneratorFunction")), t.prototype = Object.create(g), t; }, e.awrap = function (t) { return { __await: t }; }, defineIteratorMethods(AsyncIterator.prototype), define(AsyncIterator.prototype, c, function () { return this; }), e.AsyncIterator = AsyncIterator, e.async = function (t, r, n, o, i) { void 0 === i && (i = Promise); var a = new AsyncIterator(wrap(t, r, n, o), i); return e.isGeneratorFunction(r) ? a : a.next().then(function (t) { return t.done ? t.value : a.next(); }); }, defineIteratorMethods(g), define(g, u, "Generator"), define(g, a, function () { return this; }), define(g, "toString", function () { return "[object Generator]"; }), e.keys = function (t) { var e = Object(t), r = []; for (var n in e) r.push(n); return r.reverse(), function next() { for (; r.length;) { var t = r.pop(); if (t in e) return next.value = t, next.done = !1, next; } return next.done = !0, next; }; }, e.values = values, Context.prototype = { constructor: Context, reset: function reset(e) { if (this.prev = 0, this.next = 0, this.sent = this._sent = t, this.done = !1, this.delegate = null, this.method = "next", this.arg = t, this.tryEntries.forEach(resetTryEntry), !e) for (var r in this) "t" === r.charAt(0) && n.call(this, r) && !isNaN(+r.slice(1)) && (this[r] = t); }, stop: function stop() { this.done = !0; var t = this.tryEntries[0].completion; if ("throw" === t.type) throw t.arg; return this.rval; }, dispatchException: function dispatchException(e) { if (this.done) throw e; var r = this; function handle(n, o) { return a.type = "throw", a.arg = e, r.next = n, o && (r.method = "next", r.arg = t), !!o; } for (var o = this.tryEntries.length - 1; o >= 0; --o) { var i = this.tryEntries[o], a = i.completion; if ("root" === i.tryLoc) return handle("end"); if (i.tryLoc <= this.prev) { var c = n.call(i, "catchLoc"), u = n.call(i, "finallyLoc"); if (c && u) { if (this.prev < i.catchLoc) return handle(i.catchLoc, !0); if (this.prev < i.finallyLoc) return handle(i.finallyLoc); } else if (c) { if (this.prev < i.catchLoc) return handle(i.catchLoc, !0); } else { if (!u) throw Error("try statement without catch or finally"); if (this.prev < i.finallyLoc) return handle(i.finallyLoc); } } } }, abrupt: function abrupt(t, e) { for (var r = this.tryEntries.length - 1; r >= 0; --r) { var o = this.tryEntries[r]; if (o.tryLoc <= this.prev && n.call(o, "finallyLoc") && this.prev < o.finallyLoc) { var i = o; break; } } i && ("break" === t || "continue" === t) && i.tryLoc <= e && e <= i.finallyLoc && (i = null); var a = i ? i.completion : {}; return a.type = t, a.arg = e, i ? (this.method = "next", this.next = i.finallyLoc, y) : this.complete(a); }, complete: function complete(t, e) { if ("throw" === t.type) throw t.arg; return "break" === t.type || "continue" === t.type ? this.next = t.arg : "return" === t.type ? (this.rval = this.arg = t.arg, this.method = "return", this.next = "end") : "normal" === t.type && e && (this.next = e), y; }, finish: function finish(t) { for (var e = this.tryEntries.length - 1; e >= 0; --e) { var r = this.tryEntries[e]; if (r.finallyLoc === t) return this.complete(r.completion, r.afterLoc), resetTryEntry(r), y; } }, catch: function _catch(t) { for (var e = this.tryEntries.length - 1; e >= 0; --e) { var r = this.tryEntries[e]; if (r.tryLoc === t) { var n = r.completion; if ("throw" === n.type) { var o = n.arg; resetTryEntry(r); } return o; } } throw Error("illegal catch attempt"); }, delegateYield: function delegateYield(e, r, n) { return this.delegate = { iterator: values(e), resultName: r, nextLoc: n }, "next" === this.method && (this.arg = t), y; } }, e; }
+function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
+function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, _toPropertyKey(descriptor.key), descriptor); } }
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); Object.defineProperty(Constructor, "prototype", { writable: false }); return Constructor; }
+function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == _typeof(i) ? i : i + ""; }
+function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != _typeof(i)) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); }
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.MediapipeModel = void 0;
+var graph_1 = require("../graph/graph");
+var face_landmarks_features_1 = require("../graph/face_landmarks_features");
+var tasks_vision_1 = require("@mediapipe/tasks-vision");
+var point2d_1 = require("../graph/point2d");
+/**
+ * Represents a model using MediaPipe for face landmark detection.
+ * Implements the ModelApi interface for working with Point2D graphs.
+ */
+var MediapipeModel = /*#__PURE__*/function () {
+  /**
+   * Creates a new MediapipeModel instance.
+   */
+  function MediapipeModel() {
+    var _this = this;
+    _classCallCheck(this, MediapipeModel);
+    tasks_vision_1.FilesetResolver.forVisionTasks("https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest/wasm").then(function (filesetResolver) {
+      return tasks_vision_1.FaceLandmarker.createFromOptions(filesetResolver, {
+        baseOptions: {
+          modelAssetPath: "https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task",
+          // When adding user model of same type -> modelAssetBuffer
+          delegate: "CPU"
+        },
+        minFaceDetectionConfidence: 0.3,
+        minFacePresenceConfidence: 0.3,
+        runningMode: "IMAGE",
+        numFaces: 1
+      });
+    }).then(function (landmarker) {
+      return _this.meshLandmarker = landmarker;
+    });
+  }
+  return _createClass(MediapipeModel, [{
+    key: "detect",
+    value: function () {
+      var _detect = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee(imageFile) {
+        var _this2 = this;
+        return _regeneratorRuntime().wrap(function _callee$(_context) {
+          while (1) switch (_context.prev = _context.next) {
+            case 0:
+              return _context.abrupt("return", new Promise(function (resolve, reject) {
+                var image = new Image();
+                image.onload = function (_) {
+                  var _a;
+                  var result = (_a = _this2.meshLandmarker) === null || _a === void 0 ? void 0 : _a.detect(image);
+                  if (result) {
+                    var graphs = result.faceLandmarks.map(function (landmarks) {
+                      return landmarks.map(function (dict, idx) {
+                        var ids = Array.from(face_landmarks_features_1.findNeighbourPointIds(idx, tasks_vision_1.FaceLandmarker.FACE_LANDMARKS_TESSELATION, 1));
+                        return new point2d_1.Point2D(idx, dict.x, dict.y, ids);
+                      });
+                    }).map(function (landmarks) {
+                      return new graph_1.Graph(landmarks);
+                    });
+                    if (graphs) {
+                      resolve(graphs[0]);
+                    }
+                  } else {
+                    reject('Face(s) could not be detected!');
+                  }
+                };
+                var reader = new FileReader();
+                reader.onload = function (_) {
+                  var result = reader.result;
+                  if (result) {
+                    image.src = result.toString();
+                  } else {
+                    reject('Image could not be read!');
+                  }
+                };
+                reader.readAsDataURL(imageFile);
+              }));
+            case 1:
+            case "end":
+              return _context.stop();
+          }
+        }, _callee);
+      }));
+      function detect(_x) {
+        return _detect.apply(this, arguments);
+      }
+      return detect;
+    }()
+  }, {
+    key: "uploadAnnotations",
+    value: function () {
+      var _uploadAnnotations = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee2(_) {
+        return _regeneratorRuntime().wrap(function _callee2$(_context2) {
+          while (1) switch (_context2.prev = _context2.next) {
+            case 0:
+              return _context2.abrupt("return", Promise.resolve());
+            case 1:
+            case "end":
+              return _context2.stop();
+          }
+        }, _callee2);
+      }));
+      function uploadAnnotations(_x2) {
+        return _uploadAnnotations.apply(this, arguments);
+      }
+      return uploadAnnotations;
+    }()
+  }]);
+}();
+exports.MediapipeModel = MediapipeModel;
+},{"../graph/graph":"src/graph/graph.ts","../graph/face_landmarks_features":"src/graph/face_landmarks_features.ts","@mediapipe/tasks-vision":"node_modules/@mediapipe/tasks-vision/vision_bundle.mjs","../graph/point2d":"src/graph/point2d.ts"}],"src/model/webservice.ts":[function(require,module,exports) {
+"use strict";
+
+function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
+function _regeneratorRuntime() { "use strict"; /*! regenerator-runtime -- Copyright (c) 2014-present, Facebook, Inc. -- license (MIT): https://github.com/facebook/regenerator/blob/main/LICENSE */ _regeneratorRuntime = function _regeneratorRuntime() { return e; }; var t, e = {}, r = Object.prototype, n = r.hasOwnProperty, o = Object.defineProperty || function (t, e, r) { t[e] = r.value; }, i = "function" == typeof Symbol ? Symbol : {}, a = i.iterator || "@@iterator", c = i.asyncIterator || "@@asyncIterator", u = i.toStringTag || "@@toStringTag"; function define(t, e, r) { return Object.defineProperty(t, e, { value: r, enumerable: !0, configurable: !0, writable: !0 }), t[e]; } try { define({}, ""); } catch (t) { define = function define(t, e, r) { return t[e] = r; }; } function wrap(t, e, r, n) { var i = e && e.prototype instanceof Generator ? e : Generator, a = Object.create(i.prototype), c = new Context(n || []); return o(a, "_invoke", { value: makeInvokeMethod(t, r, c) }), a; } function tryCatch(t, e, r) { try { return { type: "normal", arg: t.call(e, r) }; } catch (t) { return { type: "throw", arg: t }; } } e.wrap = wrap; var h = "suspendedStart", l = "suspendedYield", f = "executing", s = "completed", y = {}; function Generator() {} function GeneratorFunction() {} function GeneratorFunctionPrototype() {} var p = {}; define(p, a, function () { return this; }); var d = Object.getPrototypeOf, v = d && d(d(values([]))); v && v !== r && n.call(v, a) && (p = v); var g = GeneratorFunctionPrototype.prototype = Generator.prototype = Object.create(p); function defineIteratorMethods(t) { ["next", "throw", "return"].forEach(function (e) { define(t, e, function (t) { return this._invoke(e, t); }); }); } function AsyncIterator(t, e) { function invoke(r, o, i, a) { var c = tryCatch(t[r], t, o); if ("throw" !== c.type) { var u = c.arg, h = u.value; return h && "object" == _typeof(h) && n.call(h, "__await") ? e.resolve(h.__await).then(function (t) { invoke("next", t, i, a); }, function (t) { invoke("throw", t, i, a); }) : e.resolve(h).then(function (t) { u.value = t, i(u); }, function (t) { return invoke("throw", t, i, a); }); } a(c.arg); } var r; o(this, "_invoke", { value: function value(t, n) { function callInvokeWithMethodAndArg() { return new e(function (e, r) { invoke(t, n, e, r); }); } return r = r ? r.then(callInvokeWithMethodAndArg, callInvokeWithMethodAndArg) : callInvokeWithMethodAndArg(); } }); } function makeInvokeMethod(e, r, n) { var o = h; return function (i, a) { if (o === f) throw Error("Generator is already running"); if (o === s) { if ("throw" === i) throw a; return { value: t, done: !0 }; } for (n.method = i, n.arg = a;;) { var c = n.delegate; if (c) { var u = maybeInvokeDelegate(c, n); if (u) { if (u === y) continue; return u; } } if ("next" === n.method) n.sent = n._sent = n.arg;else if ("throw" === n.method) { if (o === h) throw o = s, n.arg; n.dispatchException(n.arg); } else "return" === n.method && n.abrupt("return", n.arg); o = f; var p = tryCatch(e, r, n); if ("normal" === p.type) { if (o = n.done ? s : l, p.arg === y) continue; return { value: p.arg, done: n.done }; } "throw" === p.type && (o = s, n.method = "throw", n.arg = p.arg); } }; } function maybeInvokeDelegate(e, r) { var n = r.method, o = e.iterator[n]; if (o === t) return r.delegate = null, "throw" === n && e.iterator.return && (r.method = "return", r.arg = t, maybeInvokeDelegate(e, r), "throw" === r.method) || "return" !== n && (r.method = "throw", r.arg = new TypeError("The iterator does not provide a '" + n + "' method")), y; var i = tryCatch(o, e.iterator, r.arg); if ("throw" === i.type) return r.method = "throw", r.arg = i.arg, r.delegate = null, y; var a = i.arg; return a ? a.done ? (r[e.resultName] = a.value, r.next = e.nextLoc, "return" !== r.method && (r.method = "next", r.arg = t), r.delegate = null, y) : a : (r.method = "throw", r.arg = new TypeError("iterator result is not an object"), r.delegate = null, y); } function pushTryEntry(t) { var e = { tryLoc: t[0] }; 1 in t && (e.catchLoc = t[1]), 2 in t && (e.finallyLoc = t[2], e.afterLoc = t[3]), this.tryEntries.push(e); } function resetTryEntry(t) { var e = t.completion || {}; e.type = "normal", delete e.arg, t.completion = e; } function Context(t) { this.tryEntries = [{ tryLoc: "root" }], t.forEach(pushTryEntry, this), this.reset(!0); } function values(e) { if (e || "" === e) { var r = e[a]; if (r) return r.call(e); if ("function" == typeof e.next) return e; if (!isNaN(e.length)) { var o = -1, i = function next() { for (; ++o < e.length;) if (n.call(e, o)) return next.value = e[o], next.done = !1, next; return next.value = t, next.done = !0, next; }; return i.next = i; } } throw new TypeError(_typeof(e) + " is not iterable"); } return GeneratorFunction.prototype = GeneratorFunctionPrototype, o(g, "constructor", { value: GeneratorFunctionPrototype, configurable: !0 }), o(GeneratorFunctionPrototype, "constructor", { value: GeneratorFunction, configurable: !0 }), GeneratorFunction.displayName = define(GeneratorFunctionPrototype, u, "GeneratorFunction"), e.isGeneratorFunction = function (t) { var e = "function" == typeof t && t.constructor; return !!e && (e === GeneratorFunction || "GeneratorFunction" === (e.displayName || e.name)); }, e.mark = function (t) { return Object.setPrototypeOf ? Object.setPrototypeOf(t, GeneratorFunctionPrototype) : (t.__proto__ = GeneratorFunctionPrototype, define(t, u, "GeneratorFunction")), t.prototype = Object.create(g), t; }, e.awrap = function (t) { return { __await: t }; }, defineIteratorMethods(AsyncIterator.prototype), define(AsyncIterator.prototype, c, function () { return this; }), e.AsyncIterator = AsyncIterator, e.async = function (t, r, n, o, i) { void 0 === i && (i = Promise); var a = new AsyncIterator(wrap(t, r, n, o), i); return e.isGeneratorFunction(r) ? a : a.next().then(function (t) { return t.done ? t.value : a.next(); }); }, defineIteratorMethods(g), define(g, u, "Generator"), define(g, a, function () { return this; }), define(g, "toString", function () { return "[object Generator]"; }), e.keys = function (t) { var e = Object(t), r = []; for (var n in e) r.push(n); return r.reverse(), function next() { for (; r.length;) { var t = r.pop(); if (t in e) return next.value = t, next.done = !1, next; } return next.done = !0, next; }; }, e.values = values, Context.prototype = { constructor: Context, reset: function reset(e) { if (this.prev = 0, this.next = 0, this.sent = this._sent = t, this.done = !1, this.delegate = null, this.method = "next", this.arg = t, this.tryEntries.forEach(resetTryEntry), !e) for (var r in this) "t" === r.charAt(0) && n.call(this, r) && !isNaN(+r.slice(1)) && (this[r] = t); }, stop: function stop() { this.done = !0; var t = this.tryEntries[0].completion; if ("throw" === t.type) throw t.arg; return this.rval; }, dispatchException: function dispatchException(e) { if (this.done) throw e; var r = this; function handle(n, o) { return a.type = "throw", a.arg = e, r.next = n, o && (r.method = "next", r.arg = t), !!o; } for (var o = this.tryEntries.length - 1; o >= 0; --o) { var i = this.tryEntries[o], a = i.completion; if ("root" === i.tryLoc) return handle("end"); if (i.tryLoc <= this.prev) { var c = n.call(i, "catchLoc"), u = n.call(i, "finallyLoc"); if (c && u) { if (this.prev < i.catchLoc) return handle(i.catchLoc, !0); if (this.prev < i.finallyLoc) return handle(i.finallyLoc); } else if (c) { if (this.prev < i.catchLoc) return handle(i.catchLoc, !0); } else { if (!u) throw Error("try statement without catch or finally"); if (this.prev < i.finallyLoc) return handle(i.finallyLoc); } } } }, abrupt: function abrupt(t, e) { for (var r = this.tryEntries.length - 1; r >= 0; --r) { var o = this.tryEntries[r]; if (o.tryLoc <= this.prev && n.call(o, "finallyLoc") && this.prev < o.finallyLoc) { var i = o; break; } } i && ("break" === t || "continue" === t) && i.tryLoc <= e && e <= i.finallyLoc && (i = null); var a = i ? i.completion : {}; return a.type = t, a.arg = e, i ? (this.method = "next", this.next = i.finallyLoc, y) : this.complete(a); }, complete: function complete(t, e) { if ("throw" === t.type) throw t.arg; return "break" === t.type || "continue" === t.type ? this.next = t.arg : "return" === t.type ? (this.rval = this.arg = t.arg, this.method = "return", this.next = "end") : "normal" === t.type && e && (this.next = e), y; }, finish: function finish(t) { for (var e = this.tryEntries.length - 1; e >= 0; --e) { var r = this.tryEntries[e]; if (r.finallyLoc === t) return this.complete(r.completion, r.afterLoc), resetTryEntry(r), y; } }, catch: function _catch(t) { for (var e = this.tryEntries.length - 1; e >= 0; --e) { var r = this.tryEntries[e]; if (r.tryLoc === t) { var n = r.completion; if ("throw" === n.type) { var o = n.arg; resetTryEntry(r); } return o; } } throw Error("illegal catch attempt"); }, delegateYield: function delegateYield(e, r, n) { return this.delegate = { iterator: values(e), resultName: r, nextLoc: n }, "next" === this.method && (this.arg = t), y; } }, e; }
+function asyncGeneratorStep(gen, resolve, reject, _next, _throw, key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { Promise.resolve(value).then(_next, _throw); } }
+function _asyncToGenerator(fn) { return function () { var self = this, args = arguments; return new Promise(function (resolve, reject) { var gen = fn.apply(self, args); function _next(value) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "next", value); } function _throw(err) { asyncGeneratorStep(gen, resolve, reject, _next, _throw, "throw", err); } _next(undefined); }); }; }
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, _toPropertyKey(descriptor.key), descriptor); } }
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); Object.defineProperty(Constructor, "prototype", { writable: false }); return Constructor; }
+function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == _typeof(i) ? i : i + ""; }
+function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != _typeof(i)) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); }
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.WebServiceModel = void 0;
+var point2d_1 = require("../graph/point2d");
+var graph_1 = require("../graph/graph");
+var face_landmarks_features_1 = require("../graph/face_landmarks_features");
+var tasks_vision_1 = require("@mediapipe/tasks-vision");
+/**
+ * Represents a model using a WebService for face landmark detection.
+ * Implements the ModelApi interface for working with Point2D graphs.
+ */
+var WebServiceModel = /*#__PURE__*/function () {
+  /**
+   * Creates a new WebServiceModel instance.
+   */
+  function WebServiceModel(url) {
+    _classCallCheck(this, WebServiceModel);
+    this.url = url;
+  }
+  return _createClass(WebServiceModel, [{
+    key: "detect",
+    value: function () {
+      var _detect = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee(imageFile) {
+        var headers, formData, request;
+        return _regeneratorRuntime().wrap(function _callee$(_context) {
+          while (1) switch (_context.prev = _context.next) {
+            case 0:
+              headers = new Headers();
+              headers.set('Content-Type', 'multipart/form-data');
+              formData = new FormData();
+              formData.append('file', imageFile);
+              request = new Request(this.url + '/detect', {
+                method: 'POST',
+                headers: headers,
+                body: formData
+              });
+              return _context.abrupt("return", fetch(request).then(function (res) {
+                return res.json();
+              }).then(function (landmarks) {
+                return landmarks.map(function (dict, idx) {
+                  var ids = Array.from(face_landmarks_features_1.findNeighbourPointIds(idx, tasks_vision_1.FaceLandmarker.FACE_LANDMARKS_TESSELATION, 1));
+                  return new point2d_1.Point2D(idx, dict.x, dict.y, ids);
+                });
+              }).then(function (landmarks) {
+                return new graph_1.Graph(landmarks);
+              }));
+            case 6:
+            case "end":
+              return _context.stop();
+          }
+        }, _callee, this);
+      }));
+      function detect(_x) {
+        return _detect.apply(this, arguments);
+      }
+      return detect;
+    }()
+  }, {
+    key: "uploadAnnotations",
+    value: function () {
+      var _uploadAnnotations = _asyncToGenerator( /*#__PURE__*/_regeneratorRuntime().mark(function _callee2(annotationsJson) {
+        var headers, request;
+        return _regeneratorRuntime().wrap(function _callee2$(_context2) {
+          while (1) switch (_context2.prev = _context2.next) {
+            case 0:
+              headers = new Headers();
+              headers.set('Content-Type', 'application/json');
+              headers.set('Accept', 'application/json');
+              request = new Request(this.url + '/annotations', {
+                method: 'POST',
+                headers: headers,
+                body: annotationsJson
+              });
+              return _context2.abrupt("return", fetch(request).then());
+            case 5:
+            case "end":
+              return _context2.stop();
+          }
+        }, _callee2, this);
+      }));
+      function uploadAnnotations(_x2) {
+        return _uploadAnnotations.apply(this, arguments);
+      }
+      return uploadAnnotations;
+    }()
+  }]);
+}();
+exports.WebServiceModel = WebServiceModel;
+},{"../graph/point2d":"src/graph/point2d.ts","../graph/graph":"src/graph/graph.ts","../graph/face_landmarks_features":"src/graph/face_landmarks_features.ts","@mediapipe/tasks-vision":"node_modules/@mediapipe/tasks-vision/vision_bundle.mjs"}],"src/app.ts":[function(require,module,exports) {
 "use strict";
 
 function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
@@ -5419,16 +5887,26 @@ var fileAnnotationHistory_1 = require("./cache/fileAnnotationHistory");
 var point2d_1 = require("./graph/point2d");
 var editor2d_1 = require("./editor2d");
 var graph_1 = require("./graph/graph");
-var tasks_vision_1 = require("@mediapipe/tasks-vision");
 var face_landmarks_features_1 = require("./graph/face_landmarks_features");
+var mediapipe_1 = require("./model/mediapipe");
+var webservice_1 = require("./model/webservice");
 var App = /*#__PURE__*/function () {
   function App(cacheSize) {
     var _this = this;
     _classCallCheck(this, App);
     this.fileCache = [];
     this.editor = new editor2d_1.Editor2D();
+    this.models = {
+      "mediapipe": {
+        "model": new mediapipe_1.MediapipeModel(),
+        "selected": true
+      },
+      "custom": {
+        "model": null,
+        "selected": false
+      }
+    };
     this.selectedFile = null;
-    this.meshLandmarker = null;
     this.cacheSize = cacheSize;
     this.featureDrag = new slider_1.Slider('feature_drag', function () {
       // TODO FIX Not working!
@@ -5445,36 +5923,16 @@ var App = /*#__PURE__*/function () {
       var _a;
       return (_a = _this.getSelectedFileHistory()) === null || _a === void 0 ? void 0 : _a.add(graph);
     });
-    tasks_vision_1.FilesetResolver.forVisionTasks("https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest/wasm").then(function (filesetResolver) {
-      return tasks_vision_1.FaceLandmarker.createFromOptions(filesetResolver, {
-        baseOptions: {
-          modelAssetPath: "https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task",
-          // TODO When adding user model -> modelAssetBuffer
-          delegate: "CPU"
-        },
-        minFaceDetectionConfidence: 0.3,
-        minFacePresenceConfidence: 0.3,
-        runningMode: "IMAGE",
-        numFaces: 1
-      });
-    }).then(function (landmarker) {
-      return _this.meshLandmarker = landmarker;
-    });
-    this.editor.setOnBackgroundLoadedCallback(function (image) {
+    this.editor.setOnBackgroundLoadedCallback(function (_) {
       var _a, _b;
       if ((_a = _this.getSelectedFileHistory()) === null || _a === void 0 ? void 0 : _a.isEmpty()) {
-        _this.runFaceMeshModel(image);
+        _this.runDetection();
       } else {
         _this.editor.graph = (_b = _this.getSelectedFileHistory()) === null || _b === void 0 ? void 0 : _b.get();
       }
     });
   }
   return _createClass(App, [{
-    key: "addFeatureDrag",
-    value: function addFeatureDrag(value) {
-      this.featureDrag.setValue(this.featureDrag.getValue() + value);
-    }
-  }, {
     key: "openImage",
     value: function openImage() {
       var _this2 = this;
@@ -5562,6 +6020,7 @@ var App = /*#__PURE__*/function () {
           _iterator.f();
         }
         var jsonData = JSON.stringify(result);
+        this.getModel().uploadAnnotations(jsonData);
         var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(jsonData);
         var a = document.createElement('a');
         a.href = dataStr;
@@ -5591,8 +6050,60 @@ var App = /*#__PURE__*/function () {
     value: function reset() {
       var _a;
       (_a = this.getSelectedFileHistory()) === null || _a === void 0 ? void 0 : _a.clear();
-      this.runFaceMeshModel(this.editor.getBackgroundImage());
+      this.runDetection();
       return false;
+    }
+  }, {
+    key: "addFeatureDrag",
+    value: function addFeatureDrag(value) {
+      this.featureDrag.setValue(this.featureDrag.getValue() + value);
+    }
+  }, {
+    key: "setModel",
+    value: function setModel(name) {
+      var btnMediapipe = document.getElementById('btnModelMediapipe');
+      var btnCustom = document.getElementById('btnModelCustom');
+      this.models.mediapipe.selected = false;
+      this.models.custom.selected = false;
+      switch (name) {
+        case "mediapipe":
+          btnMediapipe.checked = true;
+          this.models.mediapipe.selected = true;
+          break;
+        case "custom":
+          btnCustom.checked = true;
+          this.models.custom.selected = true;
+          var textModelUrl = document.getElementById('modelurl');
+          var url = textModelUrl.value;
+          var pattern = new RegExp('^(https?:\\/\\/)?' +
+          // protocol
+          '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|' +
+          // domain name
+          '((\\d{1,3}\\.){3}\\d{1,3}))' +
+          // OR ip (v4) address
+          '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*' +
+          // port and path
+          '(\\?[;&a-z\\d%_.~+=-]*)?' +
+          // query string
+          '(\\#[-a-z\\d_]*)?$', 'i'); // fragment locator
+          // @ts-ignore
+          document.getElementById('modalSettingsModel').hide();
+          if (!!pattern.test(url)) {
+            this.models.custom.model = new webservice_1.WebServiceModel(url);
+          } else {
+            this.setModel('mediapipe');
+          }
+          break;
+        default:
+          console.error('No model "' + name + '" found to change to!');
+          break;
+      }
+      return false;
+    }
+  }, {
+    key: "getModel",
+    value: function getModel() {
+      return undefined;
     }
   }, {
     key: "deleteFeature",
@@ -5639,26 +6150,15 @@ var App = /*#__PURE__*/function () {
       this.editor.draw();
     }
   }, {
-    key: "runFaceMeshModel",
-    value: function runFaceMeshModel(image) {
+    key: "runDetection",
+    value: function runDetection() {
       var _this4 = this;
-      var _a;
-      var result = (_a = this.meshLandmarker) === null || _a === void 0 ? void 0 : _a.detect(image);
-      if (result) {
-        result.faceLandmarks.map(function (landmarks) {
-          return landmarks.map(function (dict, idx) {
-            var ids = Array.from(face_landmarks_features_1.findNeighbourPointIds(idx, tasks_vision_1.FaceLandmarker.FACE_LANDMARKS_TESSELATION, 1));
-            return new point2d_1.Point2D(idx, dict.x, dict.y, ids);
-          });
-        }).map(function (landmarks) {
-          return new graph_1.Graph(landmarks);
-        }).map(function (graph) {
-          var _a;
-          (_a = _this4.getSelectedFileHistory()) === null || _a === void 0 ? void 0 : _a.add(graph);
-          _this4.editor.center();
-          _this4.editor.graph = graph;
-        });
-      }
+      this.getModel().detect(this.getSelectedFileHistory().file).then(function (graph) {
+        var _a;
+        (_a = _this4.getSelectedFileHistory()) === null || _a === void 0 ? void 0 : _a.add(graph);
+        _this4.editor.center();
+        _this4.editor.graph = graph;
+      });
     }
   }, {
     key: "getSelectedFileHistory",
@@ -5738,6 +6238,18 @@ window.onload = function (_) {
   document.getElementById('reset').onclick = function () {
     return app.reset();
   };
+  document.getElementById('btnModelMediapipe').onclick = function () {
+    return app.setModel('mediapipe');
+  };
+  document.getElementById('btnCloseModal').onclick = function () {
+    return app.setModel('mediapipe');
+  };
+  document.getElementById('btnCancelModal').onclick = function () {
+    return app.setModel('mediapipe');
+  };
+  document.getElementById('btnSaveCustomModel').onclick = function () {
+    return app.setModel('custom');
+  };
   document.getElementById('feat_le').onclick = function (_) {
     return app.deleteFeature('left_eye');
   };
@@ -5765,7 +6277,7 @@ window.onload = function (_) {
     }
   };
 };
-},{"./view/slider":"src/view/slider.ts","./view/checkbox":"src/view/checkbox.ts","./view/thumbnail":"src/view/thumbnail.ts","./cache/fileAnnotationHistory":"src/cache/fileAnnotationHistory.ts","./graph/point2d":"src/graph/point2d.ts","./editor2d":"src/editor2d.ts","./graph/graph":"src/graph/graph.ts","@mediapipe/tasks-vision":"node_modules/@mediapipe/tasks-vision/vision_bundle.mjs","./graph/face_landmarks_features":"src/graph/face_landmarks_features.ts"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
+},{"./view/slider":"src/view/slider.ts","./view/checkbox":"src/view/checkbox.ts","./view/thumbnail":"src/view/thumbnail.ts","./cache/fileAnnotationHistory":"src/cache/fileAnnotationHistory.ts","./graph/point2d":"src/graph/point2d.ts","./editor2d":"src/editor2d.ts","./graph/graph":"src/graph/graph.ts","./graph/face_landmarks_features":"src/graph/face_landmarks_features.ts","./model/mediapipe":"src/model/mediapipe.ts","./model/webservice":"src/model/webservice.ts"}],"node_modules/parcel-bundler/src/builtins/hmr-runtime.js":[function(require,module,exports) {
 var global = arguments[3];
 var OVERLAY_ID = '__parcel__error__overlay__';
 var OldModule = module.bundle.Module;
@@ -5790,7 +6302,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "59686" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "56650" + '/');
   ws.onmessage = function (event) {
     checkedAssets = {};
     assetsToAccept = [];
