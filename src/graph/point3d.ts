@@ -37,7 +37,7 @@ export class Point3D extends Point2D {
      * @returns {string} - A formatted string with point details.
      */
     toString() {
-        return `Point3D(id=${this.getId()}, x=${this.x}, y=${this.y}, z=${this.z})`;
+        return `Point3D(id=${this.id}, x=${this.x}, y=${this.y}, z=${this.z})`;
     }
 
     /**
@@ -45,10 +45,27 @@ export class Point3D extends Point2D {
      * @returns {Point3D} - A new Point3D instance with cloned properties.
      */
     clone() {
-        let copy = new Point3D(this.getId(), this.x, this.y, this.z, this.getNeighbourIds());
+        let copy = new Point3D(this.id, this.x, this.y, this.z, this.getNeighbourIds());
         copy.hovered = this.hovered;
         copy.deleted = this.deleted;
         copy.selected = this.selected;
         return copy;
+    }
+
+    /**
+     * Converts the point to a dictionary object.
+     * @returns {object} - A dictionary containing point properties.
+     */
+    toDict() {
+        return {
+            id: this.id,
+            x: this.x,
+            y: this.y,
+            z: this.z,
+            // hovered: this.hovered,
+            deleted: this.deleted,
+            // selected: this.selected,
+            // neighbourIds: this.neighbourIds
+        };
     }
 }

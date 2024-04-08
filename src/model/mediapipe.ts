@@ -3,6 +3,7 @@ import {Graph} from "../graph/graph";
 import {findNeighbourPointIds} from "../graph/face_landmarks_features";
 import {FaceLandmarker, FilesetResolver} from "@mediapipe/tasks-vision";
 import {Point2D} from "../graph/point2d";
+import {Point3D} from "../graph/point3d";
 
 /**
  * Represents a model using MediaPipe for face landmark detection.
@@ -39,10 +40,13 @@ export class MediapipeModel implements ModelApi<Point2D> {
                 const result = this.meshLandmarker?.detect(image);
                 if (result) {
                     const graphs = result.faceLandmarks
-                        .map(landmarks => landmarks.map((dict, idx) => {
-                            const ids = Array.from(findNeighbourPointIds(idx, FaceLandmarker.FACE_LANDMARKS_TESSELATION, 1));
-                            return new Point2D(idx, dict.x, dict.y, ids);
-                        }))
+                        .map(landmarks => landmarks
+                            .map((dict, idx) => {
+                                const ids = Array.from(findNeighbourPointIds(idx, FaceLandmarker.FACE_LANDMARKS_TESSELATION, 1));
+                                return new Point3D(idx, dict.x, dict.y, dict.z, ids);
+                            })
+                            .map(point => point as Point2D)
+                        )
                         .map(landmarks => new Graph(landmarks));
                     if (graphs) {
                         resolve(graphs[0]);

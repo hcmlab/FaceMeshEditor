@@ -40,7 +40,7 @@ export class Graph<P extends Point2D> {
      */
     getById(id: number): P {
         // @ts-ignore
-        return this.points.find(p => p.getId() === id);
+        return this.points.find(p => p.id === id);
     }
 
     /**

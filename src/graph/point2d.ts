@@ -2,7 +2,7 @@
  * Represents a 2D point with an ID, coordinates, and neighbor information.
  */
 export class Point2D {
-    private readonly id: number;
+    private readonly _id: number;
     private readonly neighbourIds: any[];
 
     /**
@@ -13,7 +13,7 @@ export class Point2D {
      * @param {number[]} neighbourIds - An array of neighbor IDs.
      */
     constructor(id: number, x: number, y: number, neighbourIds: number[]) {
-        this.id = id;
+        this._id = id;
         this._x = x;
         this._y = y;
         this.neighbourIds = neighbourIds;
@@ -94,15 +94,15 @@ export class Point2D {
      * @returns {string} - A formatted string with point details.
      */
     toString() {
-        return `Point2D(id=${this.id}, x=${this._x}, y=${this._y})`;
+        return `Point2D(id=${this.id}, x=${this.x}, y=${this.y})`;
     }
 
     /**
      * Retrieves the unique ID of the point.
      * @returns {number} - The point's ID.
      */
-    getId() {
-        return this.id;
+    get id() {
+        return this._id;
     }
 
     /**

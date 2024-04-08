@@ -248,12 +248,12 @@ export class Editor2D {
                     const newY = neigP.y + deltaY * influenceFactor;
                     const newPoint = new Point2D(-1, newX, newY, []);
                     neigP.moveTo(newPoint);
-                    alreadyUpdated.add(neigP.getId());
+                    alreadyUpdated.add(neigP.id);
                     // extract next depth of neighbours
                     // @ts-ignore
                     tmpPoints = tmpPoints.concat(this.graph.getNeighbourPointsOf(neigP));
                 }
-                neighbourPoints = tmpPoints.filter(p => !alreadyUpdated.has(p.getId()));
+                neighbourPoints = tmpPoints.filter(p => !alreadyUpdated.has(p.id));
             }
             // Redraw
             this.draw();
