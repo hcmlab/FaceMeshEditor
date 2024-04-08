@@ -80,6 +80,10 @@
         Eyebrow</a>
     <a id="feat_n" class="nav-link btn btn-light" href="#" aria-keyshortcuts=""><i class="bi bi-trash"></i> Nose</a>
     <a id="feat_m" class="nav-link btn btn-light" href="#" aria-keyshortcuts=""><i class="bi bi-trash"></i> Mouth</a>
+    <!-- About -->
+    <h5 class="mt-4">About</h5>
+    <a class="nav-link btn btn-light text-start p-2" href="https://github.com/hcmlab/FaceMeshEditor" target="_blank"><i class="bi bi-github"></i> GitHub</a>
+    <a class="nav-link btn btn-light text-start p-2" href="#" data-bs-toggle="modal" data-bs-target="#modalInfo"><i class="bi bi-info-circle"></i> Info</a>
 </div>
 
 <div class="position-absolute end-0 top-0 h-100 z-1 rounded-end shadow bg-white text-center"
@@ -92,6 +96,20 @@
 </div>
 
 <canvas id="canvas" class="position-absolute z-0"></canvas>
+
+<div id="modalInfo" class="modal fade" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Info</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center">
+                &copy; 2024<br>Chair of Human-Centered Artificial Intelligence<br>University of Augsburg<br>Germany
+            </div>
+        </div>
+    </div>
+</div>
 
 <div id="modalSettingsModel" class="modal fade" tabindex="-1" aria-labelledby="modalSettingsModelLabel"
      aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
