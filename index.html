@@ -4,13 +4,13 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Face Mesh Editor</title>
-    <link rel="icon" type="image/x-icon" href="{{ '/images/favicon.ico' | relative_url }}">
+    <link rel="icon" type="image/x-icon" href="{{ url_for('static', filename='/images/favicon.ico') }}">
 
     <!-- Stylesheets -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet"
           integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
-    <link rel="stylesheet" href="{{ '/css/standard.css' | relative_url }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='/css/standard.css') }}">
     <!-- Scripts -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
 </head>
@@ -20,7 +20,8 @@
     <table class="text-center w-100">
         <tr>
             <td>
-                <img src="{{ '/images/FaceMesh.png' | relative_url }}" class="rounded-circle border border-dark border-2"
+                <img src="{{ url_for('static', filename='/images/FaceMesh.png') }}"
+                     class="rounded-circle border border-dark border-2"
                      style="width: 4vw; height: 4vw;" alt="Icon">
             </td>
             <td>
@@ -70,22 +71,32 @@
     </div>
     <!-- Feature Options-->
     <h5 class="mt-4">Features</h5>
-    <a id="feat_le" class="nav-link btn btn-light" href="#" aria-keyshortcuts="" style="padding: .2vw;"><i class="bi bi-trash"></i> Left
+    <a id="feat_le" class="nav-link btn btn-light" href="#" aria-keyshortcuts="" style="padding: .2vw;"><i
+            class="bi bi-trash"></i> Left
         Eye</a>
-    <a id="feat_leb" class="nav-link btn btn-light" href="#" aria-keyshortcuts="" style="padding: .2vw;"><i class="bi bi-trash"></i> Left
+    <a id="feat_leb" class="nav-link btn btn-light" href="#" aria-keyshortcuts="" style="padding: .2vw;"><i
+            class="bi bi-trash"></i> Left
         Eyebrow</a>
-    <a id="feat_re" class="nav-link btn btn-light" href="#" aria-keyshortcuts="" style="padding: .2vw;"><i class="bi bi-trash"></i> Right
+    <a id="feat_re" class="nav-link btn btn-light" href="#" aria-keyshortcuts="" style="padding: .2vw;"><i
+            class="bi bi-trash"></i> Right
         Eye</a>
-    <a id="feat_reb" class="nav-link btn btn-light" href="#" aria-keyshortcuts="" style="padding: .2vw;"><i class="bi bi-trash"></i> Right
+    <a id="feat_reb" class="nav-link btn btn-light" href="#" aria-keyshortcuts="" style="padding: .2vw;"><i
+            class="bi bi-trash"></i> Right
         Eyebrow</a>
-    <a id="feat_n" class="nav-link btn btn-light" href="#" aria-keyshortcuts="" style="padding: .2vw;"><i class="bi bi-trash"></i> Nose</a>
-    <a id="feat_m" class="nav-link btn btn-light" href="#" aria-keyshortcuts="" style="padding: .2vw;"><i class="bi bi-trash"></i> Mouth</a>
+    <a id="feat_n" class="nav-link btn btn-light" href="#" aria-keyshortcuts="" style="padding: .2vw;"><i
+            class="bi bi-trash"></i> Nose</a>
+    <a id="feat_m" class="nav-link btn btn-light" href="#" aria-keyshortcuts="" style="padding: .2vw;"><i
+            class="bi bi-trash"></i> Mouth</a>
     <!-- About -->
     <h5 class="mt-4">About</h5>
-    <a class="nav-link btn btn-light text-start" href="https://github.com/hcmlab/FaceMeshEditor" target="_blank" style="padding: .2vw;"><i class="bi bi-github"></i> GitHub</a>
-    <a class="nav-link btn btn-light text-start" href="https://github.com/hcmlab/FaceMeshEditor/issues/new" target="_blank" style="padding: .2vw;"><i class="bi bi-bug"></i> Report Issue</a>
-    <a class="nav-link btn btn-light text-start" href="https://github.com/hcmlab/FaceMeshEditor/issues" target="_blank" style="padding: .2vw;"><i class="bi bi-question-circle"></i> Question</a>
-    <a class="nav-link btn btn-light text-start" href="#" data-bs-toggle="modal" data-bs-target="#modalInfo" style="padding: .2vw;"><i class="bi bi-info-circle"></i> Info</a>
+    <a class="nav-link btn btn-light text-start" href="https://github.com/hcmlab/FaceMeshEditor" target="_blank"
+       style="padding: .2vw;"><i class="bi bi-github"></i> GitHub</a>
+    <a class="nav-link btn btn-light text-start" href="https://github.com/hcmlab/FaceMeshEditor/issues/new"
+       target="_blank" style="padding: .2vw;"><i class="bi bi-bug"></i> Report Issue</a>
+    <a class="nav-link btn btn-light text-start" href="https://github.com/hcmlab/FaceMeshEditor/issues" target="_blank"
+       style="padding: .2vw;"><i class="bi bi-question-circle"></i> Question</a>
+    <a class="nav-link btn btn-light text-start" href="#" data-bs-toggle="modal" data-bs-target="#modalInfo"
+       style="padding: .2vw;"><i class="bi bi-info-circle"></i> Info</a>
 </div>
 
 <div class="position-absolute end-0 top-0 h-100 z-1 rounded-end shadow bg-white text-center"
@@ -166,7 +177,7 @@
     </div>
 </div>
 
-<script src="src/app.ts"></script>
+<script src="{{ url_for('static', filename='/src/app.ts') }}"></script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
         integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
         crossorigin="anonymous"></script>
