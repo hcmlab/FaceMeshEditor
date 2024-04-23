@@ -480,7 +480,7 @@ var Point2D = /*#__PURE__*/function () {
     this._selected = false;
     this._hovered = false;
     this._deleted = false;
-    this.id = id;
+    this._id = id;
     this._x = x;
     this._y = y;
     this.neighbourIds = neighbourIds;
@@ -552,16 +552,16 @@ var Point2D = /*#__PURE__*/function () {
   }, {
     key: "toString",
     value: function toString() {
-      return "Point2D(id=".concat(this.id, ", x=").concat(this._x, ", y=").concat(this._y, ")");
+      return "Point2D(id=".concat(this.id, ", x=").concat(this.x, ", y=").concat(this.y, ")");
     }
     /**
      * Retrieves the unique ID of the point.
      * @returns {number} - The point's ID.
      */
   }, {
-    key: "getId",
-    value: function getId() {
-      return this.id;
+    key: "id",
+    get: function get() {
+      return this._id;
     }
     /**
      * Retrieves a copy of the neighbor IDs.
@@ -774,7 +774,7 @@ var Graph = /*#__PURE__*/function () {
     function getById(id) {
       // @ts-ignore
       return this.points.find(function (p) {
-        return p.getId() === id;
+        return p.id === id;
       });
     }
     /**
@@ -5443,7 +5443,7 @@ var Editor2D = /*#__PURE__*/function () {
         this.zoomScale *= 1.1;
       }
       // Ensure zoom level is within a reasonable range
-      this.zoomScale = Math.min(Math.max(0.1, this.zoomScale), 25);
+      this.zoomScale = Math.min(Math.max(0.1, this.zoomScale), 50);
       // Update offsets
       this.offsetX = this.mouseX - dx * this.zoomScale;
       this.offsetY = this.mouseY - dy * this.zoomScale;
@@ -5611,7 +5611,7 @@ var Editor2D = /*#__PURE__*/function () {
               var newY = neigP.y + deltaY * influenceFactor;
               var newPoint = new point2d_1.Point2D(-1, newX, newY, []);
               neigP.moveTo(newPoint);
-              alreadyUpdated.add(neigP.getId());
+              alreadyUpdated.add(neigP.id);
               // extract next depth of neighbours
               // @ts-ignore
               tmpPoints = tmpPoints.concat(this.graph.getNeighbourPointsOf(neigP));
@@ -5622,7 +5622,7 @@ var Editor2D = /*#__PURE__*/function () {
             _iterator3.f();
           }
           neighbourPoints = tmpPoints.filter(function (p) {
-            return !alreadyUpdated.has(p.getId());
+            return !alreadyUpdated.has(p.id);
           });
         }
         // Redraw
@@ -5670,7 +5670,102 @@ var Editor2D = /*#__PURE__*/function () {
   }]);
 }();
 exports.Editor2D = Editor2D;
-},{"./graph/point2d":"src/graph/point2d.ts","./graph/perspective2d":"src/graph/perspective2d.ts","./graph/graph":"src/graph/graph.ts","@mediapipe/tasks-vision":"node_modules/@mediapipe/tasks-vision/vision_bundle.mjs","./graph/face_landmarks_features":"src/graph/face_landmarks_features.ts"}],"src/model/mediapipe.ts":[function(require,module,exports) {
+},{"./graph/point2d":"src/graph/point2d.ts","./graph/perspective2d":"src/graph/perspective2d.ts","./graph/graph":"src/graph/graph.ts","@mediapipe/tasks-vision":"node_modules/@mediapipe/tasks-vision/vision_bundle.mjs","./graph/face_landmarks_features":"src/graph/face_landmarks_features.ts"}],"src/graph/point3d.ts":[function(require,module,exports) {
+"use strict";
+
+function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
+function _classCallCheck(instance, Constructor) { if (!(instance instanceof Constructor)) { throw new TypeError("Cannot call a class as a function"); } }
+function _defineProperties(target, props) { for (var i = 0; i < props.length; i++) { var descriptor = props[i]; descriptor.enumerable = descriptor.enumerable || false; descriptor.configurable = true; if ("value" in descriptor) descriptor.writable = true; Object.defineProperty(target, _toPropertyKey(descriptor.key), descriptor); } }
+function _createClass(Constructor, protoProps, staticProps) { if (protoProps) _defineProperties(Constructor.prototype, protoProps); if (staticProps) _defineProperties(Constructor, staticProps); Object.defineProperty(Constructor, "prototype", { writable: false }); return Constructor; }
+function _toPropertyKey(t) { var i = _toPrimitive(t, "string"); return "symbol" == _typeof(i) ? i : i + ""; }
+function _toPrimitive(t, r) { if ("object" != _typeof(t) || !t) return t; var e = t[Symbol.toPrimitive]; if (void 0 !== e) { var i = e.call(t, r || "default"); if ("object" != _typeof(i)) return i; throw new TypeError("@@toPrimitive must return a primitive value."); } return ("string" === r ? String : Number)(t); }
+function _callSuper(t, o, e) { return o = _getPrototypeOf(o), _possibleConstructorReturn(t, _isNativeReflectConstruct() ? Reflect.construct(o, e || [], _getPrototypeOf(t).constructor) : o.apply(t, e)); }
+function _possibleConstructorReturn(self, call) { if (call && (_typeof(call) === "object" || typeof call === "function")) { return call; } else if (call !== void 0) { throw new TypeError("Derived constructors may only return object or undefined"); } return _assertThisInitialized(self); }
+function _assertThisInitialized(self) { if (self === void 0) { throw new ReferenceError("this hasn't been initialised - super() hasn't been called"); } return self; }
+function _isNativeReflectConstruct() { try { var t = !Boolean.prototype.valueOf.call(Reflect.construct(Boolean, [], function () {})); } catch (t) {} return (_isNativeReflectConstruct = function _isNativeReflectConstruct() { return !!t; })(); }
+function _getPrototypeOf(o) { _getPrototypeOf = Object.setPrototypeOf ? Object.getPrototypeOf.bind() : function _getPrototypeOf(o) { return o.__proto__ || Object.getPrototypeOf(o); }; return _getPrototypeOf(o); }
+function _inherits(subClass, superClass) { if (typeof superClass !== "function" && superClass !== null) { throw new TypeError("Super expression must either be null or a function"); } subClass.prototype = Object.create(superClass && superClass.prototype, { constructor: { value: subClass, writable: true, configurable: true } }); Object.defineProperty(subClass, "prototype", { writable: false }); if (superClass) _setPrototypeOf(subClass, superClass); }
+function _setPrototypeOf(o, p) { _setPrototypeOf = Object.setPrototypeOf ? Object.setPrototypeOf.bind() : function _setPrototypeOf(o, p) { o.__proto__ = p; return o; }; return _setPrototypeOf(o, p); }
+Object.defineProperty(exports, "__esModule", {
+  value: true
+});
+exports.Point3D = void 0;
+var point2d_1 = require("./point2d");
+/**
+ * Represents a 3D point with an ID, coordinates, and neighbor information.
+ * Extends the base class Point2D.
+ */
+var Point3D = /*#__PURE__*/function (_point2d_1$Point2D) {
+  /**
+   * Creates a new Point3D instance.
+   * @param {number} id - The unique identifier for the point.
+   * @param {number} x - The x-coordinate of the point.
+   * @param {number} y - The y-coordinate of the point.
+   * @param {number} z - The z-coordinate of the point (additional dimension).
+   * @param {number[]} neighbourIds - An array of neighbor IDs.
+   */
+  function Point3D(id, x, y, z, neighbourIds) {
+    var _this;
+    _classCallCheck(this, Point3D);
+    _this = _callSuper(this, Point3D, [id, x, y, neighbourIds]);
+    _this._z = z;
+    return _this;
+  }
+  /**
+   * Gets or sets the z-coordinate of the point.
+   * @returns {number} - The z-coordinate.
+   */
+  _inherits(Point3D, _point2d_1$Point2D);
+  return _createClass(Point3D, [{
+    key: "z",
+    get: function get() {
+      return this._z;
+    },
+    set: function set(value) {
+      this._z = value;
+    }
+    /**
+     * Returns a string representation of the 3D point.
+     * @returns {string} - A formatted string with point details.
+     */
+  }, {
+    key: "toString",
+    value: function toString() {
+      return "Point3D(id=".concat(this.id, ", x=").concat(this.x, ", y=").concat(this.y, ", z=").concat(this.z, ")");
+    }
+    /**
+     * Creates a shallow copy of the 3D point.
+     * @returns {Point3D} - A new Point3D instance with cloned properties.
+     */
+  }, {
+    key: "clone",
+    value: function clone() {
+      var copy = new Point3D(this.id, this.x, this.y, this.z, this.getNeighbourIds());
+      copy.hovered = this.hovered;
+      copy.deleted = this.deleted;
+      copy.selected = this.selected;
+      return copy;
+    }
+    /**
+     * Converts the point to a dictionary object.
+     * @returns {object} - A dictionary containing point properties.
+     */
+  }, {
+    key: "toDict",
+    value: function toDict() {
+      return {
+        id: this.id,
+        x: this.x,
+        y: this.y,
+        z: this.z,
+        // hovered: this.hovered,
+        deleted: this.deleted
+      };
+    }
+  }]);
+}(point2d_1.Point2D);
+exports.Point3D = Point3D;
+},{"./point2d":"src/graph/point2d.ts"}],"src/model/mediapipe.ts":[function(require,module,exports) {
 "use strict";
 
 function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
@@ -5689,7 +5784,7 @@ exports.MediapipeModel = void 0;
 var graph_1 = require("../graph/graph");
 var face_landmarks_features_1 = require("../graph/face_landmarks_features");
 var tasks_vision_1 = require("@mediapipe/tasks-vision");
-var point2d_1 = require("../graph/point2d");
+var point3d_1 = require("../graph/point3d");
 /**
  * Represents a model using MediaPipe for face landmark detection.
  * Implements the ModelApi interface for working with Point2D graphs.
@@ -5734,7 +5829,9 @@ var MediapipeModel = /*#__PURE__*/function () {
                     var graphs = result.faceLandmarks.map(function (landmarks) {
                       return landmarks.map(function (dict, idx) {
                         var ids = Array.from(face_landmarks_features_1.findNeighbourPointIds(idx, tasks_vision_1.FaceLandmarker.FACE_LANDMARKS_TESSELATION, 1));
-                        return new point2d_1.Point2D(idx, dict.x, dict.y, ids);
+                        return new point3d_1.Point3D(idx, dict.x, dict.y, dict.z, ids);
+                      }).map(function (point) {
+                        return point;
                       });
                     }).map(function (landmarks) {
                       return new graph_1.Graph(landmarks);
@@ -5790,7 +5887,7 @@ var MediapipeModel = /*#__PURE__*/function () {
   }]);
 }();
 exports.MediapipeModel = MediapipeModel;
-},{"../graph/graph":"src/graph/graph.ts","../graph/face_landmarks_features":"src/graph/face_landmarks_features.ts","@mediapipe/tasks-vision":"node_modules/@mediapipe/tasks-vision/vision_bundle.mjs","../graph/point2d":"src/graph/point2d.ts"}],"src/model/webservice.ts":[function(require,module,exports) {
+},{"../graph/graph":"src/graph/graph.ts","../graph/face_landmarks_features":"src/graph/face_landmarks_features.ts","@mediapipe/tasks-vision":"node_modules/@mediapipe/tasks-vision/vision_bundle.mjs","../graph/point3d":"src/graph/point3d.ts"}],"src/model/webservice.ts":[function(require,module,exports) {
 "use strict";
 
 function _typeof(o) { "@babel/helpers - typeof"; return _typeof = "function" == typeof Symbol && "symbol" == typeof Symbol.iterator ? function (o) { return typeof o; } : function (o) { return o && "function" == typeof Symbol && o.constructor === Symbol && o !== Symbol.prototype ? "symbol" : typeof o; }, _typeof(o); }
@@ -6335,7 +6432,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "60720" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "64793" + '/');
   ws.onmessage = function (event) {
     checkedAssets = {};
     assetsToAccept = [];

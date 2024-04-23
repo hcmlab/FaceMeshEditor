@@ -59,16 +59,22 @@
     </div>
     <!-- Feature Options-->
     <h5 class="mt-4">Features</h5>
-    <a id="feat_le" class="nav-link btn btn-light" href="#" aria-keyshortcuts=""><i class="bi bi-trash"></i> Left
+    <a id="feat_le" class="nav-link btn btn-light" href="#" aria-keyshortcuts="" style="padding: .2vw;"><i class="bi bi-trash"></i> Left
         Eye</a>
-    <a id="feat_leb" class="nav-link btn btn-light" href="#" aria-keyshortcuts=""><i class="bi bi-trash"></i> Left
+    <a id="feat_leb" class="nav-link btn btn-light" href="#" aria-keyshortcuts="" style="padding: .2vw;"><i class="bi bi-trash"></i> Left
         Eyebrow</a>
-    <a id="feat_re" class="nav-link btn btn-light" href="#" aria-keyshortcuts=""><i class="bi bi-trash"></i> Right
+    <a id="feat_re" class="nav-link btn btn-light" href="#" aria-keyshortcuts="" style="padding: .2vw;"><i class="bi bi-trash"></i> Right
         Eye</a>
-    <a id="feat_reb" class="nav-link btn btn-light" href="#" aria-keyshortcuts=""><i class="bi bi-trash"></i> Right
+    <a id="feat_reb" class="nav-link btn btn-light" href="#" aria-keyshortcuts="" style="padding: .2vw;"><i class="bi bi-trash"></i> Right
         Eyebrow</a>
-    <a id="feat_n" class="nav-link btn btn-light" href="#" aria-keyshortcuts=""><i class="bi bi-trash"></i> Nose</a>
-    <a id="feat_m" class="nav-link btn btn-light" href="#" aria-keyshortcuts=""><i class="bi bi-trash"></i> Mouth</a>
+    <a id="feat_n" class="nav-link btn btn-light" href="#" aria-keyshortcuts="" style="padding: .2vw;"><i class="bi bi-trash"></i> Nose</a>
+    <a id="feat_m" class="nav-link btn btn-light" href="#" aria-keyshortcuts="" style="padding: .2vw;"><i class="bi bi-trash"></i> Mouth</a>
+    <!-- About -->
+    <h5 class="mt-4">About</h5>
+    <a class="nav-link btn btn-light text-start" href="https://github.com/hcmlab/FaceMeshEditor" target="_blank" style="padding: .2vw;"><i class="bi bi-github"></i> GitHub</a>
+    <a class="nav-link btn btn-light text-start" href="https://github.com/hcmlab/FaceMeshEditor/issues/new" target="_blank" style="padding: .2vw;"><i class="bi bi-bug"></i> Report Issue</a>
+    <a class="nav-link btn btn-light text-start" href="https://github.com/hcmlab/FaceMeshEditor/issues" target="_blank" style="padding: .2vw;"><i class="bi bi-question-circle"></i> Question</a>
+    <a class="nav-link btn btn-light text-start" href="#" data-bs-toggle="modal" data-bs-target="#modalInfo" style="padding: .2vw;"><i class="bi bi-info-circle"></i> Info</a>
 </div>
 
 <div class="position-absolute end-0 top-0 h-100 z-1 rounded-end shadow bg-white text-center" style="min-width: 150px; padding-top: .5vw;">
@@ -80,6 +86,20 @@
 </div>
 
 <canvas id="canvas" class="position-absolute z-0"></canvas>
+
+<div id="modalInfo" class="modal fade" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Info</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-center">
+                &copy; 2024<br>Chair of Human-Centered Artificial Intelligence<br>University of Augsburg<br>Germany
+            </div>
+        </div>
+    </div>
+</div>
 
 <div id="modalSettingsModel" class="modal fade" tabindex="-1" aria-labelledby="modalSettingsModelLabel" aria-hidden="true" data-bs-backdrop="static" data-bs-keyboard="false">
     <div class="modal-dialog modal-dialog-centered">
