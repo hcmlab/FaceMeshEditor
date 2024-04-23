@@ -116,7 +116,7 @@ export class Editor2D {
             this.zoomScale *= 1.1;
         }
         // Ensure zoom level is within a reasonable range
-        this.zoomScale = Math.min(Math.max(0.1, this.zoomScale), 25);
+        this.zoomScale = Math.min(Math.max(0.1, this.zoomScale), 50);
         // Update offsets
         this.offsetX = this.mouseX - dx * this.zoomScale;
         this.offsetY = this.mouseY - dy * this.zoomScale;
