@@ -8,7 +8,7 @@ ______________________________________________________________________
 
 [**Demo**](https://hcmlab.github.io/FaceMeshEditor/)
 
-![Screenshot of the Demo as a Preview](images/PreviewAnimation.gif)
+![Screenshot of the Demo as a Preview](static/images/PreviewAnimation.gif)
 </div>
 
 
