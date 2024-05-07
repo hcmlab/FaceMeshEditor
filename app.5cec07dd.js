@@ -828,7 +828,10 @@ var Graph = /*#__PURE__*/function () {
     key: "fromJson",
     value: function fromJson(jsonObject, newObject) {
       return new Graph(jsonObject.map(function (dict) {
-        return Object.assign(newObject(), dict);
+        var point = newObject(dict['id']);
+        // @ts-ignore
+        delete dict['id'];
+        return Object.assign(point, dict);
       }));
     }
   }]);
@@ -5314,6 +5317,20 @@ var perspective2d_1 = require("./graph/perspective2d");
 var graph_1 = require("./graph/graph");
 var tasks_vision_1 = require("@mediapipe/tasks-vision");
 var face_landmarks_features_1 = require("./graph/face_landmarks_features");
+var COLOR_POINT_HOVERED = 'rgba(255,250,163,0.6)';
+var COLOR_POINT_SELECTED = 'rgba(255,250,58,0.6)';
+var COLOR_POINT_DEFAULT = '#0d6efd';
+var COLOR_EDGES_TESSELATION = '#d5d5d5';
+var COLOR_EDGES_FACE_OVAL = '#42ffef';
+var COLOR_EDGES_LIPS = '#ff0883';
+var COLOR_EDGES_RIGHT_EYE = '#b3ff42';
+var COLOR_EDGES_RIGHT_IRIS = '#efffd8';
+var COLOR_EDGES_LEFT_EYE = '#42c6ff';
+var COLOR_EDGES_LEFT_IRIS = '#b5ebff';
+var COLOR_EDGES_NOSE = '#eada70';
+var LINE_WIDTH_DEFAULT = 2;
+var POINT_WIDTH = 3;
+var POINT_EXTENDED_WIDTH = 5;
 var Editor2D = /*#__PURE__*/function () {
   function Editor2D() {
     var _this = this;
@@ -5325,7 +5342,6 @@ var Editor2D = /*#__PURE__*/function () {
     this.prevMouseY = 0;
     this.mouseX = 0;
     this.mouseY = 0;
-    this.mouseDelta = 5; // Constant for the hovering and selection
     this.isMoving = false;
     this.isPanning = false;
     this.image = new Image();
@@ -5471,17 +5487,17 @@ var Editor2D = /*#__PURE__*/function () {
       this.ctx.drawImage(this.image, 0, 0);
       // Draw Mesh
       if (this.showTesselation) {
-        this.drawFaceTrait(tasks_vision_1.FaceLandmarker.FACE_LANDMARKS_TESSELATION, '#737373');
+        this.drawFaceTrait(tasks_vision_1.FaceLandmarker.FACE_LANDMARKS_TESSELATION, COLOR_EDGES_TESSELATION);
       }
-      this.drawFaceTrait(tasks_vision_1.FaceLandmarker.FACE_LANDMARKS_FACE_OVAL, '#42ffef');
-      this.drawFaceTrait(tasks_vision_1.FaceLandmarker.FACE_LANDMARKS_LIPS, '#ff0883');
-      this.drawFaceTrait(tasks_vision_1.FaceLandmarker.FACE_LANDMARKS_RIGHT_EYEBROW, '#b3ff42');
-      this.drawFaceTrait(tasks_vision_1.FaceLandmarker.FACE_LANDMARKS_RIGHT_EYE, '#b3ff42');
-      this.drawFaceTrait(tasks_vision_1.FaceLandmarker.FACE_LANDMARKS_RIGHT_IRIS, '#efffd8');
-      this.drawFaceTrait(tasks_vision_1.FaceLandmarker.FACE_LANDMARKS_LEFT_EYEBROW, '#42c6ff');
-      this.drawFaceTrait(tasks_vision_1.FaceLandmarker.FACE_LANDMARKS_LEFT_EYE, '#42c6ff');
-      this.drawFaceTrait(tasks_vision_1.FaceLandmarker.FACE_LANDMARKS_LEFT_IRIS, '#b5ebff');
-      this.drawFaceTrait(face_landmarks_features_1.FACE_LANDMARKS_NOSE, '#eada70');
+      this.drawFaceTrait(tasks_vision_1.FaceLandmarker.FACE_LANDMARKS_FACE_OVAL, COLOR_EDGES_FACE_OVAL);
+      this.drawFaceTrait(tasks_vision_1.FaceLandmarker.FACE_LANDMARKS_LIPS, COLOR_EDGES_LIPS);
+      this.drawFaceTrait(tasks_vision_1.FaceLandmarker.FACE_LANDMARKS_RIGHT_EYEBROW, COLOR_EDGES_RIGHT_EYE);
+      this.drawFaceTrait(tasks_vision_1.FaceLandmarker.FACE_LANDMARKS_RIGHT_EYE, COLOR_EDGES_RIGHT_EYE);
+      this.drawFaceTrait(tasks_vision_1.FaceLandmarker.FACE_LANDMARKS_RIGHT_IRIS, COLOR_EDGES_RIGHT_IRIS);
+      this.drawFaceTrait(tasks_vision_1.FaceLandmarker.FACE_LANDMARKS_LEFT_EYEBROW, COLOR_EDGES_LEFT_EYE);
+      this.drawFaceTrait(tasks_vision_1.FaceLandmarker.FACE_LANDMARKS_LEFT_EYE, COLOR_EDGES_LEFT_EYE);
+      this.drawFaceTrait(tasks_vision_1.FaceLandmarker.FACE_LANDMARKS_LEFT_IRIS, COLOR_EDGES_LEFT_IRIS);
+      this.drawFaceTrait(face_landmarks_features_1.FACE_LANDMARKS_NOSE, COLOR_EDGES_NOSE);
     }
   }, {
     key: "drawPoint",
@@ -5490,21 +5506,21 @@ var Editor2D = /*#__PURE__*/function () {
         var projectedPoint = perspective2d_1.Perspective2D.project(this.image, point);
         if (point.hovered) {
           this.ctx.beginPath();
-          this.ctx.fillStyle = 'rgba(255,250,163,0.6)';
-          this.ctx.arc(projectedPoint.x, projectedPoint.y, this.mouseDelta / this.zoomScale, 0, Math.PI * 2);
+          this.ctx.fillStyle = COLOR_POINT_HOVERED;
+          this.ctx.arc(projectedPoint.x, projectedPoint.y, POINT_EXTENDED_WIDTH / this.zoomScale, 0, Math.PI * 2);
           // this.ctx.font = 20 / zoomScale + "px serif";
           // this.ctx.fillText(point.getId(), projectedPoint.x, projectedPoint.y);
           this.ctx.fill();
         }
         if (point.selected) {
           this.ctx.beginPath();
-          this.ctx.fillStyle = 'rgba(255,250,58,0.6)';
-          this.ctx.arc(projectedPoint.x, projectedPoint.y, this.mouseDelta / this.zoomScale, 0, Math.PI * 2);
+          this.ctx.fillStyle = COLOR_POINT_SELECTED;
+          this.ctx.arc(projectedPoint.x, projectedPoint.y, POINT_EXTENDED_WIDTH / this.zoomScale, 0, Math.PI * 2);
           this.ctx.fill();
         }
         this.ctx.beginPath();
-        this.ctx.fillStyle = '#4642ff';
-        this.ctx.arc(projectedPoint.x, projectedPoint.y, 2 / this.zoomScale, 0, Math.PI * 2);
+        this.ctx.fillStyle = COLOR_POINT_DEFAULT;
+        this.ctx.arc(projectedPoint.x, projectedPoint.y, POINT_WIDTH / this.zoomScale, 0, Math.PI * 2);
         this.ctx.fill();
       }
     }
@@ -5522,7 +5538,7 @@ var Editor2D = /*#__PURE__*/function () {
         // Draw edges
         this.ctx.beginPath();
         this.ctx.strokeStyle = color;
-        this.ctx.lineWidth = 1 / this.zoomScale;
+        this.ctx.lineWidth = LINE_WIDTH_DEFAULT / this.zoomScale;
         var _iterator = _createForOfIteratorHelper(pointPairs),
           _step;
         try {
@@ -5633,7 +5649,7 @@ var Editor2D = /*#__PURE__*/function () {
         var pointHover = false;
         var _relativeMouse = perspective2d_1.Perspective2D.unproject(this.image, new point2d_1.Point2D(-1, relativeMouseX, relativeMouseY, []));
         this._graph.points.forEach(function (point) {
-          if (!pointHover && perspective2d_1.Perspective2D.intersects(_this6.image, point, _relativeMouse, _this6.mouseDelta / _this6.zoomScale)) {
+          if (!pointHover && perspective2d_1.Perspective2D.intersects(_this6.image, point, _relativeMouse, POINT_EXTENDED_WIDTH / _this6.zoomScale)) {
             point.hovered = true;
             pointHover = true;
           } else {
@@ -6102,14 +6118,17 @@ var App = /*#__PURE__*/function () {
             var jsonString = JSON.parse(reader.result);
             var _loop = function _loop() {
               var filename = _Object$keys[_i2];
-              var graph = graph_1.Graph.fromJson(jsonString[filename], function () {
-                return new point2d_1.Point2D(-1, 0, 0, []);
+              var graph = graph_1.Graph.fromJson(jsonString[filename], function (id) {
+                return new point2d_1.Point2D(id, 0, 0, []);
               });
               var cache = _this3.fileCache.find(function (f) {
                 return f.file.name === filename;
               });
               if (cache) {
                 cache.add(graph);
+                if (_this3.selectedFile === filename) {
+                  _this3.editor.graph = graph;
+                }
               }
             };
             for (var _i2 = 0, _Object$keys = Object.keys(jsonString); _i2 < _Object$keys.length; _i2++) {
@@ -6432,7 +6451,7 @@ var parent = module.bundle.parent;
 if ((!parent || !parent.isParcelRequire) && typeof WebSocket !== 'undefined') {
   var hostname = "" || location.hostname;
   var protocol = location.protocol === 'https:' ? 'wss' : 'ws';
-  var ws = new WebSocket(protocol + '://' + hostname + ':' + "52219" + '/');
+  var ws = new WebSocket(protocol + '://' + hostname + ':' + "63403" + '/');
   ws.onmessage = function (event) {
     checkedAssets = {};
     assetsToAccept = [];
