@@ -4,6 +4,34 @@ import {Graph} from "./graph/graph";
 import {FaceLandmarker} from "@mediapipe/tasks-vision";
 import {Connection, FACE_LANDMARKS_NOSE} from "./graph/face_landmarks_features";
 
+const COLOR_POINT_HOVERED = 'rgba(255,250,163,0.6)';
+
+const COLOR_POINT_SELECTED = 'rgba(255,250,58,0.6)';
+
+const COLOR_POINT_DEFAULT = '#0d6efd';
+
+const COLOR_EDGES_TESSELATION = '#d5d5d5';
+
+const COLOR_EDGES_FACE_OVAL = '#42ffef';
+
+const COLOR_EDGES_LIPS = '#ff0883';
+
+const COLOR_EDGES_RIGHT_EYE = '#b3ff42';
+
+const COLOR_EDGES_RIGHT_IRIS = '#efffd8';
+
+const COLOR_EDGES_LEFT_EYE = '#42c6ff';
+
+const COLOR_EDGES_LEFT_IRIS = '#b5ebff';
+
+const COLOR_EDGES_NOSE = '#eada70';
+
+const LINE_WIDTH_DEFAULT = 2;
+
+const POINT_WIDTH = 3;
+
+const POINT_EXTENDED_WIDTH = 5;
+
 export class Editor2D {
     private readonly canvas: HTMLCanvasElement;
     private ctx: CanvasRenderingContext2D;
@@ -14,7 +42,6 @@ export class Editor2D {
     private prevMouseY: number = 0;
     private mouseX: number = 0;
     private mouseY: number = 0;
-    private mouseDelta: number = 5; // Constant for the hovering and selection
     private isMoving: boolean = false;
     private isPanning: boolean = false;
     private image: HTMLImageElement = new Image();
@@ -142,17 +169,17 @@ export class Editor2D {
         this.ctx.drawImage(this.image, 0, 0);
         // Draw Mesh
         if (this.showTesselation) {
-            this.drawFaceTrait(FaceLandmarker.FACE_LANDMARKS_TESSELATION, '#737373');
+            this.drawFaceTrait(FaceLandmarker.FACE_LANDMARKS_TESSELATION, COLOR_EDGES_TESSELATION);
         }
-        this.drawFaceTrait(FaceLandmarker.FACE_LANDMARKS_FACE_OVAL, '#42ffef');
-        this.drawFaceTrait(FaceLandmarker.FACE_LANDMARKS_LIPS, '#ff0883');
-        this.drawFaceTrait(FaceLandmarker.FACE_LANDMARKS_RIGHT_EYEBROW, '#b3ff42');
-        this.drawFaceTrait(FaceLandmarker.FACE_LANDMARKS_RIGHT_EYE, '#b3ff42');
-        this.drawFaceTrait(FaceLandmarker.FACE_LANDMARKS_RIGHT_IRIS, '#efffd8');
-        this.drawFaceTrait(FaceLandmarker.FACE_LANDMARKS_LEFT_EYEBROW, '#42c6ff');
-        this.drawFaceTrait(FaceLandmarker.FACE_LANDMARKS_LEFT_EYE, '#42c6ff');
-        this.drawFaceTrait(FaceLandmarker.FACE_LANDMARKS_LEFT_IRIS, '#b5ebff');
-        this.drawFaceTrait(FACE_LANDMARKS_NOSE, '#eada70');
+        this.drawFaceTrait(FaceLandmarker.FACE_LANDMARKS_FACE_OVAL, COLOR_EDGES_FACE_OVAL);
+        this.drawFaceTrait(FaceLandmarker.FACE_LANDMARKS_LIPS, COLOR_EDGES_LIPS);
+        this.drawFaceTrait(FaceLandmarker.FACE_LANDMARKS_RIGHT_EYEBROW, COLOR_EDGES_RIGHT_EYE);
+        this.drawFaceTrait(FaceLandmarker.FACE_LANDMARKS_RIGHT_EYE, COLOR_EDGES_RIGHT_EYE);
+        this.drawFaceTrait(FaceLandmarker.FACE_LANDMARKS_RIGHT_IRIS, COLOR_EDGES_RIGHT_IRIS);
+        this.drawFaceTrait(FaceLandmarker.FACE_LANDMARKS_LEFT_EYEBROW, COLOR_EDGES_LEFT_EYE);
+        this.drawFaceTrait(FaceLandmarker.FACE_LANDMARKS_LEFT_EYE, COLOR_EDGES_LEFT_EYE);
+        this.drawFaceTrait(FaceLandmarker.FACE_LANDMARKS_LEFT_IRIS, COLOR_EDGES_LEFT_IRIS);
+        this.drawFaceTrait(FACE_LANDMARKS_NOSE, COLOR_EDGES_NOSE);
     }
 
     private drawPoint(point: Point2D): void {
@@ -160,21 +187,21 @@ export class Editor2D {
             const projectedPoint = Perspective2D.project(this.image, point);
             if (point.hovered) {
                 this.ctx.beginPath();
-                this.ctx.fillStyle = 'rgba(255,250,163,0.6)';
-                this.ctx.arc(projectedPoint.x, projectedPoint.y, this.mouseDelta / this.zoomScale, 0, Math.PI * 2);
+                this.ctx.fillStyle = COLOR_POINT_HOVERED;
+                this.ctx.arc(projectedPoint.x, projectedPoint.y, POINT_EXTENDED_WIDTH / this.zoomScale, 0, Math.PI * 2);
                 // this.ctx.font = 20 / zoomScale + "px serif";
                 // this.ctx.fillText(point.getId(), projectedPoint.x, projectedPoint.y);
                 this.ctx.fill();
             }
             if (point.selected) {
                 this.ctx.beginPath();
-                this.ctx.fillStyle = 'rgba(255,250,58,0.6)';
-                this.ctx.arc(projectedPoint.x, projectedPoint.y, this.mouseDelta / this.zoomScale, 0, Math.PI * 2);
+                this.ctx.fillStyle = COLOR_POINT_SELECTED;
+                this.ctx.arc(projectedPoint.x, projectedPoint.y, POINT_EXTENDED_WIDTH / this.zoomScale, 0, Math.PI * 2);
                 this.ctx.fill();
             }
             this.ctx.beginPath();
-            this.ctx.fillStyle = '#4642ff';
-            this.ctx.arc(projectedPoint.x, projectedPoint.y, 2 / this.zoomScale, 0, Math.PI * 2);
+            this.ctx.fillStyle = COLOR_POINT_DEFAULT;
+            this.ctx.arc(projectedPoint.x, projectedPoint.y, POINT_WIDTH / this.zoomScale, 0, Math.PI * 2);
             this.ctx.fill();
         }
     }
@@ -187,7 +214,7 @@ export class Editor2D {
             // Draw edges
             this.ctx.beginPath();
             this.ctx.strokeStyle = color;
-            this.ctx.lineWidth = 1 / this.zoomScale;
+            this.ctx.lineWidth = LINE_WIDTH_DEFAULT / this.zoomScale;
             for (const connection of pointPairs) {
                 let startPoint = connection.start;
                 let endPoint = connection.end;
@@ -263,7 +290,7 @@ export class Editor2D {
             let pointHover = false;
             const relativeMouse = Perspective2D.unproject(this.image, new Point2D(-1, relativeMouseX, relativeMouseY, []))
             this._graph.points.forEach(point => {
-                if (!pointHover && Perspective2D.intersects(this.image, point, relativeMouse, this.mouseDelta / this.zoomScale)) {
+                if (!pointHover && Perspective2D.intersects(this.image, point, relativeMouse, POINT_EXTENDED_WIDTH / this.zoomScale)) {
                     point.hovered = true;
                     pointHover = true;
                 } else {

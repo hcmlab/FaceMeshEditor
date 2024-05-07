@@ -29,8 +29,13 @@ export class Graph<P extends Point2D> {
      * @param {() => P} newObject - A function to create a new point object.
      * @returns {Graph<P>} - A new Graph instance.
      */
-    static fromJson<P extends Point2D>(jsonObject: P[], newObject: () => P): Graph<P> {
-        return new Graph<P>(jsonObject.map(dict => Object.assign(newObject(), dict)));
+    static fromJson<P extends Point2D>(jsonObject: P[], newObject: (id) => P): Graph<P> {
+        return new Graph<P>(jsonObject.map(dict => {
+            const point = newObject(dict['id']);
+            // @ts-ignore
+            delete dict['id'];
+            return Object.assign(point, dict)
+        }));
     }
 
     /**

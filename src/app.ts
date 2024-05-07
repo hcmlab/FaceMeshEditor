@@ -89,10 +89,13 @@ export class App {
                 reader.onload = _ => {
                     const jsonString = <{ string: Point2D[] }>JSON.parse(reader.result as string);
                     for (const filename of Object.keys(jsonString)) {
-                        const graph: Graph<Point2D> = Graph.fromJson(jsonString[filename], () => new Point2D(-1, 0, 0, []));
+                        const graph: Graph<Point2D> = Graph.fromJson(jsonString[filename], (id) => new Point2D(id, 0, 0, []));
                         const cache = this.fileCache.find(f => f.file.name === filename);
                         if (cache) {
                             cache.add(graph);
+                            if (this.selectedFile === filename) {
+                                this.editor.graph = graph;
+                            }
                         }
                     }
                     this.editor.draw();
