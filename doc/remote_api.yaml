@@ -29,6 +29,7 @@ components:
           description: contains the error message with additional information dependent on the request
     Point:
       type: object
+      description: A single point. Can be 2D or 3D. The z-coordinate is optional.
       properties:
         id:
           type: integer
@@ -43,8 +44,11 @@ components:
           $ref: '#/components/schemas/Coordinate'
         deleted:
           type: boolean
-          description: Indicates whether the landmark has been deleted or not.
+          description: Indicates whether the landmark has been deleted or not. If not present, assumed to be false.
           default: false
+      required:
+        - x
+        - y
     Coordinate:
       type: number
       format: float
