@@ -16,45 +16,47 @@ components:
       description: The face meshes in a dict. The keys are the file names
       type: object
       additionalProperties:
-        $ref: "#/components/schemas/PointList"
+        type: array
+        items:
+          $ref: '#/components/schemas/Point'
+        maxLength: 478
+        minLength: 478
     Error:
       type: object
       properties:
         message:
           type: string
           description: contains the error message with additional information dependent on the request
-    PointList:
-      type: array
-      items:
-        $ref: "#/components/schemas/Point"
-      maxLength: 478
-      minLength: 478
     Point:
       type: object
       properties:
         id:
           type: integer
-          description: Unique identifier for the object.
+          description: Unique identifier for the landmark. Must be kept intact for proper rendering.
+          minimum: 0
+          maximum: 477
         x:
-          type: number
-          format: double
-          description: The x coordinate.
+          $ref: '#/components/schemas/Coordinate'
         y:
-          type: number
-          format: double
-          description: The y coordinate.
+          $ref: '#/components/schemas/Coordinate'
         z:
-          type: number
-          format: double
-          description: The z coordinate.
+          $ref: '#/components/schemas/Coordinate'
         deleted:
           type: boolean
-          description: Indicates whether the object has been deleted or not.
+          description: Indicates whether the landmark has been deleted or not.
+          default: false
+    Coordinate:
+      type: number
+      format: float
+      description: the relative position on one axis
+      minimum: 0
+      maximum: 1.0
+
 
 paths:
-  '/fetch':
+  '/detect':
     post:
-      summary: Fetch face mesh
+      summary: Fetch a face mesh from the server
       requestBody:
         required: true
         content:
@@ -91,4 +93,4 @@ paths:
         content:
           application/json:
             schema:
-              $ref: "#/components/schemas/MeshCollection"
+              $ref: '#/components/schemas/MeshCollection'
