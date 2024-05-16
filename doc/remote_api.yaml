@@ -1,0 +1,94 @@
+openapi: 3.0.3
+info:
+  title: FaceMeshEditor remote api
+  description: Describes the API a server should supply to work with this application
+  version: 1.0.0
+components:
+  schemas:
+    FaceMeshRequest:
+      description: the request sent to the server to obtain a saved mesh
+      type: object
+      properties:
+        image:
+          type: string
+          description: The file name of the image to fetch the annotations
+    MeshCollection:
+      description: The face meshes in a dict. The keys are the file names
+      type: object
+      additionalProperties:
+        $ref: "#/components/schemas/PointList"
+    Error:
+      type: object
+      properties:
+        message:
+          type: string
+          description: contains the error message with additional information dependent on the request
+    PointList:
+      type: array
+      items:
+        $ref: "#/components/schemas/Point"
+      maxLength: 478
+      minLength: 478
+    Point:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: Unique identifier for the object.
+        x:
+          type: number
+          format: double
+          description: The x coordinate.
+        y:
+          type: number
+          format: double
+          description: The y coordinate.
+        z:
+          type: number
+          format: double
+          description: The z coordinate.
+        deleted:
+          type: boolean
+          description: Indicates whether the object has been deleted or not.
+
+paths:
+  '/fetch':
+    post:
+      summary: Fetch face mesh
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FaceMeshRequest'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MeshCollection'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  '/annotations':
+    post:
+      summary: Sends all present point data to the server
+      responses:
+        '201':
+          description: Created
+        '400':
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/MeshCollection"
