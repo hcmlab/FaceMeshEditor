@@ -155,11 +155,12 @@ export class App {
         this.models.mediapipe.selected = false;
         this.models.custom.selected = false;
         switch (name) {
-            case "mediapipe":
+            case "mediapipe": {
                 btnMediapipe.checked = true;
                 this.models.mediapipe.selected = true;
                 break;
-            case "custom":
+            }
+            case "custom": {
                 btnCustom.checked = true;
                 this.models.custom.selected = true;
                 const textModelUrl = document.getElementById('modelurl') as HTMLInputElement;
@@ -170,14 +171,15 @@ export class App {
                     '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*'+ // port and path
                     '(\\?[;&a-z\\d%_.~+=-]*)?'+ // query string
                     '(\\#[-a-z\\d_]*)?$','i'); // fragment locator
-                // @ts-ignore
-                document.getElementById('modalSettingsModel').hide();
                 if (!!pattern.test(url)) {
                     this.models.custom.model = new WebServiceModel(url);
+                    console.log("Changed api to: ", this.getModel())
                 } else {
+                    // Todo: add some kind of error message if the url is not viable
                     this.setModel('mediapipe');
                 }
                 break;
+            }
             default:
                 console.error('No model "' + name + '" found to change to!');
                 break;

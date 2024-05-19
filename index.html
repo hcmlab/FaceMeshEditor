@@ -170,7 +170,10 @@
                 <div class="modal-footer">
                     <button id="btnCancelModal" type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel
                     </button>
-                    <button id="btnSaveCustomModel" type="submit" class="btn btn-primary">Save</button>
+                    <button id="btnSaveCustomModel" type="submit" class="btn btn-primary" data-bs-dismiss="modal">Save</button>
+                    <!-- the closing is a bit hacky. The button just closes without any validation -->
+                    <!-- The proper way is documented here: https://getbootstrap.com/docs/5.3/components/modal/#via-javascript -->
+                    <!-- The typescript @type files are already installed. -->
                 </div>
             </div>
         </form>
