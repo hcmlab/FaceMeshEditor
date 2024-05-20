@@ -16,6 +16,7 @@ import {
 import {ModelApi} from "./model/modelApi";
 import {MediapipeModel} from "./model/mediapipe";
 import {WebServiceModel} from "./model/webservice";
+import { calculateSHA } from './util/sha';
 
 export class App {
     private featureDrag: Slider;
@@ -110,19 +111,32 @@ export class App {
     saveAnnotation(): boolean {
         if (this.fileCache.length > 0) {
             const result = {};
+            const promises = [];
             for (const c of this.fileCache) {
                 const graph = c.get();
+                result[c.file.name] = {};
                 if (graph) {
-                    result[c.file.name] = graph.toDictArray();
+                    result[c.file.name]['points'] = graph.toDictArray();
+                    let promise = calculateSHA(c.file)
+                      .then(sha256 => {
+                        result[c.file.name]['sha256'] = sha256;
+                    });
+                    promises.push(promise);
                 }
             }
-            const jsonData: string = JSON.stringify(result);
-            this.getModel().uploadAnnotations(jsonData);
-            const dataStr: string = "data:text/json;charset=utf-8," + encodeURIComponent(jsonData);
-            const a: HTMLAnchorElement = document.createElement('a');
-            a.href = dataStr;
-            a.download = Date.now() + '_face_mesh_annotations.json';
-            a.click();
+            Promise.all(promises)
+              .then(() => {
+                  const jsonData: string = JSON.stringify(result);
+                  this.getModel().uploadAnnotations(jsonData);
+                  const dataStr: string = "data:text/json;charset=utf-8," + encodeURIComponent(jsonData);
+                  const a: HTMLAnchorElement = document.createElement('a');
+                  a.href = dataStr;
+                  a.download = Date.now() + '_face_mesh_annotations.json';
+                  a.click();
+              })
+              .catch(error => {
+                  console.error("An error occurred:", error);
+              });
         }
         return false;
     }
