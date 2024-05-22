@@ -6,7 +6,8 @@ info:
 components:
   schemas:
     FaceMeshRequest:
-      description: the request sent to the server to obtain a saved mesh
+      description: The FaceMeshRequest embodies an image (png/jpg) sent to the server for processing.
+        The server does not necessarily save the annotations - it can but doesn't have to.
       type: object
       properties:
         image:
@@ -52,7 +53,8 @@ components:
     Coordinate:
       type: number
       format: float
-      description: the relative position on one axis
+      description: the relative position on one axis. The api might accept points outside the image, to support points 
+        outside the image area.
       minimum: 0
       maximum: 1.0
 
