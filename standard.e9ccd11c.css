@@ -1,3 +1,25 @@
+:root {
+    --danger-color: red;
+    --success-color: lightgreen;
+}
+
+
+@keyframes shake {
+    0%, 100% {transform: translateX(0);}
+    10%, 30%, 50%, 70%, 90% {transform: translateX(-1px);}
+    20%, 40%, 60%, 80% {transform: translateX(1px);}
+}
+
+.wrongInput {
+    animation: shake 0.5s;
+    animation-iteration-count: 3;
+    border-color: var(--danger-color);
+}
+.greenSquare {
+    height: 1em;
+    width: 1em;
+    background-color: var(--success-color);
+}
 kbd {
     background-color: #f6f6f6;
     border-radius: 3px;
@@ -21,5 +43,6 @@ a[shortcut]:before {
 a[shortcut]:after {
     content: '</td><td style="text-align: end;"><kbd>CTRL</kbd> + <kbd>O</kbd></td></tr></table>';
 }
+
 
 /*# sourceMappingURL=/standard.e9ccd11c.css.map */
