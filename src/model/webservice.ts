@@ -3,6 +3,7 @@ import {Point2D} from "../graph/point2d";
 import {Graph} from "../graph/graph";
 import {findNeighbourPointIds} from "../graph/face_landmarks_features";
 import {FaceLandmarker} from "@mediapipe/tasks-vision";
+import { calculateSHA } from '../util/sha';
 
 /**
  * Represents a model using a WebService for face landmark detection.
@@ -33,7 +34,14 @@ export class WebServiceModel implements ModelApi<Point2D> {
 
         return fetch(request)
             .then(res => res.json())
-            .then(landmarks => landmarks.map((dict, idx) => {
+            .then(async json => {
+                const sha = await calculateSHA(imageFile);
+                if (json['sha256'] !== sha) {
+                    throw Error('sha256 didn\'t match present file');
+                }
+                return json['points'];
+            })
+            .then(landmarks => landmarks.map((dict: { x: number; y: number; }, idx: number) => {
                 const ids = Array.from(findNeighbourPointIds(idx, FaceLandmarker.FACE_LANDMARKS_TESSELATION, 1));
                 return new Point2D(idx, dict.x, dict.y, ids);
             }))
