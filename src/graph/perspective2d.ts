@@ -11,7 +11,7 @@ export class Perspective2D {
      * @returns {Point2D} - The corresponding point in display coordinates.
      */
     static normalizedToDisplay(image: HTMLImageElement, point: Point2D): Point2D {
-        let copy = point.clone();
+        const copy = point.clone();
         copy.x = point.x * image.width;
         copy.y = point.y * image.height;
         return copy;
@@ -25,7 +25,7 @@ export class Perspective2D {
      */
     static project(image: HTMLImageElement, point: Point2D): Point2D {
         const displayedPoint = Perspective2D.normalizedToDisplay(image, point);
-        let copy = point.clone();
+        const copy = point.clone();
         copy.x = displayedPoint.x;
         copy.y = displayedPoint.y;
         return copy;
@@ -66,7 +66,7 @@ export class Perspective2D {
      * @returns {Point2D} - The corresponding point in normalized coordinates.
      */
     static displayToNormalized(image: HTMLImageElement, point: Point2D): Point2D {
-        let copy = point.clone();
+        const copy = point.clone();
         copy.x = point.x / image.width;
         copy.y = point.y / image.height;
         return copy;
@@ -80,7 +80,7 @@ export class Perspective2D {
      */
     static unproject(image: HTMLImageElement, point: Point2D): Point2D {
         const normalizedPoint = Perspective2D.displayToNormalized(image, point);
-        let copy = point.clone();
+        const copy = point.clone();
         copy.x = normalizedPoint.x;
         copy.y = normalizedPoint.y;
         return copy;

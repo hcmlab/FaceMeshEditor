@@ -55,7 +55,7 @@ export class App {
     }
 
     openImage(): boolean {
-        let input: HTMLInputElement = document.createElement('input');
+        const input: HTMLInputElement = document.createElement('input');
         input.type = 'file';
         input.accept = "image/png, image/jpeg";
         input.multiple = true;
@@ -81,7 +81,7 @@ export class App {
     }
 
     openAnnotation(): boolean {
-        let input: HTMLInputElement = document.createElement('input');
+        const input: HTMLInputElement = document.createElement('input');
         input.type = 'file';
         input.accept = ".json,application/json";
         input.onchange = () => {
@@ -290,8 +290,8 @@ export class App {
 // INITIAL
 // #####################################################################################################################
 window.onload = _ => {
-    let elements: NodeListOf<Element> = document.querySelectorAll('[aria-keyshortcuts]');
-    elements.forEach((elem: any) => {
+    const elements: NodeListOf<Element> = document.querySelectorAll('[aria-keyshortcuts]');
+    elements.forEach((elem: HTMLElement) => {
         elem.style.cssText = "width: 100%; text-align: start; padding: .2vw;";
         const keys: string[] = elem.ariaKeyShortcuts.split('+').map((k: string) => k.replace('Control', 'CTRL').replace('Shift', 'SHIFT').replace('Wheel', 'SCROLL'));
         if (elem.ariaKeyShortcuts.length > 0) {

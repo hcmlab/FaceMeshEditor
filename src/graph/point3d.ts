@@ -45,7 +45,7 @@ export class Point3D extends Point2D {
      * @returns {Point3D} - A new Point3D instance with cloned properties.
      */
     clone() {
-        let copy = new Point3D(this.id, this.x, this.y, this.z, this.getNeighbourIds());
+        const copy = new Point3D(this.id, this.x, this.y, this.z, this.getNeighbourIds());
         copy.hovered = this.hovered;
         copy.deleted = this.deleted;
         copy.selected = this.selected;

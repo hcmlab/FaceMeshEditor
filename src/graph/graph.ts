@@ -32,7 +32,7 @@ export class Graph<P extends Point2D> {
     static fromJson<P extends Point2D>(jsonObject: P[], newObject: (id) => P): Graph<P> {
         return new Graph<P>(jsonObject.map(dict => {
             const point = newObject(dict['id']);
-            // @ts-ignore
+            // @ts-expect-error: built in method uses readonly
             delete dict['id'];
             return Object.assign(point, dict)
         }));
@@ -44,7 +44,6 @@ export class Graph<P extends Point2D> {
      * @returns {P} - The point with the specified ID.
      */
     getById(id: number): P {
-        // @ts-ignore
         return this.points.find(p => p.id === id);
     }
 
@@ -70,15 +69,15 @@ export class Graph<P extends Point2D> {
      * @returns {Graph<P>} - A new Graph instance with cloned points.
      */
     clone(): Graph<P> {
-        // @ts-ignore
+        // @ts-expect-error: converting Points to abstract class
         return new Graph<P>(this.points.map(p => p.clone()));
     }
 
     /**
      * Converts the graph to an array of dictionaries.
-     * @returns {any[]} - An array of dictionaries representing the points.
+     * @returns - An array of dictionaries representing the points.
      */
-    toDictArray(): any[] {
+    toDictArray(): { deleted: boolean; x: number; y: number; id: number }[] {
         return this.points.map(point => point.toDict());
     }
 }

@@ -133,8 +133,8 @@ export class Editor2D {
     }
 
     zoom(out: boolean) {
-        let dx = (this.mouseX - this.offsetX) / this.zoomScale;
-        let dy = (this.mouseY - this.offsetY) / this.zoomScale;
+        const dx = (this.mouseX - this.offsetX) / this.zoomScale;
+        const dy = (this.mouseY - this.offsetY) / this.zoomScale;
         if (out) {
             this.canvas.style.cursor = "zoom-out";
             this.zoomScale /= 1.1;
@@ -228,8 +228,8 @@ export class Editor2D {
             this.ctx.stroke();
             // Draw points
             for (const connection of pointPairs) {
-                let startPoint = connection.start;
-                let endPoint = connection.end;
+                const startPoint = connection.start;
+                const endPoint = connection.end;
                 this.drawPoint(startPoint);
                 this.drawPoint(endPoint);
             }
@@ -277,7 +277,6 @@ export class Editor2D {
                     neigP.moveTo(newPoint);
                     alreadyUpdated.add(neigP.id);
                     // extract next depth of neighbours
-                    // @ts-ignore
                     tmpPoints = tmpPoints.concat(this.graph.getNeighbourPointsOf(neigP));
                 }
                 neighbourPoints = tmpPoints.filter(p => !alreadyUpdated.has(p.id));

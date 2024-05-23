@@ -3,7 +3,7 @@
  */
 export class Point2D {
     private readonly _id: number;
-    private readonly neighbourIds: any[];
+    private readonly neighbourIds: number[];
 
     /**
      * Creates a new Point2D instance.
@@ -127,7 +127,7 @@ export class Point2D {
      * @returns {Point2D} - A new Point2D instance with cloned properties.
      */
     clone() {
-        let copy = new Point2D(this.id, this._x, this._y, this.neighbourIds);
+        const copy = new Point2D(this.id, this._x, this._y, this.neighbourIds);
         copy.hovered = this.hovered;
         copy.deleted = this.deleted;
         copy.selected = this.selected;

@@ -45,13 +45,13 @@ export function findNeighbourPointIds(pointId: number, connections: Connection[]
     if (depth === 0) {
         return Array.from(new Set([pointId]));
     }
-    let neighbours = connections
+    const neighbours = connections
         .filter(conn => conn.start === pointId || conn.end === pointId)
         .map(conn => conn.start === pointId ? conn.end : conn.start);
-    let neighbourIds = new Set(neighbours);
-    for (let neighbour of neighbours) {
-        let subNeighbours = findNeighbourPointIds(neighbour, connections, depth - 1);
-        for (let subNeighbour of subNeighbours) {
+    const neighbourIds = new Set(neighbours);
+    for (const neighbour of neighbours) {
+        const subNeighbours = findNeighbourPointIds(neighbour, connections, depth - 1);
+        for (const subNeighbour of subNeighbours) {
             neighbourIds.add(subNeighbour);
         }
     }
