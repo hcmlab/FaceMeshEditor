@@ -1,10 +1,11 @@
-import {Slider} from "./view/slider";
-import {CheckBox} from "./view/checkbox";
-import {Thumbnail} from "./view/thumbnail";
-import {FileAnnotationHistory} from "./cache/fileAnnotationHistory";
-import {Point2D} from "./graph/point2d";
-import {Editor2D} from "./editor2d";
-import {Graph} from "./graph/graph";
+import * as bootstrap from 'bootstrap'; // import statically - dont grab it from a cdn
+import { Slider } from './view/slider';
+import { CheckBox } from './view/checkbox';
+import { Thumbnail } from './view/thumbnail';
+import { FileAnnotationHistory } from './cache/fileAnnotationHistory';
+import { Point2D } from './graph/point2d';
+import { Editor2D } from './editor2d';
+import { Graph } from './graph/graph';
 import {
     FACE_FEATURE_LEFT_EYE,
     FACE_FEATURE_LEFT_EYEBROW,
@@ -12,10 +13,11 @@ import {
     FACE_FEATURE_NOSE,
     FACE_FEATURE_RIGHT_EYE,
     FACE_FEATURE_RIGHT_EYEBROW
-} from "./graph/face_landmarks_features";
-import {ModelApi} from "./model/modelApi";
-import {MediapipeModel} from "./model/mediapipe";
-import {WebServiceModel} from "./model/webservice";
+} from './graph/face_landmarks_features';
+import { ModelApi } from './model/modelApi';
+import { MediapipeModel } from './model/mediapipe';
+import { ModelType } from './model/models';
+import { urlError, WebServiceModel } from './model/webservice';
 
 export class App {
     private featureDrag: Slider;
@@ -149,35 +151,60 @@ export class App {
         this.featureDrag.setValue(this.featureDrag.getValue() + value);
     }
 
-    setModel(name: string): boolean {
+    setModel(name: ModelType): boolean {
         const btnMediapipe = document.getElementById('btnModelMediapipe') as HTMLInputElement;
         const btnCustom = document.getElementById('btnModelCustom') as HTMLInputElement;
         this.models.mediapipe.selected = false;
         this.models.custom.selected = false;
         switch (name) {
-            case "mediapipe":
+            case ModelType.mediapipe: {
                 btnMediapipe.checked = true;
                 this.models.mediapipe.selected = true;
                 break;
-            case "custom":
+            }
+            case ModelType.custom: {
                 btnCustom.checked = true;
                 this.models.custom.selected = true;
-                const textModelUrl = document.getElementById('modelurl') as HTMLInputElement;
-                const url = textModelUrl.value;
-                const pattern = new RegExp('^(https?:\\/\\/)?'+ // protocol
-                    '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|'+ // domain name
-                    '((\\d{1,3}\\.){3}\\d{1,3}))'+ // OR ip (v4) address
-                    '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*'+ // port and path
-                    '(\\?[;&a-z\\d%_.~+=-]*)?'+ // query string
-                    '(\\#[-a-z\\d_]*)?$','i'); // fragment locator
-                // @ts-ignore
-                document.getElementById('modalSettingsModel').hide();
-                if (!!pattern.test(url)) {
-                    this.models.custom.model = new WebServiceModel(url);
-                } else {
-                    this.setModel('mediapipe');
-                }
+                const inputBox = $('#modelurl');
+                const url = String(inputBox.val());
+                WebServiceModel.verifyUrl(url).then(error => {
+                    const errorText = $('#urlErrorText')
+                    if (error === null) {
+                        this.models.custom.model = new WebServiceModel(url);
+                        $('#modalSettingsModel').modal('hide');
+                        errorText.hide();
+                        const saveElement = $('#saveNotification')[0];
+                        const toast = bootstrap.Toast.getOrCreateInstance(saveElement)
+                        toast.show();
+                        const notificationText =  $('#saveNotificationText');
+                        notificationText.text('Webservice url saved!');
+                        setTimeout(() => {
+                            toast.hide();
+                            notificationText.text();
+                        }, 5000);
+                    } else {
+                        // Display error:
+                        switch (error) {
+                            case urlError.InvalidUrl: {
+                                errorText.removeAttr('hidden');
+                                errorText.text('Please enter a valid URL!');
+                                break;
+                            }
+                            case urlError.Unreachable: {
+                                errorText.removeAttr('hidden');
+                                errorText.text('The provided endpoint wasn\'t reachable!');
+                                break;
+                            }
+                        }
+                        // shake the input window
+                        inputBox.addClass("wrongInput");
+                        setTimeout(function(){
+                            inputBox.removeClass('wrongInput');
+                        }, 500);
+                    }
+                });
                 break;
+            }
             default:
                 console.error('No model "' + name + '" found to change to!');
                 break;
@@ -290,10 +317,10 @@ window.onload = _ => {
     document.getElementById('undo').onclick = () => app.undo();
     document.getElementById('redo').onclick = () => app.redo();
     document.getElementById('reset').onclick = () => app.reset();
-    document.getElementById('btnModelMediapipe').onclick = () => app.setModel('mediapipe');
-    document.getElementById('btnCloseModal').onclick = () => app.setModel('mediapipe');
-    document.getElementById('btnCancelModal').onclick = () => app.setModel('mediapipe');
-    document.getElementById('btnSaveCustomModel').onclick = () => app.setModel('custom');
+    document.getElementById('btnModelMediapipe').onclick = () => app.setModel(ModelType.mediapipe);
+    document.getElementById('btnCloseModal').onclick = () => app.setModel(ModelType.mediapipe);
+    document.getElementById('btnCancelModal').onclick = () => app.setModel(ModelType.mediapipe);
+    document.getElementById('btnSaveCustomModel').onclick = () => app.setModel(ModelType.custom);
     document.getElementById('feat_le').onclick = _ => app.deleteFeature('left_eye');
     document.getElementById('feat_leb').onclick = _ => app.deleteFeature('left_eyebrow');
     document.getElementById('feat_re').onclick = _ => app.deleteFeature('right_eye');

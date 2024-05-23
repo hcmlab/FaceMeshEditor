@@ -1,0 +1,5 @@
+.greenSquare {
+    height: 1em;
+    width: 1em;
+    background-color: var(--success-color);
+}
