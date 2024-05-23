@@ -86,25 +86,36 @@ export class App {
         input.type = 'file';
         input.accept = ".json,application/json";
         input.onchange = () => {
-            if (input.files && input.files.length > 0) {
-                const annotationFile: File = input.files[0];
-                const reader: FileReader = new FileReader();
-                reader.onload = _ => {
-                    const jsonString = <{ string: Point2D[] }>JSON.parse(reader.result as string);
-                    for (const filename of Object.keys(jsonString)) {
-                        const graph: Graph<Point2D> = Graph.fromJson(jsonString[filename], (id) => new Point2D(id, 0, 0, []));
-                        const cache = this.fileCache.find(f => f.file.name === filename);
-                        if (cache) {
-                            cache.add(graph);
-                            if (this.selectedFile === filename) {
-                                this.editor.graph = graph;
-                            }
+            if (input.files?.length <= 0) {
+                return;
+            }
+            const annotationFile: File = input.files[0];
+            const reader: FileReader = new FileReader();
+            reader.onload = _ => {
+                const jsonString = <{ string: Point2D[] }>JSON.parse(reader.result as string);
+                for (const filename of Object.keys(jsonString)) {
+                    const workingImage = jsonString[filename];
+                    // skip files without annotation
+                    if (Object.keys(workingImage).length == 0) {
+                        continue;
+                    }
+                    const graph: Graph<Point2D> =
+                      Graph.fromJson(workingImage['points'], (id) => new Point2D(id, 0, 0, []));
+                    const cache = this.fileCache.find(
+                      f =>
+                        f.file.name === filename &&
+                        f.hash === workingImage['sha256']
+                    );
+                    if (cache) {
+                        cache.add(graph);
+                        if (this.selectedFile === filename) {
+                            this.editor.graph = graph;
                         }
                     }
-                    this.editor.draw();
                 }
-                reader.readAsText(annotationFile);
+                this.editor.draw();
             }
+            reader.readAsText(annotationFile);
         };
         input.click();
         return false;

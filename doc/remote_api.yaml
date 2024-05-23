@@ -17,11 +17,19 @@ components:
       description: The face meshes in a dict. The keys are the file names
       type: object
       additionalProperties:
-        type: array
-        items:
-          $ref: '#/components/schemas/Point'
-        maxLength: 478
-        minLength: 478
+        $ref: "#/components/schemas/Image"
+    Image:
+      type: object
+      properties:
+        points:
+          type: array
+          items:
+            $ref: '#/components/schemas/Point'
+          maxLength: 478
+          minLength: 478
+        sha256:
+          type: string
+          format: sha256
     Error:
       type: object
       properties:
