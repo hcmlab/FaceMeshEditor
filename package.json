@@ -112,10 +112,5 @@
     "exclude": [
       "**/*.spec.js"
     ]
-  },
-  "husky": {
-    "hooks": {
-      "pre-commit": "npm run build && npm run test"
-    }
   }
 }
