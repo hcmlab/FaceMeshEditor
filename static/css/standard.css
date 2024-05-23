@@ -1,3 +1,7 @@
+@import "./variables.css";
+@import "./wrongInput.css";
+@import "./graphics.css";
+
 kbd {
     background-color: #f6f6f6;
     border-radius: 3px;

@@ -41,7 +41,10 @@
   "dependencies": {
     "@bitauth/libauth": "^1.17.1",
     "@mediapipe/tasks-vision": "^0.10.12",
+    "@types/bootstrap": "^5.2.10",
+    "@types/jquery": "^3.5.30",
     "bootstrap": "^5.3.3",
+    "jquery": "^3.7.1",
     "jssha": "^3.3.1"
   },
   "devDependencies": {

@@ -1,0 +1,102 @@
+openapi: 3.0.3
+info:
+  title: FaceMeshEditor remote api
+  description: Describes the API a server should supply to work with this application
+  version: 1.0.0
+components:
+  schemas:
+    FaceMeshRequest:
+      description: The FaceMeshRequest embodies an image (png/jpg) sent to the server for processing.
+        The server does not necessarily save the annotations - it can but doesn't have to.
+      type: object
+      properties:
+        image:
+          type: string
+          description: The file name of the image to fetch the annotations
+    MeshCollection:
+      description: The face meshes in a dict. The keys are the file names
+      type: object
+      additionalProperties:
+        type: array
+        items:
+          $ref: '#/components/schemas/Point'
+        maxLength: 478
+        minLength: 478
+    Error:
+      type: object
+      properties:
+        message:
+          type: string
+          description: contains the error message with additional information dependent on the request
+    Point:
+      type: object
+      description: A single point. Can be 2D or 3D. The z-coordinate is optional.
+      properties:
+        id:
+          type: integer
+          description: Unique identifier for the landmark. Must be kept intact for proper rendering.
+          minimum: 0
+          maximum: 477
+        x:
+          $ref: '#/components/schemas/Coordinate'
+        y:
+          $ref: '#/components/schemas/Coordinate'
+        z:
+          $ref: '#/components/schemas/Coordinate'
+        deleted:
+          type: boolean
+          description: Indicates whether the landmark has been deleted or not. If not present, assumed to be false.
+          default: false
+      required:
+        - x
+        - y
+    Coordinate:
+      type: number
+      format: float
+      description: the relative position on one axis. The api might accept points outside the image, to support points 
+        outside the image area.
+      minimum: 0
+      maximum: 1.0
+
+
+paths:
+  '/detect':
+    post:
+      summary: Fetch a face mesh from the server
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/FaceMeshRequest'
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MeshCollection'
+        '404':
+          description: Not Found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  '/annotations':
+    post:
+      summary: Sends all present point data to the server
+      responses:
+        '201':
+          description: Created
+        '400':
+          description: Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MeshCollection'
