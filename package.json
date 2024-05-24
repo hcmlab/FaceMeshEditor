@@ -53,6 +53,7 @@
     "@types/node": "^20.12.12",
     "@typescript-eslint/eslint-plugin": "^7.10.0",
     "@typescript-eslint/parser": "^7.10.0",
+    "@sindresorhus/tsconfig": "^5.0.0",
     "ava": "^6.1.3",
     "codecov": "^3.8.3",
     "cross-env": "^7.0.3",
@@ -79,8 +80,11 @@
     "typescript-eslint": "^7.10.0"
   },
   "files": [
-    "build/main",
-    "build/module",
+    "doc",
+    "src",
+    "dist",
+    "static",
+    "test",
     "!**/*.spec.*",
     "!**/*.json",
     "CHANGELOG.md",
@@ -91,12 +95,14 @@
     "failFast": true,
     "timeout": "60s",
     "typescript": {
+      "compile": "tsc",
       "rewritePaths": {
-        "src/": "build/main/"
+        "test/": "dist/test/"
       }
     },
+    "failWithoutAssertions": true,
     "files": [
-      "!build/module/**"
+      "test/**/*.spec.ts"
     ]
   },
   "config": {
@@ -108,9 +114,6 @@
     "singleQuote": true
   },
   "nyc": {
-    "extends": "@istanbuljs/nyc-config-typescript",
-    "exclude": [
-      "**/*.spec.js"
-    ]
+    "extends": "@istanbuljs/nyc-config-typescript"
   }
 }
