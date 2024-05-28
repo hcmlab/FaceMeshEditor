@@ -37,7 +37,7 @@
     "prepare": "husky"
   },
   "engines": {
-    "node": ">=10"
+    "node": "^18.18.2"
   },
   "dependencies": {
     "@mediapipe/tasks-vision": "^0.10.14",
