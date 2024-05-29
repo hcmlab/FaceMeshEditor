@@ -33,7 +33,9 @@
     "version": "standard-version",
     "reset-hard": "git clean -dfx && git reset --hard && npm i",
     "prepare-release": "run-s reset-hard test cov:check doc:html version doc:publish",
-    "deploy": "gh-pages -d dist",
+    "deploy": "run-s deploy:*",
+    "deploy:build": "parcel build index.html --no-minify --public-url ./",
+    "deploy:publish": "gh-pages -d dist",
     "prepare": "husky"
   },
   "engines": {
