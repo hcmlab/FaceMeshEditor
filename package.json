@@ -35,7 +35,7 @@
     "prepare-release": "run-s reset-hard test cov:check doc:html version doc:publish",
     "deploy": "run-s deploy:*",
     "deploy:build": "parcel build index.html --no-minify --public-url ./",
-    "deploy:publish": "gh-pages -d dist -u github-actions-bot <support+actions@github.com>",
+    "deploy:publish": "gh-pages -d dist -u \"github-actions-bot <support+actions@github.com>\"",
     "prepare": "husky"
   },
   "engines": {
