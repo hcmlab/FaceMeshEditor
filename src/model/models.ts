@@ -2,5 +2,5 @@
 
 export enum ModelType {
   mediapipe,
-  custom
+  custom,
 }
