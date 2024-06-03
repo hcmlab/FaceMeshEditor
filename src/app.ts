@@ -58,7 +58,7 @@ export class App {
     openImage(): boolean {
         let input: HTMLInputElement = document.createElement('input');
         input.type = 'file';
-        input.accept = "image/png, image/jpeg";
+        input.accept = "image/png, image/jpeg, image/jpg";
         input.multiple = true;
         input.onchange = () => {
             if (input.files) {

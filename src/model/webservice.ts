@@ -20,15 +20,11 @@ export class WebServiceModel implements ModelApi<Point2D> {
     }
 
     async detect(imageFile: File): Promise<Graph<Point2D>> {
-        const headers: Headers = new Headers();
-        headers.set('Content-Type', 'multipart/form-data');
-
         const formData: FormData = new FormData();
         formData.append('file', imageFile);
 
         const request: RequestInfo = new Request(this.url + '/detect', {
             method: 'POST',
-            headers: headers,
             body: formData
         });
 
@@ -37,7 +33,7 @@ export class WebServiceModel implements ModelApi<Point2D> {
             .then(async json => {
                 const sha = await calculateSHA(imageFile);
                 if (json['sha256'] !== sha) {
-                    throw Error('sha256 didn\'t match present file');
+                    throw Error(`sha256 didn't match present file was ${json["sha256"]},  is , ${sha}`);
                 }
                 return json['points'];
             })
