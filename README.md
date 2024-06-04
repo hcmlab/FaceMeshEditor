@@ -6,6 +6,8 @@ ______________________________________________________________________
 #### An Editor to manually adjust automatic Face Mesh Detections
 ______________________________________________________________________
 
+![Build](https://github.com/hcmlab/FaceMeshEditor/actions/workflows/build.yaml/badge.svg)
+
 [**Demo**](https://hcmlab.github.io/FaceMeshEditor/)
 
 ![Screenshot of the Demo as a Preview](static/images/PreviewAnimation.gif)
