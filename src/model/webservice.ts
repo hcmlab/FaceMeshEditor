@@ -28,24 +28,26 @@ export class WebServiceModel implements ModelApi<Point2D> {
       body: formData,
     });
     return fetch(request)
-      .then(async res => {
+      .then(async (res) => {
         if (!res.ok) {
-          throw new Error((await res.json())['message'])
+          throw new Error((await res.json())['message']);
         }
-        return res.json()
+        return res.json();
       })
-      .then(async json => {
+      .then(async (json) => {
         const sha = await calculateSHA(imageFile);
         if (json['sha256'] !== sha) {
-          throw new Error(`sha256 didn't match present file was ${json["sha256"]},  is , ${sha}`);
+          throw new Error(
+            `sha256 didn't match present file was ${json['sha256']},  is , ${sha}`,
+          );
         }
         if (!json['points']) {
-          throw new Error('The request didn\'t return any point data.')
+          throw new Error("The request didn't return any point data.");
         }
         return json['points'];
       })
       .then((landmarks) =>
-          landmarks.map((dict: { x: number; y: number; }, idx: number) => {
+        landmarks.map((dict: { x: number; y: number }, idx: number) => {
           const ids = Array.from(
             findNeighbourPointIds(
               idx,
@@ -58,8 +60,8 @@ export class WebServiceModel implements ModelApi<Point2D> {
       )
       .then((landmarks) => new Graph(landmarks))
       .catch((err: Error) => {
-        console.log(err.message)
-        return null
+        console.log(err.message);
+        return null;
       });
   }
 

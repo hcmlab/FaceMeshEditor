@@ -22,7 +22,7 @@ export class FileAnnotationHistory<T extends Point2D> {
   constructor(file: File, cacheSize: number) {
     this._file = file;
     this.cacheSize = cacheSize;
-    calculateSHA(this._file).then(sha => this._hash = sha);
+    calculateSHA(this._file).then((sha) => (this._hash = sha));
   }
 
   /**

@@ -101,20 +101,23 @@ export class App {
       }
       const annotationFile: File = input.files[0];
       const reader: FileReader = new FileReader();
-      reader.onload = _ => {
-        const jsonString = <{ string: Point2D[] }>JSON.parse(reader.result as string);
+      reader.onload = (_) => {
+        const jsonString = <{ string: Point2D[] }>(
+          JSON.parse(reader.result as string)
+        );
         for (const filename of Object.keys(jsonString)) {
           const workingImage = jsonString[filename];
           // skip files without annotation
           if (Object.keys(workingImage).length == 0) {
             continue;
           }
-          const graph: Graph<Point2D> =
-            Graph.fromJson(workingImage['points'], (id) => new Point2D(id, 0, 0, []));
+          const graph: Graph<Point2D> = Graph.fromJson(
+            workingImage['points'],
+            (id) => new Point2D(id, 0, 0, []),
+          );
           const cache = this.fileCache.find(
-            f =>
-              f.file.name === filename &&
-              f.hash === workingImage['sha256']
+            (f) =>
+              f.file.name === filename && f.hash === workingImage['sha256'],
           );
           if (cache) {
             cache.add(graph);
@@ -124,7 +127,7 @@ export class App {
           }
         }
         this.editor.draw();
-      }
+      };
       reader.readAsText(annotationFile);
     };
     input.click();
@@ -140,10 +143,9 @@ export class App {
         result[c.file.name] = {};
         if (graph) {
           result[c.file.name]['points'] = graph.toDictArray();
-          let promise = calculateSHA(c.file)
-            .then(sha256 => {
-              result[c.file.name]['sha256'] = sha256;
-            });
+          const promise = calculateSHA(c.file).then((sha256) => {
+            result[c.file.name]['sha256'] = sha256;
+          });
           promises.push(promise);
         }
       }
@@ -151,14 +153,15 @@ export class App {
         .then(() => {
           const jsonData: string = JSON.stringify(result);
           this.getModel().uploadAnnotations(jsonData);
-          const dataStr: string = "data:text/json;charset=utf-8," + encodeURIComponent(jsonData);
+          const dataStr: string =
+            'data:text/json;charset=utf-8,' + encodeURIComponent(jsonData);
           const a: HTMLAnchorElement = document.createElement('a');
           a.href = dataStr;
           a.download = Date.now() + '_face_mesh_annotations.json';
           a.click();
         })
-        .catch(error => {
-          console.error("An error occurred:", error);
+        .catch((error) => {
+          console.error('An error occurred:', error);
         });
     }
     return false;
