@@ -1,5 +1,6 @@
 import { Point2D } from '../graph/point2d';
 import { Graph } from '../graph/graph';
+import { calculateSHA } from '../util/sha';
 
 /**
  * Represents a history of annotations for a specific file.
@@ -11,6 +12,7 @@ export class FileAnnotationHistory<T extends Point2D> {
   private history: Graph<T>[] = [];
   private currentHistoryIndex: number = 0;
   private readonly _file: File;
+  private _hash: string;
 
   /**
    * Creates a new FileAnnotationHistory instance.
@@ -20,6 +22,7 @@ export class FileAnnotationHistory<T extends Point2D> {
   constructor(file: File, cacheSize: number) {
     this._file = file;
     this.cacheSize = cacheSize;
+    calculateSHA(this._file).then((sha) => (this._hash = sha));
   }
 
   /**
@@ -28,6 +31,10 @@ export class FileAnnotationHistory<T extends Point2D> {
    */
   get file(): File {
     return this._file;
+  }
+
+  get hash(): string {
+    return this._hash;
   }
 
   /**

@@ -18,6 +18,7 @@ import { ModelApi } from './model/modelApi';
 import { MediapipeModel } from './model/mediapipe';
 import { ModelType } from './model/models';
 import { urlError, WebServiceModel } from './model/webservice';
+import { calculateSHA } from './util/sha';
 
 export class App {
   private featureDrag: Slider;
@@ -64,7 +65,7 @@ export class App {
   openImage(): boolean {
     const input: HTMLInputElement = document.createElement('input');
     input.type = 'file';
-    input.accept = 'image/png, image/jpeg';
+    input.accept = 'image/png, image/jpeg, image/jpg';
     input.multiple = true;
     input.onchange = () => {
       if (input.files) {
@@ -95,30 +96,39 @@ export class App {
     input.type = 'file';
     input.accept = '.json,application/json';
     input.onchange = () => {
-      if (input.files && input.files.length > 0) {
-        const annotationFile: File = input.files[0];
-        const reader: FileReader = new FileReader();
-        reader.onload = (_) => {
-          const jsonString = <{ string: Point2D[] }>(
-            JSON.parse(reader.result as string)
+      if (input.files?.length <= 0) {
+        return;
+      }
+      const annotationFile: File = input.files[0];
+      const reader: FileReader = new FileReader();
+      reader.onload = (_) => {
+        const jsonString = <{ string: Point2D[] }>(
+          JSON.parse(reader.result as string)
+        );
+        for (const filename of Object.keys(jsonString)) {
+          const workingImage = jsonString[filename];
+          // skip files without annotation
+          if (Object.keys(workingImage).length == 0) {
+            continue;
+          }
+          const graph: Graph<Point2D> = Graph.fromJson(
+            workingImage['points'],
+            (id) => new Point2D(id, 0, 0, []),
           );
-          for (const filename of Object.keys(jsonString)) {
-            const graph: Graph<Point2D> = Graph.fromJson(
-              jsonString[filename],
-              (id) => new Point2D(id, 0, 0, []),
-            );
-            const cache = this.fileCache.find((f) => f.file.name === filename);
-            if (cache) {
-              cache.add(graph);
-              if (this.selectedFile === filename) {
-                this.editor.graph = graph;
-              }
+          const cache = this.fileCache.find(
+            (f) =>
+              f.file.name === filename && f.hash === workingImage['sha256'],
+          );
+          if (cache) {
+            cache.add(graph);
+            if (this.selectedFile === filename) {
+              this.editor.graph = graph;
             }
           }
-          this.editor.draw();
-        };
-        reader.readAsText(annotationFile);
-      }
+        }
+        this.editor.draw();
+      };
+      reader.readAsText(annotationFile);
     };
     input.click();
     return false;
@@ -127,20 +137,32 @@ export class App {
   saveAnnotation(): boolean {
     if (this.fileCache.length > 0) {
       const result = {};
+      const promises = [];
       for (const c of this.fileCache) {
         const graph = c.get();
+        result[c.file.name] = {};
         if (graph) {
-          result[c.file.name] = graph.toDictArray();
+          result[c.file.name]['points'] = graph.toDictArray();
+          const promise = calculateSHA(c.file).then((sha256) => {
+            result[c.file.name]['sha256'] = sha256;
+          });
+          promises.push(promise);
         }
       }
-      const jsonData: string = JSON.stringify(result);
-      this.getModel().uploadAnnotations(jsonData);
-      const dataStr: string =
-        'data:text/json;charset=utf-8,' + encodeURIComponent(jsonData);
-      const a: HTMLAnchorElement = document.createElement('a');
-      a.href = dataStr;
-      a.download = Date.now() + '_face_mesh_annotations.json';
-      a.click();
+      Promise.all(promises)
+        .then(() => {
+          const jsonData: string = JSON.stringify(result);
+          this.getModel().uploadAnnotations(jsonData);
+          const dataStr: string =
+            'data:text/json;charset=utf-8,' + encodeURIComponent(jsonData);
+          const a: HTMLAnchorElement = document.createElement('a');
+          a.href = dataStr;
+          a.download = Date.now() + '_face_mesh_annotations.json';
+          a.click();
+        })
+        .catch((error) => {
+          console.error('An error occurred:', error);
+        });
     }
     return false;
   }
@@ -285,6 +307,9 @@ export class App {
     this.getModel()
       ?.detect(this.getSelectedFileHistory().file)
       .then((graph) => {
+        if (graph === null) {
+          return;
+        }
         this.getSelectedFileHistory()?.add(graph);
         this.editor.center();
         this.editor.graph = graph;
