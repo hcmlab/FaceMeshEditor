@@ -27,13 +27,20 @@ export class WebServiceModel implements ModelApi<Point2D> {
             method: 'POST',
             body: formData
         });
-
         return fetch(request)
-            .then(res => res.json())
+            .then(async res => {
+                if (!res.ok) {
+                    throw new Error((await res.json())['message'])
+                }
+                return res.json()
+            })
             .then(async json => {
                 const sha = await calculateSHA(imageFile);
                 if (json['sha256'] !== sha) {
-                    throw Error(`sha256 didn't match present file was ${json["sha256"]},  is , ${sha}`);
+                    throw new Error(`sha256 didn't match present file was ${json["sha256"]},  is , ${sha}`);
+                }
+                if (!json['points']) {
+                    throw new Error('The request didn\'t return any point data.')
                 }
                 return json['points'];
             })
@@ -41,7 +48,12 @@ export class WebServiceModel implements ModelApi<Point2D> {
                 const ids = Array.from(findNeighbourPointIds(idx, FaceLandmarker.FACE_LANDMARKS_TESSELATION, 1));
                 return new Point2D(idx, dict.x, dict.y, ids);
             }))
-            .then(landmarks => new Graph(landmarks));
+            .then(landmarks => new Graph(landmarks))
+            .catch((err: Error) => {
+                console.log(err.message)
+                return null
+            })
+
     }
 
     async uploadAnnotations(annotationsJson: string): Promise<void> {

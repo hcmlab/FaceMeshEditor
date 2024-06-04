@@ -289,6 +289,9 @@ export class App {
     private runDetection() {
         this.getModel()?.detect(this.getSelectedFileHistory().file)
             .then(graph => {
+                if (graph === null) {
+                    return;
+                }
                 this.getSelectedFileHistory()?.add(graph);
                 this.editor.center();
                 this.editor.graph = graph;

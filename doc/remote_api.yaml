@@ -30,6 +30,7 @@ components:
         sha256:
           type: string
           format: sha256
+          description: Only the actual image bytes are hashed.
     Error:
       type: object
       properties:
