@@ -34,7 +34,7 @@
     "reset-hard": "git clean -dfx && git reset --hard && npm i",
     "prepare-release": "run-s reset-hard test cov:check doc:html version doc:publish",
     "deploy": "run-s deploy:*",
-    "deploy:build": "parcel build index.html --no-optimize --public-url ./",
+    "deploy:build": "parcel build index.html --public-url ./",
     "deploy:publish": "gh-pages -d dist -u \"github-actions-bot <support+actions@github.com>\"",
     "prepare": "husky",
     "postinstall": "cp ./node_modules/@mediapipe/tasks-vision/vision_bundle.mjs.map ./node_modules/@mediapipe/tasks-vision/vision_bundle_mjs.js.map"
