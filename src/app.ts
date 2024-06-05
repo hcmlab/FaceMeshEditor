@@ -376,6 +376,9 @@ window.onload = (_) => {
 
   const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
   if (isSafari) {
-    alert("You are using Safari. This website may not function as expected. Please consider using a different browser.");
+    alert(
+      'You are using Safari. This website may not function as expected. ' +
+        'Please consider using a different browser.',
+    );
   }
 };
