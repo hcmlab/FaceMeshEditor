@@ -398,4 +398,12 @@ window.onload = (_) => {
       app.addFeatureDrag(e.deltaY / 100);
     }
   };
+
+  const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+  if (isSafari) {
+    alert(
+      'You are using Safari. This website may not function as expected. ' +
+        'Please consider using a different browser.',
+    );
+  }
 };
