@@ -409,10 +409,10 @@ window.onload = (_) => {
     );
   }
 
-  $("#modalSettingsModel").on('shown.bs.modal', function (_) {
+  $('#modalSettingsModel').on('shown.bs.modal', function (_) {
     const url = localStorage.getItem('apiUrl');
     if (url) {
-      $("#modelurl").val(url);
+      $('#modelurl').val(url);
     }
-  })
+  });
 };
