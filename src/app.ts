@@ -209,6 +209,7 @@ export class App {
         this.models.custom.selected = true;
         const inputBox = $('#modelurl');
         const url = String(inputBox.val());
+
         WebServiceModel.verifyUrl(url).then((error) => {
           const errorText = $('#urlErrorText');
           if (error === null) {
@@ -218,6 +219,7 @@ export class App {
             const saveElement = $('#saveNotification')[0];
             const toast = bootstrap.Toast.getOrCreateInstance(saveElement);
             toast.show();
+            localStorage.setItem('apiUrl', url);
             const notificationText = $('#saveNotificationText');
             notificationText.text('Webservice url saved!');
             setTimeout(() => {
@@ -406,4 +408,11 @@ window.onload = (_) => {
         'Please consider using a different browser.',
     );
   }
+
+  $("#modalSettingsModel").on('shown.bs.modal', function (_) {
+    const url = localStorage.getItem('apiUrl');
+    if (url) {
+      $("#modelurl").val(url);
+    }
+  })
 };
