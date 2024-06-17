@@ -124,8 +124,10 @@ export class Editor2D {
   }
 
   clearAndFitToWindow() {
-    this.canvas.width = window.innerWidth;
-    this.canvas.height = window.innerHeight;
+    this.canvas.width =  $("#canvas").innerWidth();
+    this.canvas.height = $('#canvas').innerHeight();
+
+    console.log(this.canvas.width, ' ', this.canvas.height);
   }
 
   center() {
