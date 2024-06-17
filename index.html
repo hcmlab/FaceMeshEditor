@@ -103,8 +103,21 @@
                    style="padding: .2vw;"><i class="bi bi-info-circle"></i> Info</a>
             </div>
             <!-- The central drawing -->
-            <div class="col-8">
+            <div class="col-8 position-relative">
                 <canvas id="canvas" class="w-100 vh-100"></canvas>
+                <div id="toastCommit" class="toast position-absolute bottom-0 end-0 z-2 me-3 w-auto"
+                     role="alert"
+                     aria-live="assertive"
+                     aria-atomic="true"
+                     data-bs-autohide="false"
+                >
+                    <div class="toast-body text-center">
+                        <h2>
+                            <i class="bi bi-check "></i>
+                            <span class="visually-hidden">Checkmark to commit a annotation</span>
+                        </h2>
+                    </div>
+                </div>
             </div>
             <!-- The picture selector -->
             <div class="col w-100 vh-100 rounded-end shadow bg-white text-center">
@@ -131,29 +144,6 @@
         </div>
     </div>
 </div>
-
-<div class="modal fade" id="commitModal" tabindex="-1" aria-labelledby="commitModalLabel" aria-hidden="true">
-    <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h5 class="modal-title" id="exampleModalLabel">Success</h5>
-                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                    <span aria-hidden="true">&times;</span>
-                </button>
-            </div>
-            <div class="modal-body text-center">
-                <div class="text-success" style="font-size: 48px;">
-                    <i class="fas fa-check-circle"></i>
-                </div>
-                <p class="mt-3">Your operation was successful!</p>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-            </div>
-        </div>
-    </div>
-</div>
-
 
 <div id="modalSettingsModel" class="modal fade" tabindex="-1" aria-labelledby="modalSettingsModelLabel"
      aria-hidden="true" data-bs-keyboard="false">
@@ -210,6 +200,7 @@
         </form>
     </div>
 </div>
+
 <!-- Notification popups -->
 <div class="toast-container position-fixed bottom-0 end-0 p-3">
     <div id="saveNotification" class="toast">
