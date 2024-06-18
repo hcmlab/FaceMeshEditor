@@ -41,6 +41,8 @@
                   class="bi bi-folder2-open"></i> Open Annotations</a>
                 <a id="saveAnno" class="nav-link btn btn-light" href="#" aria-keyshortcuts="Control+S"><i
                   class="bi bi-download"></i> Download</a>
+                <a id="sendAnno" class="nav-link btn btn-light" href="#" aria-keyshortcuts="Control+Shift+S">
+                    <i class="bi bi-floppy"></i>Save</a>
                 <!-- Edit Options-->
                 <h5 class="mt-4">Edit</h5>
                 <a id="undo" class="nav-link btn btn-light" href="#" aria-keyshortcuts="Control+Z"><i
@@ -113,8 +115,10 @@
                 >
                     <div class="toast-body text-center">
                         <h2>
-                            <i class="bi bi-check "></i>
-                            <span class="visually-hidden">Checkmark to commit a annotation</span>
+                            <a id="commitCheckmark" href="#">
+                                <i class="bi bi-check "></i>
+                                <span class="visually-hidden">Checkmark to commit a annotation</span>
+                            </a>
                         </h2>
                     </div>
                 </div>

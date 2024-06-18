@@ -18,7 +18,6 @@ import { ModelApi } from './model/modelApi';
 import { MediapipeModel } from './model/mediapipe';
 import { ModelType } from './model/models';
 import { urlError, WebServiceModel } from './model/webservice';
-import { calculateSHA } from './util/sha';
 
 export class App {
   private featureDrag: Slider;
@@ -50,9 +49,10 @@ export class App {
       'thumbnailgallery',
     ) as HTMLDivElement;
     this.numImages = document.getElementById('num_images') as HTMLOutputElement;
-    this.editor.setOnPointsEditedCallback((graph) =>
-      this.getSelectedFileHistory()?.add(graph),
-    );
+    this.editor.setOnPointsEditedCallback((graph) => {
+      this.getSelectedFileHistory()?.add(graph);
+      $('#toastCommit').toast('show');
+    });
     this.editor.setOnBackgroundLoadedCallback((_) => {
       if (this.getSelectedFileHistory()?.isEmpty()) {
         this.runDetection();
@@ -134,36 +134,56 @@ export class App {
     return false;
   }
 
-  saveAnnotation(): boolean {
-    if (this.fileCache.length > 0) {
-      const result = {};
-      const promises = [];
-      for (const c of this.fileCache) {
-        const graph = c.get();
-        result[c.file.name] = {};
-        if (graph) {
-          result[c.file.name]['points'] = graph.toDictArray();
-          const promise = calculateSHA(c.file).then((sha256) => {
-            result[c.file.name]['sha256'] = sha256;
-          });
-          promises.push(promise);
-        }
+  private collectAnnotation() {
+    const result = {};
+    for (const c of this.fileCache) {
+      if (!c.readyToSend()) {
+        continue;
       }
-      Promise.all(promises)
-        .then(() => {
-          const jsonData: string = JSON.stringify(result);
-          this.getModel().uploadAnnotations(jsonData);
-          const dataStr: string =
-            'data:text/json;charset=utf-8,' + encodeURIComponent(jsonData);
-          const a: HTMLAnchorElement = document.createElement('a');
-          a.href = dataStr;
-          a.download = Date.now() + '_face_mesh_annotations.json';
-          a.click();
-        })
-        .catch((error) => {
-          console.error('An error occurred:', error);
-        });
+      c.markAsSent();
+      const graph = c.get();
+      result[c.file.name] = {};
+      if (graph) {
+        result[c.file.name]['points'] = graph.toDictArray();
+        result[c.file.name]['sha256'] = c.hash;
+      }
     }
+    return result;
+  }
+
+  saveAnnotation(): boolean {
+    if (this.fileCache.length <= 0) {
+      return false;
+    }
+
+    const result = this.collectAnnotation();
+    if (Object.keys(result).length <= 0) {
+      return false;
+    }
+
+    const jsonData: string = JSON.stringify(result);
+    this.getModel().uploadAnnotations(jsonData);
+    const dataStr: string =
+      'data:text/json;charset=utf-8,' + encodeURIComponent(jsonData);
+    const a: HTMLAnchorElement = document.createElement('a');
+    a.href = dataStr;
+    a.download = Date.now() + '_face_mesh_annotations.json';
+    a.click();
+    return false;
+  }
+
+  sendAnnotation(): boolean {
+    if (this.fileCache.length <= 0) {
+      return false;
+    }
+
+    const result = this.collectAnnotation();
+    if (Object.keys(result).length <= 0) {
+      return false;
+    }
+
+    const jsonData: string = JSON.stringify(result);
+    this.getModel().uploadAnnotations(jsonData);
     return false;
   }
 
@@ -316,7 +336,7 @@ export class App {
       });
   }
 
-  private getSelectedFileHistory(): FileAnnotationHistory<Point2D> | undefined {
+  getSelectedFileHistory(): FileAnnotationHistory<Point2D> | undefined {
     return this.fileCache.find((c) => c.file.name === this.selectedFile);
   }
 
@@ -398,4 +418,13 @@ window.onload = (_) => {
       app.addFeatureDrag(e.deltaY / 100);
     }
   };
+
+  $('#commitCheckmark').on('click', () => {
+    app.getSelectedFileHistory().markAsReady();
+    $('#toastCommit').toast('hide');
+  });
+
+  $('#sendAnno').on('click', () => {
+    app.sendAnnotation();
+  });
 };

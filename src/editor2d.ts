@@ -124,10 +124,9 @@ export class Editor2D {
   }
 
   clearAndFitToWindow() {
-    this.canvas.width = $('#canvas').innerWidth();
-    this.canvas.height = $('#canvas').innerHeight();
-
-    console.log(this.canvas.width, ' ', this.canvas.height);
+    const canvas = $('#canvas');
+    this.canvas.width = canvas.innerWidth();
+    this.canvas.height = canvas.innerHeight();
   }
 
   center() {
@@ -320,8 +319,11 @@ export class Editor2D {
     this.prevMouseY = this.mouseY;
     this.mouseX = event.clientX;
     this.mouseY = event.clientY;
-    const relativeMouseX = (this.mouseX - this.offsetX) / this.zoomScale;
-    const relativeMouseY = (this.mouseY - this.offsetY) / this.zoomScale;
+    const canvasPos = $('#canvas').offset();
+    const relativeMouseX =
+      (this.mouseX - this.offsetX - canvasPos.left) / this.zoomScale;
+    const relativeMouseY =
+      (this.mouseY - this.offsetY - canvasPos.top) / this.zoomScale;
     if (this.isMoving) {
       this.canvas.style.cursor = 'pointer';
       // Update normalized coordinates based on mouse position
