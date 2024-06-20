@@ -20,10 +20,10 @@ export class Thumbnail {
     this.onClickCallback = onClickCallback;
     this.a = document.createElement('a');
     this.canvas = document.createElement('canvas');
-    this.canvas.className = 'img-thumbnail m-2 mx-auto d-block';
+    this.canvas.className = 'img-thumbnail d-block w-100';
     this.canvas.width = imageSize;
     this.canvas.height = imageSize;
-    this.ctx = this.canvas.getContext('2d') as CanvasRenderingContext2D;
+    this.ctx = this.canvas.getContext('2d');
     this.image.onload = () => this.draw();
     this.a.href = '#';
     this.a.onclick = (_) => {
@@ -63,19 +63,27 @@ export class Thumbnail {
    * Draws the image on the canvas, maintaining aspect ratio and centering it.
    */
   private draw(): void {
-    const scaleX = this.canvas.width / this.image.width;
-    const scaleY = this.canvas.height / this.image.height;
-    const zoomScale = scaleX < scaleY ? scaleX : scaleY;
-    const offX = (this.canvas.width - this.image.width * zoomScale) / 2;
-    const offY = (this.canvas.height - this.image.height * zoomScale) / 2;
+    // Set canvas to be a square
+    const size = this.canvas.offsetWidth;
+    this.canvas.width = size;
+    this.canvas.height = size;
+
+    // Calculate scale factor and offsets
+    const scale = size / Math.max(this.image.width, this.image.height);
+    const offX = (size - this.image.width * scale) / 2;
+    const offY = (size - this.image.height * scale) / 2;
+
+    // Clear and fill the entire canvas
     this.ctx.fillStyle = 'rgba(0,0,0,1)';
-    this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+    this.ctx.fillRect(0, 0, size, size);
+
+    // Draw the image on canvas, maintaining aspect ratio and centering
     this.ctx.drawImage(
       this.image,
       offX,
       offY,
-      this.image.width * zoomScale,
-      this.image.height * zoomScale,
+      this.image.width * scale,
+      this.image.height * scale,
     );
   }
 }

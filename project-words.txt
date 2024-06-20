@@ -11,7 +11,7 @@ Neighbour
 neighbour
 Neighbours
 neighbours
-thumbnailgallery
+thumbnailGallery
 unproject
 Unprojects
 Webservice

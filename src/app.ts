@@ -22,7 +22,7 @@ import { urlError, WebServiceModel } from './model/webservice';
 export class App {
   private featureDrag: Slider;
   private viewTesselation: CheckBox;
-  private thumbnailGallery: HTMLDivElement;
+  private thumbnailGallery: JQuery<HTMLElement>;
   private numImages: HTMLOutputElement;
   private fileCache: FileAnnotationHistory<Point2D>[] = [];
   private editor: Editor2D = new Editor2D();
@@ -45,9 +45,7 @@ export class App {
       'view_tesselation',
       () => (this.editor.showTesselation = this.viewTesselation.isChecked()),
     );
-    this.thumbnailGallery = document.getElementById(
-      'thumbnailgallery',
-    ) as HTMLDivElement;
+    this.thumbnailGallery = $('#thumbnailGallery');
     this.numImages = document.getElementById('num_images') as HTMLOutputElement;
     this.editor.setOnPointsEditedCallback((graph) => {
       this.getSelectedFileHistory()?.add(graph);
@@ -78,9 +76,10 @@ export class App {
             this.selectThumbnail(filename),
           );
           thumbnail.setSource(f);
-          this.thumbnailGallery.appendChild(thumbnail.toHtml());
-          this.numImages.value =
-            this.thumbnailGallery.children.length.toString();
+          this.thumbnailGallery.append(thumbnail.toHtml());
+          this.numImages.value = this.thumbnailGallery
+            .children()
+            .length.toString();
         }
         if (files.length > 0) {
           this.editor.setBackgroundSource(files[0]);
