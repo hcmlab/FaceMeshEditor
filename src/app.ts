@@ -58,6 +58,7 @@ export class App {
         this.runDetection();
       } else {
         this.editor.graph = this.getSelectedFileHistory()?.get();
+        $('#toastCommit').toast('hide');
       }
     });
   }
@@ -201,6 +202,7 @@ export class App {
 
   reset(): boolean {
     this.getSelectedFileHistory()?.clear();
+    $('#toastCommit').toast('hide');
     this.runDetection();
     return false;
   }

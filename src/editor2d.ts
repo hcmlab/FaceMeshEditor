@@ -317,13 +317,11 @@ export class Editor2D {
   private handleMouseMove(event: MouseEvent): void {
     this.prevMouseX = this.mouseX;
     this.prevMouseY = this.mouseY;
-    this.mouseX = event.clientX;
-    this.mouseY = event.clientY;
     const canvasPos = $('#canvas').offset();
-    const relativeMouseX =
-      (this.mouseX - this.offsetX - canvasPos.left) / this.zoomScale;
-    const relativeMouseY =
-      (this.mouseY - this.offsetY - canvasPos.top) / this.zoomScale;
+    this.mouseX = event.clientX - canvasPos.left;
+    this.mouseY = event.clientY - canvasPos.top;
+    const relativeMouseX = (this.mouseX - this.offsetX) / this.zoomScale;
+    const relativeMouseY = (this.mouseY - this.offsetY) / this.zoomScale;
     if (this.isMoving) {
       this.canvas.style.cursor = 'pointer';
       // Update normalized coordinates based on mouse position
