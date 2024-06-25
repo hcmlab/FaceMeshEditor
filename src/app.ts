@@ -1,7 +1,7 @@
 import * as bootstrap from 'bootstrap'; // import statically - don't grab it from a cdn
 import { Slider } from './view/slider';
 import { CheckBox } from './view/checkbox';
-import { Thumbnail } from './view/thumbnail';
+import { saveStatus, Thumbnail } from './view/thumbnail';
 import { FileAnnotationHistory } from './cache/fileAnnotationHistory';
 import { Point2D } from './graph/point2d';
 import { Editor2D } from './editor2d';
@@ -48,15 +48,21 @@ export class App {
     this.thumbnailGallery = $('#thumbnailGallery');
     this.numImages = document.getElementById('num_images') as HTMLOutputElement;
     this.editor.setOnPointsEditedCallback((graph) => {
-      this.getSelectedFileHistory()?.add(graph);
-      $('#toastCommit').toast('show');
+      if (!this.getSelectedFileHistory()) {
+        return;
+      }
+      this.getSelectedFileHistory().add(graph);
+      this.getSelectedFileHistory().edited = true;
+      Thumbnail.setStatus(
+        this.getSelectedFileHistory().file.name,
+        saveStatus.edited,
+      );
     });
     this.editor.setOnBackgroundLoadedCallback((_) => {
       if (this.getSelectedFileHistory()?.isEmpty()) {
         this.runDetection();
       } else {
         this.editor.graph = this.getSelectedFileHistory()?.get();
-        $('#toastCommit').toast('hide');
       }
     });
   }
@@ -72,8 +78,9 @@ export class App {
         for (const f of files) {
           const history = new FileAnnotationHistory<Point2D>(f, this.cacheSize);
           this.fileCache.push(history);
-          const thumbnail = new Thumbnail((filename) =>
-            this.selectThumbnail(filename),
+          const thumbnail = new Thumbnail(
+            (filename) => this.selectThumbnail(filename),
+            (filename) => this.markAsSaved(filename),
           );
           thumbnail.setSource(f);
           this.thumbnailGallery.append(thumbnail.toHtml());
@@ -187,6 +194,15 @@ export class App {
     return false;
   }
 
+  markAsSaved(filename: string): void {
+    const file = this.fileCache.find((file) => file.file.name === filename);
+    if (!file.edited) {
+      return;
+    }
+    file.markAsReady();
+    Thumbnail.setStatus(filename, saveStatus.saved);
+  }
+
   undo(): boolean {
     this.getSelectedFileHistory()?.previous();
     this.editor.graph = this.getSelectedFileHistory()?.get();
@@ -201,7 +217,6 @@ export class App {
 
   reset(): boolean {
     this.getSelectedFileHistory()?.clear();
-    $('#toastCommit').toast('hide');
     this.runDetection();
     return false;
   }
@@ -313,6 +328,11 @@ export class App {
   }
 
   selectThumbnail(filename: string): void {
+    this.getSelectedFileHistory().markAsReady();
+    Thumbnail.setStatus(
+      this.getSelectedFileHistory().file.name,
+      saveStatus.saved,
+    );
     this.selectedFile = filename;
     const cache = this.getSelectedFileHistory();
     if (cache) {
@@ -339,6 +359,14 @@ export class App {
 
   getSelectedFileHistory(): FileAnnotationHistory<Point2D> | undefined {
     return this.fileCache.find((c) => c.file.name === this.selectedFile);
+  }
+
+  /**
+   * Returns true if no files are staged for saving. If the file is edited but not marked as ready
+   * this returns false
+   */
+  allSaved(): boolean {
+    return this.fileCache.some((file) => !file.readyToSend());
   }
 
   private deletePoints(pointIds: number[]): void {
@@ -420,13 +448,19 @@ window.onload = (_) => {
     }
   };
 
-  $('#commitCheckmark').on('click', () => {
-    app.getSelectedFileHistory().markAsReady();
-    $('#toastCommit').toast('hide');
-  });
-
   $('#sendAnno').on('click', () => {
     app.sendAnnotation();
+  });
+
+  // @ts-expect-error The function should return a value on all paths.
+  // But the dialog pops up if any return statement is executed
+  $(window).on('beforeunload', () => {
+    console.log(app.allSaved());
+    if (!app.allSaved()) {
+      console.log('not_all_saved');
+      return 'Do you want to save your changes?';
+    }
+    console.log('all_saved');
   });
 
   const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);

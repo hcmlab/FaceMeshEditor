@@ -14,6 +14,7 @@ export class FileAnnotationHistory<T extends Point2D> {
   private readonly _file: File;
   private _hash: string;
   private _readyToSend: boolean;
+  private _edited: boolean;
 
   /**
    * Creates a new FileAnnotationHistory instance.
@@ -25,6 +26,7 @@ export class FileAnnotationHistory<T extends Point2D> {
     this.cacheSize = cacheSize;
     calculateSHA(this._file).then((sha) => (this._hash = sha));
     this._readyToSend = false;
+    this._edited = false;
   }
 
   /**
@@ -37,6 +39,14 @@ export class FileAnnotationHistory<T extends Point2D> {
 
   get hash(): string {
     return this._hash;
+  }
+
+  get edited(): boolean {
+    return this._edited;
+  }
+
+  set edited(value: boolean) {
+    this._edited = value;
   }
 
   /**
@@ -130,5 +140,6 @@ export class FileAnnotationHistory<T extends Point2D> {
    */
   markAsSent(): void {
     this._readyToSend = false;
+    this._edited = false;
   }
 }
