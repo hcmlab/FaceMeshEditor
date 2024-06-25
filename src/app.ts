@@ -1,7 +1,7 @@
 import * as bootstrap from 'bootstrap'; // import statically - don't grab it from a cdn
 import { Slider } from './view/slider';
 import { CheckBox } from './view/checkbox';
-import { Thumbnail } from './view/thumbnail';
+import { saveStatus, Thumbnail } from './view/thumbnail';
 import { FileAnnotationHistory } from './cache/fileAnnotationHistory';
 import { Point2D } from './graph/point2d';
 import { Editor2D } from './editor2d';
@@ -18,12 +18,11 @@ import { ModelApi } from './model/modelApi';
 import { MediapipeModel } from './model/mediapipe';
 import { ModelType } from './model/models';
 import { urlError, WebServiceModel } from './model/webservice';
-import { calculateSHA } from './util/sha';
 
 export class App {
   private featureDrag: Slider;
   private viewTesselation: CheckBox;
-  private thumbnailGallery: HTMLDivElement;
+  private thumbnailGallery: JQuery<HTMLElement>;
   private numImages: HTMLOutputElement;
   private fileCache: FileAnnotationHistory<Point2D>[] = [];
   private editor: Editor2D = new Editor2D();
@@ -46,13 +45,19 @@ export class App {
       'view_tesselation',
       () => (this.editor.showTesselation = this.viewTesselation.isChecked()),
     );
-    this.thumbnailGallery = document.getElementById(
-      'thumbnailgallery',
-    ) as HTMLDivElement;
+    this.thumbnailGallery = $('#thumbnailGallery');
     this.numImages = document.getElementById('num_images') as HTMLOutputElement;
-    this.editor.setOnPointsEditedCallback((graph) =>
-      this.getSelectedFileHistory()?.add(graph),
-    );
+    this.editor.setOnPointsEditedCallback((graph) => {
+      if (!this.getSelectedFileHistory()) {
+        return;
+      }
+      this.getSelectedFileHistory().add(graph);
+      this.getSelectedFileHistory().edited = true;
+      Thumbnail.setStatus(
+        this.getSelectedFileHistory().file.name,
+        saveStatus.edited,
+      );
+    });
     this.editor.setOnBackgroundLoadedCallback((_) => {
       if (this.getSelectedFileHistory()?.isEmpty()) {
         this.runDetection();
@@ -73,13 +78,15 @@ export class App {
         for (const f of files) {
           const history = new FileAnnotationHistory<Point2D>(f, this.cacheSize);
           this.fileCache.push(history);
-          const thumbnail = new Thumbnail((filename) =>
-            this.selectThumbnail(filename),
+          const thumbnail = new Thumbnail(
+            (filename) => this.selectThumbnail(filename),
+            (filename) => this.markAsSaved(filename),
           );
           thumbnail.setSource(f);
-          this.thumbnailGallery.appendChild(thumbnail.toHtml());
-          this.numImages.value =
-            this.thumbnailGallery.children.length.toString();
+          this.thumbnailGallery.append(thumbnail.toHtml());
+          this.numImages.value = this.thumbnailGallery
+            .children()
+            .length.toString();
         }
         if (files.length > 0) {
           this.editor.setBackgroundSource(files[0]);
@@ -134,37 +141,66 @@ export class App {
     return false;
   }
 
-  saveAnnotation(): boolean {
-    if (this.fileCache.length > 0) {
-      const result = {};
-      const promises = [];
-      for (const c of this.fileCache) {
-        const graph = c.get();
-        result[c.file.name] = {};
-        if (graph) {
-          result[c.file.name]['points'] = graph.toDictArray();
-          const promise = calculateSHA(c.file).then((sha256) => {
-            result[c.file.name]['sha256'] = sha256;
-          });
-          promises.push(promise);
-        }
+  private collectAnnotation() {
+    const result = {};
+    for (const c of this.fileCache) {
+      if (!c.readyToSend()) {
+        continue;
       }
-      Promise.all(promises)
-        .then(() => {
-          const jsonData: string = JSON.stringify(result);
-          this.getModel().uploadAnnotations(jsonData);
-          const dataStr: string =
-            'data:text/json;charset=utf-8,' + encodeURIComponent(jsonData);
-          const a: HTMLAnchorElement = document.createElement('a');
-          a.href = dataStr;
-          a.download = Date.now() + '_face_mesh_annotations.json';
-          a.click();
-        })
-        .catch((error) => {
-          console.error('An error occurred:', error);
-        });
+      c.markAsSent();
+      const graph = c.get();
+      result[c.file.name] = {};
+      if (graph) {
+        result[c.file.name]['points'] = graph.toDictArray();
+        result[c.file.name]['sha256'] = c.hash;
+      }
     }
+    return result;
+  }
+
+  saveAnnotation(): boolean {
+    if (this.fileCache.length <= 0) {
+      return false;
+    }
+
+    const result = this.collectAnnotation();
+    if (Object.keys(result).length <= 0) {
+      return false;
+    }
+
+    const jsonData: string = JSON.stringify(result);
+    this.getModel().uploadAnnotations(jsonData);
+    const dataStr: string =
+      'data:text/json;charset=utf-8,' + encodeURIComponent(jsonData);
+    const a: HTMLAnchorElement = document.createElement('a');
+    a.href = dataStr;
+    a.download = Date.now() + '_face_mesh_annotations.json';
+    a.click();
     return false;
+  }
+
+  sendAnnotation(): boolean {
+    if (this.fileCache.length <= 0) {
+      return false;
+    }
+
+    const result = this.collectAnnotation();
+    if (Object.keys(result).length <= 0) {
+      return false;
+    }
+
+    const jsonData: string = JSON.stringify(result);
+    this.getModel().uploadAnnotations(jsonData);
+    return false;
+  }
+
+  markAsSaved(filename: string): void {
+    const file = this.fileCache.find((file) => file.file.name === filename);
+    if (!file.edited) {
+      return;
+    }
+    file.markAsReady();
+    Thumbnail.setStatus(filename, saveStatus.saved);
   }
 
   undo(): boolean {
@@ -292,6 +328,11 @@ export class App {
   }
 
   selectThumbnail(filename: string): void {
+    this.getSelectedFileHistory().markAsReady();
+    Thumbnail.setStatus(
+      this.getSelectedFileHistory().file.name,
+      saveStatus.saved,
+    );
     this.selectedFile = filename;
     const cache = this.getSelectedFileHistory();
     if (cache) {
@@ -316,8 +357,16 @@ export class App {
       });
   }
 
-  private getSelectedFileHistory(): FileAnnotationHistory<Point2D> | undefined {
+  getSelectedFileHistory(): FileAnnotationHistory<Point2D> | undefined {
     return this.fileCache.find((c) => c.file.name === this.selectedFile);
+  }
+
+  /**
+   * Returns true if no files are staged for saving. If the file is edited but not marked as ready
+   * this returns false
+   */
+  allSaved(): boolean {
+    return this.fileCache.some((file) => !file.readyToSend());
   }
 
   private deletePoints(pointIds: number[]): void {
@@ -398,6 +447,21 @@ window.onload = (_) => {
       app.addFeatureDrag(e.deltaY / 100);
     }
   };
+
+  $('#sendAnno').on('click', () => {
+    app.sendAnnotation();
+  });
+
+  // @ts-expect-error The function should return a value on all paths.
+  // But the dialog pops up if any return statement is executed
+  $(window).on('beforeunload', () => {
+    console.log(app.allSaved());
+    if (!app.allSaved()) {
+      console.log('not_all_saved');
+      return 'Do you want to save your changes?';
+    }
+    console.log('all_saved');
+  });
 
   const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
   if (isSafari) {
