@@ -144,7 +144,7 @@ export class App {
   private collectAnnotation() {
     const result = {};
     for (const c of this.fileCache) {
-      if (!c.readyToSend()) {
+      if (!c.edited) {
         continue;
       }
       c.markAsSent();
@@ -199,7 +199,6 @@ export class App {
     if (!file.edited) {
       return;
     }
-    file.markAsReady();
     Thumbnail.setStatus(filename, saveStatus.saved);
   }
 
@@ -226,6 +225,12 @@ export class App {
   }
 
   setModel(name: ModelType): boolean {
+    if (name === ModelType.custom) {
+      $('#sendAnno').show(0.1);
+    } else {
+      $('#sendAnno').hide(0.1);
+    }
+
     const btnMediapipe = document.getElementById(
       'btnModelMediapipe',
     ) as HTMLInputElement;
@@ -328,7 +333,6 @@ export class App {
   }
 
   selectThumbnail(filename: string): void {
-    this.getSelectedFileHistory().markAsReady();
     Thumbnail.setStatus(
       this.getSelectedFileHistory().file.name,
       saveStatus.saved,
@@ -362,11 +366,10 @@ export class App {
   }
 
   /**
-   * Returns true if no files are staged for saving. If the file is edited but not marked as ready
-   * this returns false
+   * Returns true if no files are not send
    */
   allSaved(): boolean {
-    return this.fileCache.some((file) => !file.readyToSend());
+    return this.fileCache.some((file) => !file.edited);
   }
 
   private deletePoints(pointIds: number[]): void {
@@ -448,19 +451,18 @@ window.onload = (_) => {
     }
   };
 
-  $('#sendAnno').on('click', () => {
-    app.sendAnnotation();
-  });
+  $('#sendAnno')
+    .on('click', () => {
+      app.sendAnnotation();
+    })
+    .hide();
 
-  // @ts-expect-error The function should return a value on all paths.
   // But the dialog pops up if any return statement is executed
   $(window).on('beforeunload', () => {
     console.log(app.allSaved());
     if (!app.allSaved()) {
-      console.log('not_all_saved');
-      return 'Do you want to save your changes?';
+      app.sendAnnotation();
     }
-    console.log('all_saved');
   });
 
   const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);

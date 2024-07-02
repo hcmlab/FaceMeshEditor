@@ -13,7 +13,6 @@ export class FileAnnotationHistory<T extends Point2D> {
   private currentHistoryIndex: number = 0;
   private readonly _file: File;
   private _hash: string;
-  private _readyToSend: boolean;
   private _edited: boolean;
 
   /**
@@ -25,7 +24,6 @@ export class FileAnnotationHistory<T extends Point2D> {
     this._file = file;
     this.cacheSize = cacheSize;
     calculateSHA(this._file).then((sha) => (this._hash = sha));
-    this._readyToSend = false;
     this._edited = false;
   }
 
@@ -118,28 +116,12 @@ export class FileAnnotationHistory<T extends Point2D> {
   clear() {
     this.history.length = 0;
     this.currentHistoryIndex = 0;
-    this._readyToSend = false;
-  }
-
-  /**
-   * marks the file as ready to send
-   */
-  markAsReady() {
-    this._readyToSend = true;
-  }
-
-  /**
-   * Checks whether the object is ready to send.
-   */
-  readyToSend(): boolean {
-    return this._readyToSend;
   }
 
   /**
    * Resets the status if item is sent
    */
   markAsSent(): void {
-    this._readyToSend = false;
     this._edited = false;
   }
 }
