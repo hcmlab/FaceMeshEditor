@@ -8,23 +8,19 @@ export class Thumbnail {
   private readonly icon: HTMLElement;
   private readonly iconDescription: HTMLSpanElement;
   private readonly onClickCallback: (filename: string) => void;
-  private readonly onClickCheckmarkCallback: (filename: string) => void;
   private ctx: CanvasRenderingContext2D;
   private image: HTMLImageElement = new Image();
 
   /**
    * Creates a new Thumbnail instance.
    * @param {(filename: string) => void} onClickCallback - A callback function to execute when the thumbnail is clicked.
-   * @param {(filename: string) => void} onClickCheckmarkCallback - A callback function to execute when the checkmark is clicked.
    * @param {number} imageSize - The desired size (width and height) of the thumbnail canvas.
    */
   constructor(
     onClickCallback: (filename: string) => void,
-    onClickCheckmarkCallback: (filename: string) => void,
     imageSize: number = 100,
   ) {
     this.onClickCallback = onClickCallback;
-    this.onClickCheckmarkCallback = onClickCheckmarkCallback;
     this.a = document.createElement('a');
     this.a.className = 'position-relative';
     this.canvas = document.createElement('canvas');
@@ -74,37 +70,31 @@ export class Thumbnail {
       this.onClickCallback(file.name);
       return false;
     };
-    this.iconContainer.onclick = () => {
-      this.onClickCheckmarkCallback(file.name);
-      return false;
-    };
     this.a.id = 'thumbnail_' + file.name.replace(/\./g, '_');
   }
 
   static setStatus(filename: string, status: saveStatus) {
     filename = filename.replace(/\./g, '_');
     const container = $('#thumbnail_' + filename);
-    const children = container.children();
-    const iconContainer = children[1];
-    const icon = iconContainer.querySelector('i');
-    const iconDescription = children[0];
+    const iconContainer = container.find('h2');
+    const icon = iconContainer.find('i');
+    const iconDescription = container.find('span');
     switch (status) {
       case saveStatus.unedited: {
-        icon.className = 'bi bi-check text-secondary';
-        iconDescription.textContent = 'Annotation has not been Edited';
+        icon.removeClass().addClass('bi bi-check text-secondary');
+        iconDescription.text('Annotation has not been Edited');
         break;
       }
       case saveStatus.edited: {
         // edited, unsaved -> yellow
-        icon.className = 'bi bi-check text-warning';
-        iconDescription.textContent =
-          'Annotation has been changed but not saved';
+        icon.removeClass().addClass('bi bi-check text-warning');
+        iconDescription.text('Annotation has been changed but not saved');
         break;
       }
       case saveStatus.saved: {
         // edited, saved -> green
-        icon.className = 'bi bi-check text-success';
-        iconDescription.textContent = 'Annotation has been saved';
+        icon.removeClass().addClass('bi bi-check text-success');
+        iconDescription.text('Annotation has been saved');
         break;
       }
     }

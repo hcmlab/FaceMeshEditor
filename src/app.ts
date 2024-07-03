@@ -51,12 +51,10 @@ export class App {
       if (!this.getSelectedFileHistory()) {
         return;
       }
-      this.getSelectedFileHistory().add(graph);
-      this.getSelectedFileHistory().edited = true;
-      Thumbnail.setStatus(
-        this.getSelectedFileHistory().file.name,
-        saveStatus.edited,
-      );
+      const history = this.getSelectedFileHistory();
+      history.add(graph);
+      history.edited = true;
+      Thumbnail.setStatus(history.file.name, saveStatus.edited);
     });
     this.editor.setOnBackgroundLoadedCallback((_) => {
       if (this.getSelectedFileHistory()?.isEmpty()) {
@@ -78,9 +76,8 @@ export class App {
         for (const f of files) {
           const history = new FileAnnotationHistory<Point2D>(f, this.cacheSize);
           this.fileCache.push(history);
-          const thumbnail = new Thumbnail(
-            (filename) => this.selectThumbnail(filename),
-            (filename) => this.markAsSaved(filename),
+          const thumbnail = new Thumbnail((filename) =>
+            this.selectThumbnail(filename),
           );
           thumbnail.setSource(f);
           this.thumbnailGallery.append(thumbnail.toHtml());
@@ -191,15 +188,11 @@ export class App {
 
     const jsonData: string = JSON.stringify(result);
     this.getModel().uploadAnnotations(jsonData);
-    return false;
-  }
 
-  markAsSaved(filename: string): void {
-    const file = this.fileCache.find((file) => file.file.name === filename);
-    if (!file.edited) {
-      return;
-    }
-    Thumbnail.setStatus(filename, saveStatus.saved);
+    Object.keys(result).forEach((fileName) => {
+      Thumbnail.setStatus(fileName, saveStatus.saved);
+    });
+    return false;
   }
 
   undo(): boolean {
@@ -333,10 +326,12 @@ export class App {
   }
 
   selectThumbnail(filename: string): void {
-    Thumbnail.setStatus(
-      this.getSelectedFileHistory().file.name,
-      saveStatus.saved,
-    );
+    if (this.getSelectedFileHistory().edited) {
+      Thumbnail.setStatus(
+        this.getSelectedFileHistory().file.name,
+        saveStatus.saved,
+      );
+    }
     this.selectedFile = filename;
     const cache = this.getSelectedFileHistory();
     if (cache) {
@@ -459,7 +454,6 @@ window.onload = (_) => {
 
   // But the dialog pops up if any return statement is executed
   $(window).on('beforeunload', () => {
-    console.log(app.allSaved());
     if (!app.allSaved()) {
       app.sendAnnotation();
     }

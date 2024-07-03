@@ -60,7 +60,7 @@ export class WebServiceModel implements ModelApi<Point2D> {
       )
       .then((landmarks) => new Graph(landmarks))
       .catch((err: Error) => {
-        console.log(err.message);
+        console.error(err.message);
         return null;
       });
   }
