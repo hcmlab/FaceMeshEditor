@@ -17,3 +17,4 @@ Unprojects
 Webservice
 webservice
 jssha
+fingerprintjs

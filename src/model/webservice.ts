@@ -4,6 +4,7 @@ import { Graph } from '../graph/graph';
 import { findNeighbourPointIds } from '../graph/face_landmarks_features';
 import { FaceLandmarker } from '@mediapipe/tasks-vision';
 import { calculateSHA } from '../util/sha';
+import FingerprintJS, { Agent } from '@fingerprintjs/fingerprintjs';
 
 /**
  * Represents a model using a WebService for face landmark detection.
@@ -11,12 +12,16 @@ import { calculateSHA } from '../util/sha';
  */
 export class WebServiceModel implements ModelApi<Point2D> {
   private readonly url: string;
+  private static fp: Promise<Agent> | null = null;
 
   /**
    * Creates a new WebServiceModel instance.
    */
   constructor(url: string) {
     this.url = url;
+    if (!WebServiceModel.fp) {
+      WebServiceModel.fp = FingerprintJS.load();
+    }
   }
 
   async detect(imageFile: File): Promise<Graph<Point2D>> {
@@ -70,13 +75,20 @@ export class WebServiceModel implements ModelApi<Point2D> {
     headers.set('Content-Type', 'application/json');
     headers.set('Accept', 'application/json');
 
-    const request: RequestInfo = new Request(this.url + '/annotations', {
-      method: 'POST',
-      headers: headers,
-      body: annotationsJson,
-    });
+    return WebServiceModel.fp
+      .then((fp) => fp.get())
+      .then(async (result) => {
+        const json = JSON.parse(annotationsJson);
+        json['__id__'] = result.visitorId;
+        console.log(json);
+        const request: RequestInfo = new Request(this.url + '/annotations', {
+          method: 'POST',
+          headers: headers,
+          body: JSON.stringify(json),
+        });
 
-    return fetch(request).then();
+        return fetch(request).then();
+      });
   }
 
   /**

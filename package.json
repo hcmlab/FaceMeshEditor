@@ -52,6 +52,7 @@
     "last 2 versions, not dead"
   ],
   "dependencies": {
+    "@fingerprintjs/fingerprintjs": "^4.4.2",
     "@mediapipe/tasks-vision": "^0.10.14",
     "bootstrap": "^5.3.3",
     "jquery": "^3.7.1",
@@ -59,6 +60,7 @@
   },
   "devDependencies": {
     "@ava/typescript": "^5.0.0",
+    "@eslint/js": "^8.57.0",
     "@istanbuljs/nyc-config-typescript": "^1.0.2",
     "@sindresorhus/tsconfig": "^5.0.0",
     "@types/bootstrap": "^5.2.10",
@@ -70,12 +72,10 @@
     "cspell": "^8.8.4",
     "cz-conventional-changelog": "^3.3.0",
     "eslint": "^8.57.0",
-    "@eslint/js": "^8.57.0",
     "eslint-config-prettier": "^9.1.0",
+    "eslint-import-resolver-typescript": "^3.6.1",
     "eslint-plugin-eslint-comments": "^3.2.0",
     "eslint-plugin-import": "^2.29.1",
-    "typescript-eslint": "^7.12.0",
-    "eslint-import-resolver-typescript": "^3.6.1",
     "gh-pages": "^6.1.1",
     "globals": "^15.3.0",
     "husky": "^9.0.11",
@@ -88,7 +88,8 @@
     "standard-version": "^9.5.0",
     "ts-node": "^10.9.2",
     "typedoc": "^0.25.13",
-    "typescript": "^5.4.5"
+    "typescript": "^5.4.5",
+    "typescript-eslint": "^7.12.0"
   },
   "files": [
     "doc",
