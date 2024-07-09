@@ -22,7 +22,7 @@ export class Thumbnail {
   ) {
     this.onClickCallback = onClickCallback;
     this.a = document.createElement('a');
-    this.a.className = 'position-relative';
+    this.a.className = 'overlap-container';
     this.canvas = document.createElement('canvas');
     this.canvas.className = 'img-thumbnail d-block w-100 rounded';
     this.canvas.width = imageSize;
@@ -36,18 +36,15 @@ export class Thumbnail {
     this.a.appendChild(this.canvas);
 
     // Info icon if image was saved
-    this.iconContainer = document.createElement('h2');
+    this.iconContainer = document.createElement('div');
     this.iconContainer.className =
-      'position-absolute bottom-0 end-0 bg-light bg-opacity-75 rounded-circle m-1 ' +
-      'border border-2 border-dark';
+      'bg-dark bg-opacity-25 rounded m-1 border border-dark d-flex justify-content-center align-items-center d-none';
     this.iconDescription = document.createElement('span');
     this.iconDescription.className = 'visually-hidden';
     this.icon = document.createElement('i');
-    this.icon.className = 'bi bi-check text-secondary';
+    this.icon.className = 'bi bi-floppy';
+    this.icon.style.fontSize = '4rem';
 
-    this.iconContainer.onclick = (_) => {
-      return false;
-    };
     this.iconContainer.appendChild(this.icon);
     this.iconContainer.appendChild(this.iconDescription);
     this.a.appendChild(this.iconContainer);
@@ -76,18 +73,20 @@ export class Thumbnail {
   static setStatus(filename: string, status: saveStatus) {
     filename = filename.replace(/\./g, '_');
     const container = $('#thumbnail_' + filename);
-    const iconContainer = container.find('h2');
+    const iconContainer = container.find('div');
     const icon = iconContainer.find('i');
     const iconDescription = container.find('span');
     switch (status) {
       case saveStatus.unedited: {
-        icon.removeClass().addClass('bi bi-check text-secondary');
+        iconContainer.addClass('d-none');
+        icon.removeClass().addClass('bi bi-floppy text-secondary');
         iconDescription.text('Annotation has not been Edited');
         break;
       }
       case saveStatus.edited: {
         // edited, unsaved -> yellow
-        icon.removeClass().addClass('bi bi-check text-warning');
+        iconContainer.removeClass('d-none');
+        icon.removeClass().addClass('bi bi-floppy text-warning');
         iconDescription.text('Annotation has been changed but not saved');
         break;
       }

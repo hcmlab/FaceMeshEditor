@@ -53,7 +53,6 @@ export class App {
       }
       const history = this.getSelectedFileHistory();
       history.add(graph);
-      history.edited = true;
       Thumbnail.setStatus(history.file.name, saveStatus.edited);
     });
     this.editor.setOnBackgroundLoadedCallback((_) => {
@@ -141,7 +140,7 @@ export class App {
   private collectAnnotation() {
     const result = {};
     for (const c of this.fileCache) {
-      if (!c.edited) {
+      if (!c.saved) {
         continue;
       }
       c.markAsSent();
@@ -326,11 +325,11 @@ export class App {
   }
 
   selectThumbnail(filename: string): void {
-    if (this.getSelectedFileHistory().edited) {
-      Thumbnail.setStatus(
-        this.getSelectedFileHistory().file.name,
-        saveStatus.saved,
-      );
+    /* clicking to save */
+    if (filename === this.selectedFile) {
+      this.getSelectedFileHistory().saved = true;
+      Thumbnail.setStatus(filename, saveStatus.saved);
+      return;
     }
     this.selectedFile = filename;
     const cache = this.getSelectedFileHistory();
@@ -364,7 +363,7 @@ export class App {
    * Returns true if no files are not send
    */
   allSaved(): boolean {
-    return this.fileCache.some((file) => !file.edited);
+    return this.fileCache.some((file) => !file.saved);
   }
 
   private deletePoints(pointIds: number[]): void {

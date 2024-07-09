@@ -30,3 +30,13 @@ a[shortcut]:after {
     width: 2.0rem;
     height: 2.0rem;
 }
+
+.overlap-container {
+    display: grid;
+
+    > * {
+        grid-area: 1 / 1;
+    }
+}
+
+
