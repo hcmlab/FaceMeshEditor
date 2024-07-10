@@ -44,7 +44,14 @@ export class WebServiceModel implements ModelApi<Point2D> {
         if (!json['points']) {
           throw new Error("The request didn't return any point data.");
         }
-        return json['points'];
+        const points = json['points'];
+        if (!Array.isArray(points)) {
+          throw new Error('points must be an Array');
+        }
+        if (points.length < 1) {
+          throw new Error('The request supplied an empty point array');
+        }
+        return points[0];
       })
       .then((landmarks) =>
         landmarks.map((dict: { x: number; y: number }, idx: number) => {
