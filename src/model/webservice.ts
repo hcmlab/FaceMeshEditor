@@ -66,22 +66,21 @@ export class WebServiceModel implements ModelApi<Point2D> {
       });
   }
 
-  async uploadAnnotations(annotationsJson: string): Promise<void> {
+  async uploadAnnotations(annotationsJson: string): Promise<Response> {
     const headers: Headers = new Headers();
     headers.set('Content-Type', 'application/json');
     headers.set('Accept', 'application/json');
 
     return getCurrentBrowserFingerPrint().then(async (fingerprint) => {
       const json = JSON.parse(annotationsJson);
-      json['__id__'] = fingerprint;
-      console.log(json);
+      json['__id__'] = fingerprint.toString();
       const request: RequestInfo = new Request(this.url + '/annotations', {
         method: 'POST',
         headers: headers,
         body: JSON.stringify(json),
       });
 
-      return fetch(request).then();
+      return fetch(request);
     });
   }
 
