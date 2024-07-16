@@ -122,6 +122,6 @@ export class FileAnnotationHistory<T extends Point2D> {
    * Resets the status if item is sent
    */
   markAsSent(): void {
-    this._saved = false;
+    this.readyToSave = false;
   }
 }
