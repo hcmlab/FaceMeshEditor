@@ -43,7 +43,7 @@ export class Thumbnail {
     this.iconDescription.className = 'visually-hidden';
     this.icon = document.createElement('i');
     this.icon.className = 'bi bi-floppy';
-    this.icon.style.fontSize = '400%';
+    this.icon.style.fontSize = '6vh';
 
     this.iconContainer.appendChild(this.icon);
     this.iconContainer.appendChild(this.iconDescription);
