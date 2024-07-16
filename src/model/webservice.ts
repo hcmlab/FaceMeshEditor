@@ -4,7 +4,7 @@ import { Graph } from '../graph/graph';
 import { findNeighbourPointIds } from '../graph/face_landmarks_features';
 import { FaceLandmarker } from '@mediapipe/tasks-vision';
 import { calculateSHA } from '../util/sha';
-import { getCurrentBrowserFingerPrint } from '@rajesh896/broprint.js';
+import { getFingerprint } from '@thumbmarkjs/thumbmarkjs';
 
 /**
  * Represents a model using a WebService for face landmark detection.
@@ -24,46 +24,55 @@ export class WebServiceModel implements ModelApi<Point2D> {
     const formData: FormData = new FormData();
     formData.append('file', imageFile);
 
-    const request: RequestInfo = new Request(this.url + '/detect', {
-      method: 'POST',
-      body: formData,
+    return getFingerprint().then(async (fingerprint) => {
+      if (typeof fingerprint !== 'string') {
+        fingerprint = fingerprint.hash.toString();
+      }
+
+      const request: RequestInfo = new Request(
+        this.url + '/detect?__id__=' + fingerprint,
+        {
+          method: 'POST',
+          body: formData,
+        },
+      );
+      return fetch(request)
+        .then(async (res) => {
+          if (!res.ok) {
+            throw new Error((await res.json())['message']);
+          }
+          return res.json();
+        })
+        .then(async (json) => {
+          const sha = await calculateSHA(imageFile);
+          if (json['sha256'] !== sha) {
+            throw new Error(
+              `sha256 didn't match present file was ${json['sha256']},  is , ${sha}`,
+            );
+          }
+          if (!json['points']) {
+            throw new Error("The request didn't return any point data.");
+          }
+          return json['points'];
+        })
+        .then((landmarks) =>
+          landmarks.map((dict: { x: number; y: number }, idx: number) => {
+            const ids = Array.from(
+              findNeighbourPointIds(
+                idx,
+                FaceLandmarker.FACE_LANDMARKS_TESSELATION,
+                1,
+              ),
+            );
+            return new Point2D(idx, dict.x, dict.y, ids);
+          }),
+        )
+        .then((landmarks) => new Graph(landmarks))
+        .catch((err: Error) => {
+          console.log(err.message);
+          return null;
+        });
     });
-    return fetch(request)
-      .then(async (res) => {
-        if (!res.ok) {
-          throw new Error((await res.json())['message']);
-        }
-        return res.json();
-      })
-      .then(async (json) => {
-        const sha = await calculateSHA(imageFile);
-        if (json['sha256'] !== sha) {
-          throw new Error(
-            `sha256 didn't match present file was ${json['sha256']},  is , ${sha}`,
-          );
-        }
-        if (!json['points']) {
-          throw new Error("The request didn't return any point data.");
-        }
-        return json['points'];
-      })
-      .then((landmarks) =>
-        landmarks.map((dict: { x: number; y: number }, idx: number) => {
-          const ids = Array.from(
-            findNeighbourPointIds(
-              idx,
-              FaceLandmarker.FACE_LANDMARKS_TESSELATION,
-              1,
-            ),
-          );
-          return new Point2D(idx, dict.x, dict.y, ids);
-        }),
-      )
-      .then((landmarks) => new Graph(landmarks))
-      .catch((err: Error) => {
-        console.log(err.message);
-        return null;
-      });
   }
 
   async uploadAnnotations(annotationsJson: string): Promise<Response> {
@@ -71,9 +80,13 @@ export class WebServiceModel implements ModelApi<Point2D> {
     headers.set('Content-Type', 'application/json');
     headers.set('Accept', 'application/json');
 
-    return getCurrentBrowserFingerPrint().then(async (fingerprint) => {
+    return getFingerprint().then(async (fingerprint) => {
       const json = JSON.parse(annotationsJson);
-      json['__id__'] = fingerprint.toString();
+      if (typeof fingerprint === 'string') {
+        json['__id__'] = fingerprint;
+      } else {
+        json['__id__'] = fingerprint.hash.toString();
+      }
       const request: RequestInfo = new Request(this.url + '/annotations', {
         method: 'POST',
         headers: headers,
