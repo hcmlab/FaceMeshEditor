@@ -38,12 +38,12 @@ export class Thumbnail {
     // Info icon if image was saved
     this.iconContainer = document.createElement('div');
     this.iconContainer.className =
-      'bg-dark bg-opacity-25 rounded m-1 border border-dark d-flex justify-content-center align-items-center d-none';
+      'bg-dark bg-opacity-50 rounded m-1 border border-dark d-flex justify-content-center align-items-center d-none';
     this.iconDescription = document.createElement('span');
     this.iconDescription.className = 'visually-hidden';
     this.icon = document.createElement('i');
     this.icon.className = 'bi bi-floppy';
-    this.icon.style.fontSize = '4rem';
+    this.icon.style.fontSize = '400%';
 
     this.iconContainer.appendChild(this.icon);
     this.iconContainer.appendChild(this.iconDescription);
