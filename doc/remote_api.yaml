@@ -18,6 +18,12 @@ components:
       type: object
       additionalProperties:
         $ref: "#/components/schemas/Image"
+      properties:
+        __id__:
+          type: string
+          description: the fingerprint of the device using the API
+          format: hash
+          pattern: '^[a-fA-F0-9]+$'
     Image:
       type: object
       properties:
@@ -69,7 +75,7 @@ components:
 
 
 paths:
-  '/detect':
+  '/detect&__id__={user_id}':
     post:
       summary: Fetch a face mesh from the server
       requestBody:
@@ -78,6 +84,14 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/FaceMeshRequest'
+      parameters:
+        - name: user_id
+          in: path
+          schema:
+            type: string
+            description: the fingerprint of the device using the API
+            format: hash
+            pattern: '^[a-fA-F0-9]+$'
       responses:
         '200':
           description: OK

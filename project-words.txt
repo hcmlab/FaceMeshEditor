@@ -17,5 +17,4 @@ Unprojects
 Webservice
 webservice
 jssha
-rajesh
-broprint
+thumbmarkjs
