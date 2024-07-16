@@ -140,7 +140,7 @@ export class App {
   private collectAnnotation() {
     const result = {};
     for (const c of this.fileCache) {
-      if (!c.saved) {
+      if (!c.readyToSave) {
         continue;
       }
       c.markAsSent();
@@ -327,7 +327,7 @@ export class App {
   selectThumbnail(filename: string): void {
     /* clicking to save */
     if (filename === this.selectedFile) {
-      this.getSelectedFileHistory().saved = true;
+      this.getSelectedFileHistory().readyToSave = true;
       Thumbnail.setStatus(filename, saveStatus.saved);
       return;
     }
@@ -363,7 +363,7 @@ export class App {
    * Returns true if no files are not send
    */
   allSaved(): boolean {
-    return this.fileCache.some((file) => !file.saved);
+    return this.fileCache.some((file) => file.readyToSave);
   }
 
   private deletePoints(pointIds: number[]): void {
