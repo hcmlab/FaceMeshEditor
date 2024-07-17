@@ -307,9 +307,13 @@ export class Editor2D {
           p.selected = true;
           this.isMoving = true;
         });
+      if (this.isMoving === false) {
+        this.isPanning = true;
+      }
     } else if (event.button === 1) {
       // wheel button
-      this.isPanning = true;
+    } else if (event.button === 2) {
+      // right click
     }
   }
 
