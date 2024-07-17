@@ -32,6 +32,11 @@ export class App {
     custom: { model: null, selected: false },
   };
   private selectedFile: string | null = null;
+  private _modelType: ModelType = ModelType.mediapipe;
+
+  get modelType(): ModelType {
+    return this._modelType;
+  }
 
   constructor(cacheSize: number) {
     this.cacheSize = cacheSize;
@@ -216,12 +221,14 @@ export class App {
     this.featureDrag.setValue(this.featureDrag.getValue() + value);
   }
 
-  setModel(name: ModelType): boolean {
-    if (name === ModelType.custom) {
+  setModel(model: ModelType): boolean {
+    if (model === ModelType.custom) {
       $('#sendAnno').show(0.1);
     } else {
       $('#sendAnno').hide(0.1);
     }
+
+    this._modelType = model;
 
     const btnMediapipe = document.getElementById(
       'btnModelMediapipe',
@@ -231,7 +238,7 @@ export class App {
     ) as HTMLInputElement;
     this.models.mediapipe.selected = false;
     this.models.custom.selected = false;
-    switch (name) {
+    switch (model) {
       case ModelType.mediapipe: {
         btnMediapipe.checked = true;
         this.models.mediapipe.selected = true;
@@ -360,10 +367,13 @@ export class App {
   }
 
   /**
-   * Returns true if no files are not send
+   * Returns true if any files hans pending changes
    */
-  allSaved(): boolean {
-    return this.fileCache.some((file) => file.readyToSave);
+  anyReadyToSave(): boolean {
+    return this.fileCache.some((file) => {
+      console.log(file.file.name, ' ', file.readyToSave);
+      return file.readyToSave;
+    });
   }
 
   private deletePoints(pointIds: number[]): void {
@@ -451,10 +461,15 @@ window.onload = (_) => {
     })
     .hide();
 
-  // But the dialog pops up if any return statement is executed
+  // Either open dialog or send data of some present
+  // @ts-expect-error 7030
   $(window).on('beforeunload', () => {
-    if (!app.allSaved()) {
-      app.sendAnnotation();
+    if (app.anyReadyToSave()) {
+      if (app.modelType === ModelType.custom) {
+        app.sendAnnotation();
+      } else {
+        return '?';
+      }
     }
   });
 
