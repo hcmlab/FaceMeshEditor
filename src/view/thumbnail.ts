@@ -22,7 +22,7 @@ export class Thumbnail {
   ) {
     this.onClickCallback = onClickCallback;
     this.a = document.createElement('a');
-    this.a.className = 'overlap-container';
+    this.a.className = 'overlap-container w-15vh h-15vh my-1';
     this.canvas = document.createElement('canvas');
     this.canvas.className = 'img-thumbnail d-block w-100 rounded';
     this.canvas.width = imageSize;
@@ -38,7 +38,7 @@ export class Thumbnail {
     // Info icon if image was saved
     this.iconContainer = document.createElement('div');
     this.iconContainer.className =
-      'bg-dark bg-opacity-50 rounded m-1 border border-dark d-flex justify-content-center align-items-center d-none';
+      'p-1 w-100 h-100 bg-dark bg-opacity-50 rounded border border-dark d-flex justify-content-center align-items-center d-none';
     this.iconDescription = document.createElement('span');
     this.iconDescription.className = 'visually-hidden';
     this.icon = document.createElement('i');

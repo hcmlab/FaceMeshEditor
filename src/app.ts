@@ -363,7 +363,7 @@ export class App {
    * Returns true if no files are not send
    */
   allSaved(): boolean {
-    return this.fileCache.some((file) => !file.readyToSave);
+    return this.fileCache.some((file) => file.readyToSave);
   }
 
   private deletePoints(pointIds: number[]): void {
