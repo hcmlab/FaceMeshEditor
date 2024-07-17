@@ -37,7 +37,7 @@
         <a id="openAnno" class="nav-link btn btn-light" href="#" aria-keyshortcuts="Control+A"><i
           class="bi bi-folder2-open"></i> Open Annotations</a>
         <a id="saveAnno" class="nav-link btn btn-light" href="#" aria-keyshortcuts="Control+S"><i
-          class="bi bi-download"></i> Download</a>
+          class="bi bi-download"></i> Download all </a>
         <a id="sendAnno" class="nav-link btn btn-light" href="#" aria-keyshortcuts="Control+Shift+S">
             <i class="bi bi-floppy"></i>Save</a>
         <!-- Edit Options-->
@@ -102,11 +102,11 @@
            style="padding: .2vw;"><i class="bi bi-info-circle"></i> Info</a>
     </div>
     <!-- The central drawing -->
-    <div class="w-70 h-100 position-relative">
+    <div class="w-auto h-100 flex-grow-1" id="canvas-div">
         <canvas id="canvas" class="w-100 h-100"></canvas>
     </div>
     <!-- The picture selector -->
-    <div class="w-10 vh-100 rounded-start-1 shadow bg-white text-center">
+    <div class="w-10 h-100 rounded-start-1 shadow bg-white text-center">
         <!-- Image Selection -->
         <h6 class="my-2">Images <small>(
             <output id="num_images">0</output>
