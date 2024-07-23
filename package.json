@@ -53,6 +53,7 @@
   ],
   "dependencies": {
     "@mediapipe/tasks-vision": "^0.10.14",
+    "@thumbmarkjs/thumbmarkjs": "^0.14.8",
     "bootstrap": "^5.3.3",
     "jquery": "^3.7.1",
     "jssha": "^3.3.1"

@@ -18,3 +18,4 @@ Webservice
 webservice
 jssha
 Checkmark
+thumbmarkjs
