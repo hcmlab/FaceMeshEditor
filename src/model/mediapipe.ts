@@ -78,7 +78,7 @@ export class MediapipeModel implements ModelApi<Point2D> {
     });
   }
 
-  async uploadAnnotations(_: string): Promise<void> {
+  async uploadAnnotations(_: string): Promise<void | Response> {
     return Promise.resolve();
   }
 }

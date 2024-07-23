@@ -18,6 +18,12 @@ components:
       type: object
       additionalProperties:
         $ref: "#/components/schemas/Image"
+      properties:
+        __id__:
+          type: string
+          description: the fingerprint of the device using the API
+          format: hash
+          pattern: '^[a-fA-F0-9]+$'
     Image:
       type: object
       properties:
@@ -74,7 +80,7 @@ components:
 
 
 paths:
-  /detect:
+  '/detect&__id__={user_id}':
     post:
       summary: An endpoint for retrieving stored annotation data or finding a new annotation.
       requestBody:
@@ -89,6 +95,14 @@ paths:
                   format: binary
               required:
                 - file
+      parameters:
+        - name: user_id
+          in: path
+          schema:
+            type: string
+            description: the fingerprint of the device using the API
+            format: hash
+            pattern: '^[a-fA-F0-9]+$'
       responses:
         200:
           description: Returns a target file's landmarks.

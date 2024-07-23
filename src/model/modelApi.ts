@@ -18,5 +18,5 @@ export interface ModelApi<P extends Point2D> {
    * @param {string} annotationsJson - A JSON string containing annotation data.
    * @returns {Promise<void>} - A promise that resolves when the upload is complete.
    */
-  uploadAnnotations(annotationsJson: string): Promise<void>;
+  uploadAnnotations(annotationsJson: string): Promise<void | Response>;
 }
