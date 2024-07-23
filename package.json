@@ -9,7 +9,7 @@
     "build:main": "tsc -p tsconfig.json",
     "build:module": "tsc -p tsconfig.module.json",
     "fix": "run-s fix:*",
-    "fix:prettier": "prettier \"src/**/*.ts\" --write",
+    "fix:prettier": "prettier \"src/**/*.{ts,scss}\" --write",
     "fix:lint": "eslint src/ --fix",
     "test": "run-s build test:*",
     "test:lint": "eslint src",
@@ -62,6 +62,7 @@
     "@ava/typescript": "^5.0.0",
     "@eslint/js": "^8.57.0",
     "@istanbuljs/nyc-config-typescript": "^1.0.2",
+    "@parcel/transformer-sass": "^2.12.0",
     "@sindresorhus/tsconfig": "^5.0.0",
     "@types/bootstrap": "^5.2.10",
     "@types/jquery": "^3.5.30",
@@ -85,6 +86,7 @@
     "open-cli": "^8.0.0",
     "parcel": "^2.12.0",
     "prettier": "^3.3.0",
+    "sass": "^1.77.6",
     "standard-version": "^9.5.0",
     "ts-node": "^10.9.2",
     "typedoc": "^0.25.13",
@@ -123,7 +125,21 @@
     }
   },
   "prettier": {
-    "singleQuote": true
+    "singleQuote": true,
+    "overrides": [
+      {
+        "files": "*.scss",
+        "options": {
+          "parser": "scss"
+        }
+      },
+      {
+        "files": "*.ts",
+        "options": {
+          "parser": "typescript"
+        }
+      }
+    ]
   },
   "nyc": {
     "extends": "@istanbuljs/nyc-config-typescript"

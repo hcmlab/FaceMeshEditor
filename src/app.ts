@@ -1,7 +1,7 @@
 import * as bootstrap from 'bootstrap'; // import statically - don't grab it from a cdn
 import { Slider } from './view/slider';
 import { CheckBox } from './view/checkbox';
-import { Thumbnail } from './view/thumbnail';
+import { saveStatus, Thumbnail } from './view/thumbnail';
 import { FileAnnotationHistory } from './cache/fileAnnotationHistory';
 import { Point2D } from './graph/point2d';
 import { Editor2D } from './editor2d';
@@ -18,12 +18,11 @@ import { ModelApi } from './model/modelApi';
 import { MediapipeModel } from './model/mediapipe';
 import { ModelType } from './model/models';
 import { urlError, WebServiceModel } from './model/webservice';
-import { calculateSHA } from './util/sha';
 
 export class App {
   private featureDrag: Slider;
   private viewTesselation: CheckBox;
-  private thumbnailGallery: HTMLDivElement;
+  private thumbnailGallery: JQuery<HTMLElement>;
   private numImages: HTMLOutputElement;
   private fileCache: FileAnnotationHistory<Point2D>[] = [];
   private editor: Editor2D = new Editor2D();
@@ -33,6 +32,11 @@ export class App {
     custom: { model: null, selected: false },
   };
   private selectedFile: string | null = null;
+  private _modelType: ModelType = ModelType.mediapipe;
+
+  get modelType(): ModelType {
+    return this._modelType;
+  }
 
   constructor(cacheSize: number) {
     this.cacheSize = cacheSize;
@@ -46,13 +50,16 @@ export class App {
       'view_tesselation',
       () => (this.editor.showTesselation = this.viewTesselation.isChecked()),
     );
-    this.thumbnailGallery = document.getElementById(
-      'thumbnailgallery',
-    ) as HTMLDivElement;
+    this.thumbnailGallery = $('#thumbnailGallery');
     this.numImages = document.getElementById('num_images') as HTMLOutputElement;
-    this.editor.setOnPointsEditedCallback((graph) =>
-      this.getSelectedFileHistory()?.add(graph),
-    );
+    this.editor.setOnPointsEditedCallback((graph) => {
+      if (!this.getSelectedFileHistory()) {
+        return;
+      }
+      const history = this.getSelectedFileHistory();
+      history.add(graph);
+      Thumbnail.setStatus(history.file.name, saveStatus.edited);
+    });
     this.editor.setOnBackgroundLoadedCallback((_) => {
       if (this.getSelectedFileHistory()?.isEmpty()) {
         this.runDetection();
@@ -77,9 +84,10 @@ export class App {
             this.selectThumbnail(filename),
           );
           thumbnail.setSource(f);
-          this.thumbnailGallery.appendChild(thumbnail.toHtml());
-          this.numImages.value =
-            this.thumbnailGallery.children.length.toString();
+          this.thumbnailGallery.append(thumbnail.toHtml());
+          this.numImages.value = this.thumbnailGallery
+            .children()
+            .length.toString();
         }
         if (files.length > 0) {
           this.editor.setBackgroundSource(files[0]);
@@ -134,36 +142,60 @@ export class App {
     return false;
   }
 
-  saveAnnotation(): boolean {
-    if (this.fileCache.length > 0) {
-      const result = {};
-      const promises = [];
-      for (const c of this.fileCache) {
-        const graph = c.get();
-        result[c.file.name] = {};
-        if (graph) {
-          result[c.file.name]['points'] = graph.toDictArray();
-          const promise = calculateSHA(c.file).then((sha256) => {
-            result[c.file.name]['sha256'] = sha256;
-          });
-          promises.push(promise);
-        }
+  private collectAnnotation() {
+    const result = {};
+    for (const c of this.fileCache) {
+      if (!c.readyToSave) {
+        continue;
       }
-      Promise.all(promises)
-        .then(() => {
-          const jsonData: string = JSON.stringify(result);
-          this.getModel().uploadAnnotations(jsonData);
-          const dataStr: string =
-            'data:text/json;charset=utf-8,' + encodeURIComponent(jsonData);
-          const a: HTMLAnchorElement = document.createElement('a');
-          a.href = dataStr;
-          a.download = Date.now() + '_face_mesh_annotations.json';
-          a.click();
-        })
-        .catch((error) => {
-          console.error('An error occurred:', error);
-        });
+      c.markAsSent();
+      const graph = c.get();
+      result[c.file.name] = {};
+      if (graph) {
+        result[c.file.name]['points'] = graph.toDictArray();
+        result[c.file.name]['sha256'] = c.hash;
+      }
     }
+    return result;
+  }
+
+  saveAnnotation(): boolean {
+    if (this.fileCache.length <= 0) {
+      return false;
+    }
+
+    const result = this.collectAnnotation();
+    if (Object.keys(result).length <= 0) {
+      return false;
+    }
+
+    const jsonData: string = JSON.stringify(result);
+    this.getModel().uploadAnnotations(jsonData);
+    const dataStr: string =
+      'data:text/json;charset=utf-8,' + encodeURIComponent(jsonData);
+    const a: HTMLAnchorElement = document.createElement('a');
+    a.href = dataStr;
+    a.download = Date.now() + '_face_mesh_annotations.json';
+    a.click();
+    return false;
+  }
+
+  sendAnnotation(): boolean {
+    if (this.fileCache.length <= 0) {
+      return false;
+    }
+
+    const result = this.collectAnnotation();
+    if (Object.keys(result).length <= 0) {
+      return false;
+    }
+
+    const jsonData: string = JSON.stringify(result);
+    this.getModel().uploadAnnotations(jsonData);
+
+    Object.keys(result).forEach((fileName) => {
+      Thumbnail.setStatus(fileName, saveStatus.saved);
+    });
     return false;
   }
 
@@ -189,7 +221,15 @@ export class App {
     this.featureDrag.setValue(this.featureDrag.getValue() + value);
   }
 
-  setModel(name: ModelType): boolean {
+  setModel(model: ModelType): boolean {
+    if (model === ModelType.custom) {
+      $('#sendAnno').show(0.1);
+    } else {
+      $('#sendAnno').hide(0.1);
+    }
+
+    this._modelType = model;
+
     const btnMediapipe = document.getElementById(
       'btnModelMediapipe',
     ) as HTMLInputElement;
@@ -198,7 +238,7 @@ export class App {
     ) as HTMLInputElement;
     this.models.mediapipe.selected = false;
     this.models.custom.selected = false;
-    switch (name) {
+    switch (model) {
       case ModelType.mediapipe: {
         btnMediapipe.checked = true;
         this.models.mediapipe.selected = true;
@@ -294,6 +334,12 @@ export class App {
   }
 
   selectThumbnail(filename: string): void {
+    /* clicking to save */
+    if (filename === this.selectedFile) {
+      this.getSelectedFileHistory().readyToSave = true;
+      Thumbnail.setStatus(filename, saveStatus.saved);
+      return;
+    }
     this.selectedFile = filename;
     const cache = this.getSelectedFileHistory();
     if (cache) {
@@ -318,8 +364,18 @@ export class App {
       });
   }
 
-  private getSelectedFileHistory(): FileAnnotationHistory<Point2D> | undefined {
+  getSelectedFileHistory(): FileAnnotationHistory<Point2D> | undefined {
     return this.fileCache.find((c) => c.file.name === this.selectedFile);
+  }
+
+  /**
+   * Returns true if any files hans pending changes
+   */
+  anyReadyToSave(): boolean {
+    return this.fileCache.some((file) => {
+      console.log(file.file.name, ' ', file.readyToSave);
+      return file.readyToSave;
+    });
   }
 
   private deletePoints(pointIds: number[]): void {
@@ -400,6 +456,24 @@ window.onload = (_) => {
       app.addFeatureDrag(e.deltaY / 100);
     }
   };
+
+  $('#sendAnno')
+    .on('click', () => {
+      app.sendAnnotation();
+    })
+    .hide();
+
+  // Either open dialog or send data of some present
+  // @ts-expect-error 7030
+  $(window).on('beforeunload', () => {
+    if (app.anyReadyToSave()) {
+      if (app.modelType === ModelType.custom) {
+        app.sendAnnotation();
+      } else {
+        return '?';
+      }
+    }
+  });
 
   const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
   if (isSafari) {

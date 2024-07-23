@@ -124,8 +124,9 @@ export class Editor2D {
   }
 
   clearAndFitToWindow() {
-    this.canvas.width = window.innerWidth;
-    this.canvas.height = window.innerHeight;
+    const canvas = $('#canvas-div');
+    this.canvas.width = canvas.innerWidth();
+    this.canvas.height = canvas.innerHeight();
   }
 
   center() {
@@ -316,8 +317,9 @@ export class Editor2D {
   private handleMouseMove(event: MouseEvent): void {
     this.prevMouseX = this.mouseX;
     this.prevMouseY = this.mouseY;
-    this.mouseX = event.clientX;
-    this.mouseY = event.clientY;
+    const canvasPos = $('#canvas').offset();
+    this.mouseX = event.clientX - canvasPos.left;
+    this.mouseY = event.clientY - canvasPos.top;
     const relativeMouseX = (this.mouseX - this.offsetX) / this.zoomScale;
     const relativeMouseY = (this.mouseY - this.offsetY) / this.zoomScale;
     if (this.isMoving) {
