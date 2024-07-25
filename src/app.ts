@@ -18,7 +18,7 @@ import { ModelApi } from './model/ModelApi';
 import { MediapipeModel } from './model/Mediapipe';
 import { ModelType } from './model/Models';
 import { urlError, WebServiceModel } from './model/Webservice';
-import { EditorMesh2D } from './plugins/FaceMesh2d';
+import { EditorMesh2D } from './plugins/EditorMesh2d';
 import { AdvancedCanvas } from './view/AdvancedCanvas';
 import { FaceLandmarker } from '@mediapipe/tasks-vision';
 
