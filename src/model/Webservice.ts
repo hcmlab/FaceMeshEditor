@@ -1,7 +1,7 @@
-import { ModelApi } from './modelApi';
-import { Point2D } from '../graph/point2d';
-import { Graph } from '../graph/graph';
-import { findNeighbourPointIds } from '../graph/face_landmarks_features';
+import { ModelApi } from './ModelApi';
+import { Point2D } from '../annotation/graph/Point2d';
+import { Graph } from '../annotation/graph/Graph';
+import { findNeighbourPointIds } from '../annotation/graph/FaceLandmarksFeatures';
 import { FaceLandmarker } from '@mediapipe/tasks-vision';
 import { calculateSHA } from '../util/sha';
 import { getFingerprint } from '@thumbmarkjs/thumbmarkjs';
@@ -33,8 +33,8 @@ export class WebServiceModel implements ModelApi<Point2D> {
         this.url + '/detect?__id__=' + fingerprint,
         {
           method: 'POST',
-          body: formData,
-        },
+          body: formData
+        }
       );
       return fetch(request)
         .then(async (res) => {
@@ -47,11 +47,11 @@ export class WebServiceModel implements ModelApi<Point2D> {
           const sha = await calculateSHA(imageFile);
           if (json['sha256'] !== sha) {
             throw new Error(
-              `sha256 didn't match present file was ${json['sha256']},  is , ${sha}`,
+              `sha256 didn't match present file was ${json['sha256']},  is , ${sha}`
             );
           }
           if (!json['points']) {
-            throw new Error("The request didn't return any point data.");
+            throw new Error('The request didn\'t return any point data.');
           }
           return json['points'];
         })
@@ -61,11 +61,11 @@ export class WebServiceModel implements ModelApi<Point2D> {
               findNeighbourPointIds(
                 idx,
                 FaceLandmarker.FACE_LANDMARKS_TESSELATION,
-                1,
-              ),
+                1
+              )
             );
             return new Point2D(idx, dict.x, dict.y, ids);
-          }),
+          })
         )
         .then((landmarks) => new Graph(landmarks))
         .catch((err: Error) => {
@@ -90,7 +90,7 @@ export class WebServiceModel implements ModelApi<Point2D> {
       const request: RequestInfo = new Request(this.url + '/annotations', {
         method: 'POST',
         headers: headers,
-        body: JSON.stringify(json),
+        body: JSON.stringify(json)
       });
 
       return fetch(request);
@@ -107,12 +107,12 @@ export class WebServiceModel implements ModelApi<Point2D> {
   static async verifyUrl(url: string): Promise<urlError | null> {
     const pattern = new RegExp(
       '^(https?:\\/\\/)?' + // protocol
-        '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|' + // domain name
-        '((\\d{1,3}\\.){3}\\d{1,3}))' + // OR ip (v4) address
-        '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*' + // port and path
-        '(\\?[;&a-z\\d%_.~+=-]*)?' + // query string
-        '(\\#[-a-z\\d_]*)?$',
-      'i',
+      '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|' + // domain name
+      '((\\d{1,3}\\.){3}\\d{1,3}))' + // OR ip (v4) address
+      '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*' + // port and path
+      '(\\?[;&a-z\\d%_.~+=-]*)?' + // query string
+      '(\\#[-a-z\\d_]*)?$',
+      'i'
     ); // fragment locator
 
     if (!pattern.test(url)) {
@@ -121,7 +121,7 @@ export class WebServiceModel implements ModelApi<Point2D> {
 
     // try connecting to the url
     const request: RequestInfo = new Request(url, {
-      method: 'HEAD',
+      method: 'HEAD'
     });
 
     return fetch(request)

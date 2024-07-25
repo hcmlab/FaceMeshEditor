@@ -1,9 +1,9 @@
-import { ModelApi } from './modelApi';
-import { Graph } from '../graph/graph';
-import { findNeighbourPointIds } from '../graph/face_landmarks_features';
+import { ModelApi } from './ModelApi';
+import { Graph } from '../annotation/graph/Graph';
+import { findNeighbourPointIds } from '../annotation/graph/FaceLandmarksFeatures';
 import { FaceLandmarker, FilesetResolver } from '@mediapipe/tasks-vision';
-import { Point2D } from '../graph/point2d';
-import { Point3D } from '../graph/point3d';
+import { Point2D } from '../annotation/graph/Point2d';
+import { Point3D } from '../annotation/graph/Point3d';
 
 /**
  * Represents a model using MediaPipe for face landmark detection.
@@ -17,7 +17,7 @@ export class MediapipeModel implements ModelApi<Point2D> {
    */
   constructor() {
     FilesetResolver.forVisionTasks(
-      'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest/wasm',
+      'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest/wasm'
     )
       .then((filesetResolver) =>
         FaceLandmarker.createFromOptions(filesetResolver, {
@@ -25,13 +25,13 @@ export class MediapipeModel implements ModelApi<Point2D> {
             modelAssetPath:
               'https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task',
             // When adding user model of same type -> modelAssetBuffer
-            delegate: 'CPU',
+            delegate: 'CPU'
           },
           minFaceDetectionConfidence: 0.3,
           minFacePresenceConfidence: 0.3,
           runningMode: 'IMAGE',
-          numFaces: 1,
-        }),
+          numFaces: 1
+        })
       )
       .then((landmarker) => (this.meshLandmarker = landmarker));
   }
@@ -50,12 +50,12 @@ export class MediapipeModel implements ModelApi<Point2D> {
                     findNeighbourPointIds(
                       idx,
                       FaceLandmarker.FACE_LANDMARKS_TESSELATION,
-                      1,
-                    ),
+                      1
+                    )
                   );
                   return new Point3D(idx, dict.x, dict.y, dict.z, ids);
                 })
-                .map((point) => point as Point2D),
+                .map((point) => point as Point2D)
             )
             .map((landmarks) => new Graph(landmarks));
           if (graphs) {

@@ -1,4 +1,4 @@
-import { Point2D } from './point2d';
+import { Point2D } from './Point2d';
 
 /**
  * Represents a utility class for 2D perspective transformations.
@@ -41,13 +41,13 @@ export class Perspective2D {
   static distanceTo(
     image: HTMLImageElement,
     pointFrom: Point2D,
-    pointTo: Point2D,
+    pointTo: Point2D
   ): number {
     const projectPointFrom = Perspective2D.project(image, pointFrom);
     const projectPointTo = Perspective2D.project(image, pointTo);
     return Math.sqrt(
       Math.pow(projectPointFrom.x - projectPointTo.x, 2) +
-        Math.pow(projectPointFrom.y - projectPointTo.y, 2),
+      Math.pow(projectPointFrom.y - projectPointTo.y, 2)
     );
   }
 
@@ -63,7 +63,7 @@ export class Perspective2D {
     image: HTMLImageElement,
     point: Point2D,
     pointCheck: Point2D,
-    delta: number,
+    delta: number
   ): boolean {
     return this.distanceTo(image, point, pointCheck) <= delta;
   }

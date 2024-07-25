@@ -1,4 +1,4 @@
-import { Point2D } from './point2d';
+import { Point2D } from './Point2d';
 
 /**
  * Represents a graph of points in a 2D space.
@@ -31,7 +31,7 @@ export class Graph<P extends Point2D> {
    */
   static fromJson<P extends Point2D>(
     jsonObject: P[],
-    newObject: (id) => P,
+    newObject: (id) => P
   ): Graph<P> {
     return new Graph<P>(
       jsonObject.map((dict) => {
@@ -39,7 +39,7 @@ export class Graph<P extends Point2D> {
         // @ts-expect-error: built in method uses readonly
         delete dict['id'];
         return Object.assign(point, dict);
-      }),
+      })
     );
   }
 

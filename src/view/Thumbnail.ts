@@ -18,7 +18,7 @@ export class Thumbnail {
    */
   constructor(
     onClickCallback: (filename: string) => void,
-    imageSize: number = 100,
+    imageSize: number = 100
   ) {
     this.onClickCallback = onClickCallback;
     this.a = document.createElement('a');
@@ -131,7 +131,7 @@ export class Thumbnail {
       offX,
       offY,
       this.image.width * scale,
-      this.image.height * scale,
+      this.image.height * scale
     );
   }
 }

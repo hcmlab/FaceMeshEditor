@@ -1,5 +1,5 @@
-import { Point2D } from '../graph/point2d';
-import { Graph } from '../graph/graph';
+import { Point2D } from '../annotation/graph/Point2d';
+import { Graph } from '../annotation/graph/Graph';
 import { calculateSHA } from '../util/sha';
 
 /**

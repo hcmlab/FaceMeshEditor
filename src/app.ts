@@ -1,23 +1,89 @@
 import * as bootstrap from 'bootstrap'; // import statically - don't grab it from a cdn
-import { Slider } from './view/slider';
-import { CheckBox } from './view/checkbox';
-import { saveStatus, Thumbnail } from './view/thumbnail';
-import { FileAnnotationHistory } from './cache/fileAnnotationHistory';
-import { Point2D } from './graph/point2d';
-import { Editor2D } from './editor2d';
-import { Graph } from './graph/graph';
+import { Slider } from './view/Slider';
+import { CheckBox } from './view/Checkbox';
+import { saveStatus, Thumbnail } from './view/Thumbnail';
+import { FileAnnotationHistory } from './cache/FileAnnotationHistory';
+import { Point2D } from './annotation/graph/Point2d';
+import { ImageViewer } from './viewer/ImageViewer';
+import { Graph } from './annotation/graph/Graph';
 import {
   FACE_FEATURE_LEFT_EYE,
   FACE_FEATURE_LEFT_EYEBROW,
   FACE_FEATURE_LIPS,
   FACE_FEATURE_NOSE,
   FACE_FEATURE_RIGHT_EYE,
-  FACE_FEATURE_RIGHT_EYEBROW,
-} from './graph/face_landmarks_features';
-import { ModelApi } from './model/modelApi';
-import { MediapipeModel } from './model/mediapipe';
-import { ModelType } from './model/models';
-import { urlError, WebServiceModel } from './model/webservice';
+  FACE_FEATURE_RIGHT_EYEBROW, FACE_LANDMARKS_NOSE
+} from './annotation/graph/FaceLandmarksFeatures';
+import { ModelApi } from './model/ModelApi';
+import { MediapipeModel } from './model/Mediapipe';
+import { ModelType } from './model/Models';
+import { urlError, WebServiceModel } from './model/Webservice';
+import { EditorMesh2D } from './plugins/FaceMesh2d';
+import { AdvancedCanvas } from './view/AdvancedCanvas';
+import { FaceLandmarker } from '@mediapipe/tasks-vision';
+
+
+const COLOR_EDGES_TESSELATION = '#d5d5d5';
+const COLOR_EDGES_FACE_OVAL = '#42ffef';
+const COLOR_EDGES_LIPS = '#ff0883';
+const COLOR_EDGES_RIGHT_EYE = '#b3ff42';
+const COLOR_EDGES_RIGHT_IRIS = '#efffd8';
+const COLOR_EDGES_LEFT_EYE = '#42c6ff';
+const COLOR_EDGES_LEFT_IRIS = '#b5ebff';
+const COLOR_EDGES_NOSE = '#eada70';
+const LINE_WIDTH_DEFAULT = 2;
+
+const meshConfig = [{
+    connections: FaceLandmarker.FACE_LANDMARKS_TESSELATION,
+    linewidth: LINE_WIDTH_DEFAULT,
+    color: COLOR_EDGES_TESSELATION,
+    isTesselation: true
+}, {
+    connections: FaceLandmarker.FACE_LANDMARKS_FACE_OVAL,
+    linewidth: LINE_WIDTH_DEFAULT,
+    color: COLOR_EDGES_FACE_OVAL,
+    isTesselation: false
+}, {
+    connections: FaceLandmarker.FACE_LANDMARKS_LIPS,
+    linewidth: LINE_WIDTH_DEFAULT,
+    color: COLOR_EDGES_LIPS,
+    isTesselation: false
+}, {
+    connections: FaceLandmarker.FACE_LANDMARKS_RIGHT_EYEBROW,
+    linewidth: LINE_WIDTH_DEFAULT,
+    color: COLOR_EDGES_RIGHT_EYE,
+    isTesselation: false
+}, {
+    connections: FaceLandmarker.FACE_LANDMARKS_RIGHT_EYE,
+    linewidth: LINE_WIDTH_DEFAULT,
+    color: COLOR_EDGES_RIGHT_EYE,
+    isTesselation: false
+}, {
+    connections: FaceLandmarker.FACE_LANDMARKS_RIGHT_IRIS,
+    linewidth: LINE_WIDTH_DEFAULT,
+    color: COLOR_EDGES_RIGHT_IRIS,
+    isTesselation: false
+}, {
+    connections: FaceLandmarker.FACE_LANDMARKS_LEFT_EYEBROW,
+    linewidth: LINE_WIDTH_DEFAULT,
+    color: COLOR_EDGES_LEFT_EYE,
+    isTesselation: false
+}, {
+    connections: FaceLandmarker.FACE_LANDMARKS_LEFT_EYE,
+    linewidth: LINE_WIDTH_DEFAULT,
+    color: COLOR_EDGES_LEFT_EYE,
+    isTesselation: false
+}, {
+    connections: FaceLandmarker.FACE_LANDMARKS_LEFT_IRIS,
+    linewidth: LINE_WIDTH_DEFAULT,
+    color: COLOR_EDGES_LEFT_IRIS,
+    isTesselation: false
+}, {
+    connections: FACE_LANDMARKS_NOSE,
+    linewidth: LINE_WIDTH_DEFAULT,
+    color: COLOR_EDGES_NOSE,
+    isTesselation: false
+}];
 
 export class App {
   private featureDrag: Slider;
@@ -25,11 +91,12 @@ export class App {
   private thumbnailGallery: JQuery<HTMLElement>;
   private numImages: HTMLOutputElement;
   private fileCache: FileAnnotationHistory<Point2D>[] = [];
-  private editor: Editor2D = new Editor2D();
+  private imageViewer: ImageViewer;
+  private editorFaceMesh2D: EditorMesh2D;
   private readonly cacheSize: number;
   private readonly models = {
     mediapipe: { model: new MediapipeModel(), selected: true },
-    custom: { model: null, selected: false },
+    custom: { model: null, selected: false }
   };
   private selectedFile: string | null = null;
   private _modelType: ModelType = ModelType.mediapipe;
@@ -40,19 +107,22 @@ export class App {
 
   constructor(cacheSize: number) {
     this.cacheSize = cacheSize;
+    const canvas = new AdvancedCanvas('canvas-div', 'canvas');
+    this.imageViewer = new ImageViewer(canvas);
+    this.editorFaceMesh2D = new EditorMesh2D(this.imageViewer, meshConfig);
     this.featureDrag = new Slider('feature_drag', () => {
       // TODO FIX Not working!
       const element = document.getElementById('num') as HTMLOutputElement;
       element.value = this.featureDrag.getValue().toString();
-      this.editor.dragDepth = this.featureDrag.getValue();
+      this.editorFaceMesh2D.dragDepth = this.featureDrag.getValue();
     });
     this.viewTesselation = new CheckBox(
       'view_tesselation',
-      () => (this.editor.showTesselation = this.viewTesselation.isChecked()),
+      () => (this.editorFaceMesh2D.showTesselation = this.viewTesselation.isChecked())
     );
     this.thumbnailGallery = $('#thumbnailGallery');
     this.numImages = document.getElementById('num_images') as HTMLOutputElement;
-    this.editor.setOnPointsEditedCallback((graph) => {
+    this.editorFaceMesh2D.setOnPointsEditedCallback((graph) => {
       if (!this.getSelectedFileHistory()) {
         return;
       }
@@ -60,11 +130,11 @@ export class App {
       history.add(graph);
       Thumbnail.setStatus(history.file.name, saveStatus.edited);
     });
-    this.editor.setOnBackgroundLoadedCallback((_) => {
+    this.imageViewer.onImageLoadedEvent.subscribe(() => {
       if (this.getSelectedFileHistory()?.isEmpty()) {
         this.runDetection();
       } else {
-        this.editor.graph = this.getSelectedFileHistory()?.get();
+        this.editorFaceMesh2D.graph = this.getSelectedFileHistory()?.get();
       }
     });
   }
@@ -81,7 +151,7 @@ export class App {
           const history = new FileAnnotationHistory<Point2D>(f, this.cacheSize);
           this.fileCache.push(history);
           const thumbnail = new Thumbnail((filename) =>
-            this.selectThumbnail(filename),
+            this.selectThumbnail(filename)
           );
           thumbnail.setSource(f);
           this.thumbnailGallery.append(thumbnail.toHtml());
@@ -90,7 +160,7 @@ export class App {
             .length.toString();
         }
         if (files.length > 0) {
-          this.editor.setBackgroundSource(files[0]);
+          this.imageViewer.setSource(files[0]);
           this.selectedFile = files[0].name;
         }
       }
@@ -121,20 +191,20 @@ export class App {
           }
           const graph: Graph<Point2D> = Graph.fromJson(
             workingImage['points'],
-            (id) => new Point2D(id, 0, 0, []),
+            (id) => new Point2D(id, 0, 0, [])
           );
           const cache = this.fileCache.find(
             (f) =>
-              f.file.name === filename && f.hash === workingImage['sha256'],
+              f.file.name === filename && f.hash === workingImage['sha256']
           );
           if (cache) {
             cache.add(graph);
             if (this.selectedFile === filename) {
-              this.editor.graph = graph;
+              this.editorFaceMesh2D.graph = graph;
             }
           }
         }
-        this.editor.draw();
+        this.imageViewer.onDrawEventManager.notify();
       };
       reader.readAsText(annotationFile);
     };
@@ -201,13 +271,13 @@ export class App {
 
   undo(): boolean {
     this.getSelectedFileHistory()?.previous();
-    this.editor.graph = this.getSelectedFileHistory()?.get();
+    this.editorFaceMesh2D.graph = this.getSelectedFileHistory()?.get();
     return false;
   }
 
   redo(): boolean {
     this.getSelectedFileHistory()?.next();
-    this.editor.graph = this.getSelectedFileHistory()?.get();
+    this.editorFaceMesh2D.graph = this.getSelectedFileHistory()?.get();
     return false;
   }
 
@@ -231,10 +301,10 @@ export class App {
     this._modelType = model;
 
     const btnMediapipe = document.getElementById(
-      'btnModelMediapipe',
+      'btnModelMediapipe'
     ) as HTMLInputElement;
     const btnCustom = document.getElementById(
-      'btnModelCustom',
+      'btnModelCustom'
     ) as HTMLInputElement;
     this.models.mediapipe.selected = false;
     this.models.custom.selected = false;
@@ -276,13 +346,13 @@ export class App {
               }
               case urlError.Unreachable: {
                 errorText.removeAttr('hidden');
-                errorText.text("The provided endpoint wasn't reachable!");
+                errorText.text('The provided endpoint wasn\'t reachable!');
                 break;
               }
             }
             // shake the input window
             inputBox.addClass('wrongInput');
-            setTimeout(function () {
+            setTimeout(function() {
               inputBox.removeClass('wrongInput');
             }, 500);
           }
@@ -306,7 +376,7 @@ export class App {
   }
 
   deleteFeature(feature: string): boolean {
-    this.getSelectedFileHistory()?.add(this.editor.graph);
+    this.getSelectedFileHistory()?.add(this.editorFaceMesh2D.graph);
     switch (feature) {
       case 'left_eye':
         this.deletePoints(FACE_FEATURE_LEFT_EYE);
@@ -343,12 +413,12 @@ export class App {
     this.selectedFile = filename;
     const cache = this.getSelectedFileHistory();
     if (cache) {
-      this.editor.setBackgroundSource(cache.file);
+      this.imageViewer.setSource(cache.file);
     }
   }
 
   resizeWindow() {
-    this.editor.draw();
+    this.imageViewer.draw();
   }
 
   private runDetection() {
@@ -359,8 +429,8 @@ export class App {
           return;
         }
         this.getSelectedFileHistory()?.add(graph);
-        this.editor.center();
-        this.editor.graph = graph;
+        this.imageViewer.center();
+        this.editorFaceMesh2D.graph = graph;
       });
   }
 
@@ -384,7 +454,7 @@ export class App {
       for (const id of pointIds) {
         graph.getById(id).deleted = true;
       }
-      this.editor.graph = graph;
+      this.editorFaceMesh2D.graph = graph;
     }
   }
 }
@@ -394,7 +464,7 @@ export class App {
 // #####################################################################################################################
 window.onload = (_) => {
   const elements: NodeListOf<Element> = document.querySelectorAll(
-    '[aria-keyshortcuts]',
+    '[aria-keyshortcuts]'
   );
   elements.forEach((elem: HTMLElement) => {
     elem.style.cssText = 'width: 100%; text-align: start; padding: .2vw;';
@@ -404,7 +474,7 @@ window.onload = (_) => {
         k
           .replace('Control', 'CTRL')
           .replace('Shift', 'SHIFT')
-          .replace('Wheel', 'SCROLL'),
+          .replace('Wheel', 'SCROLL')
       );
     if (elem.ariaKeyShortcuts.length > 0) {
       const table: HTMLTableElement = document.createElement('table');
@@ -479,11 +549,11 @@ window.onload = (_) => {
   if (isSafari) {
     alert(
       'You are using Safari. This website may not function as expected. ' +
-        'Please consider using a different browser.',
+      'Please consider using a different browser.'
     );
   }
 
-  $('#modalSettingsModel').on('shown.bs.modal', function (_) {
+  $('#modalSettingsModel').on('shown.bs.modal', function(_) {
     const url = localStorage.getItem('apiUrl');
     if (url) {
       $('#modelurl').val(url);
