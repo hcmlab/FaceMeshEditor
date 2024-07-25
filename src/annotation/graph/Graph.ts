@@ -1,10 +1,11 @@
 import { Point2D } from './Point2d';
+import { Annotation, AnnotationType } from '../Annotation';
 
 /**
  * Represents a graph of points in a 2D space.
  * @template P - Type of the points (must extend Point2D).
  */
-export class Graph<P extends Point2D> {
+export class Graph<P extends Point2D> implements Annotation {
   private readonly _points: P[];
 
   /**
@@ -13,6 +14,10 @@ export class Graph<P extends Point2D> {
    */
   constructor(points: P[]) {
     this._points = points;
+  }
+
+  type(): AnnotationType {
+    return AnnotationType.GRAPH;
   }
 
   /**
@@ -73,7 +78,7 @@ export class Graph<P extends Point2D> {
    * Creates a shallow copy of the graph.
    * @returns {Graph<P>} - A new Graph instance with cloned points.
    */
-  clone(): Graph<P> {
+  clone(): Annotation {
     // @ts-expect-error: converting Points to abstract class
     return new Graph<P>(this.points.map((p) => p.clone()));
   }
@@ -84,5 +89,14 @@ export class Graph<P extends Point2D> {
    */
   toDictArray(): { deleted: boolean; x: number; y: number; id: number }[] {
     return this.points.map((point) => point.toDict());
+  }
+
+  loadJson(input: string): void {
+    // TODO: Implement!
+  }
+
+  toJson(): string {
+    // TODO: Implement!
+    return '';
   }
 }

@@ -1,15 +1,14 @@
-import { Point2D } from '../annotation/graph/Point2d';
-import { Graph } from '../annotation/graph/Graph';
 import { calculateSHA } from '../util/sha';
+import { Annotation } from '../annotation/Annotation';
 
 /**
  * Represents a history of annotations for a specific file.
  * Keeps track of changes made to a graph of points (e.g., annotations on an image).
  * @template T - Type of the points (must extend Point2D).
  */
-export class FileAnnotationHistory<T extends Point2D> {
+export class FileAnnotationHistory {
   private readonly cacheSize: number;
-  private history: Graph<T>[] = [];
+  private history: Annotation[] = [];
   private currentHistoryIndex: number = 0;
   private readonly _file: File;
   private _hash: string;
@@ -49,9 +48,9 @@ export class FileAnnotationHistory<T extends Point2D> {
 
   /**
    * Adds a new annotation item to the history.
-   * @param {Graph<T>} item - The graph of points representing the annotation.
+   * @param {Annotation} item - The annotation.
    */
-  add(item: Graph<T>): void {
+  add(item: Annotation): void {
     if (this.currentHistoryIndex + 1 < this.history.length) {
       // Delete history stack when moved back and changed something
       this.history.length = this.currentHistoryIndex + 1;
@@ -93,9 +92,9 @@ export class FileAnnotationHistory<T extends Point2D> {
 
   /**
    * Retrieves the current annotation graph.
-   * @returns {null | Graph<T>} - The current annotation graph or null if empty.
+   * @returns {null | Annotation} - The current annotation or null if empty.
    */
-  get(): null | Graph<T> {
+  get(): null | Annotation {
     if (!this.isEmpty()) {
       return this.history[this.currentHistoryIndex];
     }

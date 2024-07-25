@@ -90,7 +90,7 @@ export class App {
   private viewTesselation: CheckBox;
   private thumbnailGallery: JQuery<HTMLElement>;
   private numImages: HTMLOutputElement;
-  private fileCache: FileAnnotationHistory<Point2D>[] = [];
+  private fileCache: FileAnnotationHistory[] = [];
   private imageViewer: ImageViewer;
   private editorFaceMesh2D: EditorMesh2D;
   private readonly cacheSize: number;
@@ -134,7 +134,7 @@ export class App {
       if (this.getSelectedFileHistory()?.isEmpty()) {
         this.runDetection();
       } else {
-        this.editorFaceMesh2D.graph = this.getSelectedFileHistory()?.get();
+        this.editorFaceMesh2D.graph = this.getSelectedFileHistory()?.get() as Graph<Point2D>;
       }
     });
   }
@@ -148,7 +148,7 @@ export class App {
       if (input.files) {
         const files: File[] = Array.from(input.files);
         for (const f of files) {
-          const history = new FileAnnotationHistory<Point2D>(f, this.cacheSize);
+          const history = new FileAnnotationHistory(f, this.cacheSize);
           this.fileCache.push(history);
           const thumbnail = new Thumbnail((filename) =>
             this.selectThumbnail(filename)
@@ -219,7 +219,7 @@ export class App {
         continue;
       }
       c.markAsSent();
-      const graph = c.get();
+      const graph = c.get() as Graph<Point2D>;
       result[c.file.name] = {};
       if (graph) {
         result[c.file.name]['points'] = graph.toDictArray();
@@ -271,13 +271,13 @@ export class App {
 
   undo(): boolean {
     this.getSelectedFileHistory()?.previous();
-    this.editorFaceMesh2D.graph = this.getSelectedFileHistory()?.get();
+    this.editorFaceMesh2D.graph = this.getSelectedFileHistory()?.get() as Graph<Point2D>;
     return false;
   }
 
   redo(): boolean {
     this.getSelectedFileHistory()?.next();
-    this.editorFaceMesh2D.graph = this.getSelectedFileHistory()?.get();
+    this.editorFaceMesh2D.graph = this.getSelectedFileHistory()?.get() as Graph<Point2D>;
     return false;
   }
 
@@ -434,7 +434,7 @@ export class App {
       });
   }
 
-  getSelectedFileHistory(): FileAnnotationHistory<Point2D> | undefined {
+  getSelectedFileHistory(): FileAnnotationHistory | undefined {
     return this.fileCache.find((c) => c.file.name === this.selectedFile);
   }
 
@@ -449,7 +449,7 @@ export class App {
   }
 
   private deletePoints(pointIds: number[]): void {
-    const graph = this.getSelectedFileHistory()?.get();
+    const graph = (this.getSelectedFileHistory()?.get() as Graph<Point2D>);
     if (graph) {
       for (const id of pointIds) {
         graph.getById(id).deleted = true;
