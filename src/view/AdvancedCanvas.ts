@@ -59,9 +59,9 @@ export class AdvancedCanvas {
    * Clears the canvas and resizes it to fit the window.
    */
   clearAndFitToWindow() {
-    const canvas = $(this._embeddingDiv);
-    this.canvas.width = canvas.innerWidth();
-    this.canvas.height = canvas.innerHeight();
+    const canvasContainer = document.getElementById(this._embeddingDiv) as HTMLDivElement;
+    this.canvas.width = canvasContainer.clientWidth;
+    this.canvas.height = canvasContainer.clientHeight;
   }
 
   /**
