@@ -78,7 +78,7 @@ export class Graph<P extends Point2D> implements Annotation {
    * Creates a shallow copy of the graph.
    * @returns {Graph<P>} - A new Graph instance with cloned points.
    */
-  clone(): Annotation {
+  clone(): Graph<P> {
     // @ts-expect-error: converting Points to abstract class
     return new Graph<P>(this.points.map((p) => p.clone()));
   }

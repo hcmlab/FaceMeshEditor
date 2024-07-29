@@ -9,7 +9,7 @@ import { Point3D } from '../annotation/graph/Point3d';
  * Represents a model using MediaPipe for face landmark detection.
  * Implements the ModelApi interface for working with Point2D graphs.
  */
-export class MediapipeModel implements ModelApi<Point2D> {
+export class MediapipeFaceMesh3DModel implements ModelApi<Point2D> {
   private meshLandmarker: FaceLandmarker;
 
   /**

@@ -15,7 +15,7 @@ import {
   FACE_FEATURE_RIGHT_EYEBROW, FACE_LANDMARKS_NOSE
 } from './annotation/graph/FaceLandmarksFeatures';
 import { ModelApi } from './model/ModelApi';
-import { MediapipeModel } from './model/Mediapipe';
+import { MediapipeFaceMesh3DModel } from './model/MediapipeFaceMesh3DModel';
 import { ModelType } from './model/Models';
 import { urlError, WebServiceModel } from './model/Webservice';
 import { EditorMesh2D } from './plugins/EditorMesh2d';
@@ -95,7 +95,7 @@ export class App {
   private editorFaceMesh2D: EditorMesh2D;
   private readonly cacheSize: number;
   private readonly models = {
-    mediapipe: { model: new MediapipeModel(), selected: true },
+    mediapipe: { model: new MediapipeFaceMesh3DModel(), selected: true },
     custom: { model: null, selected: false }
   };
   private selectedFile: string | null = null;
