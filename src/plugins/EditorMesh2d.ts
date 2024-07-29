@@ -173,6 +173,9 @@ export class EditorMesh2D {
           p.selected = true;
           this.isMoving = true;
         });
+      if (this.isMoving === false) {
+        this.imageViewer.advancedCanvas.isPanning = true;
+      }
     }
   }
 

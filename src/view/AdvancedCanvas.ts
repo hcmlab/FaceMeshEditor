@@ -14,7 +14,7 @@ export class AdvancedCanvas {
   private prevMouseY: number = 0;
   private mouseX: number = 0;
   private mouseY: number = 0;
-  protected isPanning: boolean = false;
+  public isPanning: boolean = false;
   private readonly _embeddingDiv: string;
 
   /**
@@ -136,9 +136,13 @@ export class AdvancedCanvas {
    */
   private handleMouseDown(event: MouseEvent): void {
     // Check if any normalized 3D point is clicked
-    if (event.button === 1) {
+    if (event.button === 0) {
+      // left button
+    } else if (event.button === 1) {
       // wheel button
       this.isPanning = true;
+    } else if (event.button === 2) {
+      // right click
     }
   }
 
