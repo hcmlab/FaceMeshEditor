@@ -35,6 +35,7 @@ export class AdvancedCanvas {
     this.canvas.addEventListener('mouseup', (e) => this.handleMouseUp(e));
     this.canvas.addEventListener('mouseout', (e) => this.handleMouseUp(e));
     this.canvas.addEventListener('wheel', (e) => this.handleWheel(e));
+    this.canvas.addEventListener('contextmenu', (e) => this.handleContextMenu(e), false);
   }
 
   /**
@@ -179,5 +180,13 @@ export class AdvancedCanvas {
       this.zoom(event.deltaY > 0);
       event.preventDefault();
     }
+  }
+
+  /**
+   * Handles the context event for a right click.
+   * @param {MouseEvent} event - The mouse event.
+   */
+  private handleContextMenu(event: MouseEvent) {
+    event.preventDefault();
   }
 }
