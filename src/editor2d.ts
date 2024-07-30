@@ -6,6 +6,7 @@ import {
   Connection,
   FACE_LANDMARKS_NOSE,
 } from './graph/face_landmarks_features';
+import { handleCanvasRightClick } from './view/right_click';
 
 const COLOR_POINT_HOVERED = 'rgba(255,250,163,0.6)';
 
@@ -50,6 +51,7 @@ export class Editor2D {
   private image: HTMLImageElement = new Image();
   private onPointsEditedCallback: ((graph: Graph<Point2D>) => void) | null =
     null;
+  private removedPoints: Point2D[] = [];
 
   constructor() {
     this.canvas = document.getElementById('canvas') as HTMLCanvasElement;
@@ -179,40 +181,101 @@ export class Editor2D {
     // Draw Mesh
     if (this.showTesselation) {
       this.drawFaceTrait(
-        FaceLandmarker.FACE_LANDMARKS_TESSELATION,
+        this.filterDrawingConnections(
+          FaceLandmarker.FACE_LANDMARKS_TESSELATION,
+        ),
         COLOR_EDGES_TESSELATION,
       );
     }
     this.drawFaceTrait(
-      FaceLandmarker.FACE_LANDMARKS_FACE_OVAL,
+      this.filterDrawingConnections(FaceLandmarker.FACE_LANDMARKS_FACE_OVAL),
       COLOR_EDGES_FACE_OVAL,
     );
-    this.drawFaceTrait(FaceLandmarker.FACE_LANDMARKS_LIPS, COLOR_EDGES_LIPS);
     this.drawFaceTrait(
-      FaceLandmarker.FACE_LANDMARKS_RIGHT_EYEBROW,
+      this.filterDrawingConnections(FaceLandmarker.FACE_LANDMARKS_LIPS),
+      COLOR_EDGES_LIPS,
+    );
+    this.drawFaceTrait(
+      this.filterDrawingConnections(
+        FaceLandmarker.FACE_LANDMARKS_RIGHT_EYEBROW,
+      ),
       COLOR_EDGES_RIGHT_EYE,
     );
     this.drawFaceTrait(
-      FaceLandmarker.FACE_LANDMARKS_RIGHT_EYE,
+      this.filterDrawingConnections(FaceLandmarker.FACE_LANDMARKS_RIGHT_EYE),
       COLOR_EDGES_RIGHT_EYE,
     );
     this.drawFaceTrait(
-      FaceLandmarker.FACE_LANDMARKS_RIGHT_IRIS,
+      this.filterDrawingConnections(FaceLandmarker.FACE_LANDMARKS_RIGHT_IRIS),
       COLOR_EDGES_RIGHT_IRIS,
     );
     this.drawFaceTrait(
-      FaceLandmarker.FACE_LANDMARKS_LEFT_EYEBROW,
+      this.filterDrawingConnections(FaceLandmarker.FACE_LANDMARKS_LEFT_EYEBROW),
       COLOR_EDGES_LEFT_EYE,
     );
     this.drawFaceTrait(
-      FaceLandmarker.FACE_LANDMARKS_LEFT_EYE,
+      this.filterDrawingConnections(FaceLandmarker.FACE_LANDMARKS_LEFT_EYE),
       COLOR_EDGES_LEFT_EYE,
     );
     this.drawFaceTrait(
-      FaceLandmarker.FACE_LANDMARKS_LEFT_IRIS,
+      this.filterDrawingConnections(FaceLandmarker.FACE_LANDMARKS_LEFT_IRIS),
       COLOR_EDGES_LEFT_IRIS,
     );
-    this.drawFaceTrait(FACE_LANDMARKS_NOSE, COLOR_EDGES_NOSE);
+    this.drawFaceTrait(
+      this.filterDrawingConnections(FACE_LANDMARKS_NOSE),
+      COLOR_EDGES_NOSE,
+    );
+  }
+
+  /**
+   * Checks if there is a hovered point in the graph.
+   * If true, the point is prepared for right click
+   * @returns {boolean} Returns true if there is a hovered point, false otherwise.
+   */
+  prepareRightClick(): boolean {
+    const points = this._graph.points.filter((p) => p.hovered && !p.deleted);
+    points.forEach((point) => {
+      point.markForDeleting = true;
+    });
+    return points.length !== 0;
+  }
+
+  /**
+   * actually removes the point(s)
+   */
+  executeRightClick() {
+    const removed = [];
+    this._graph.points.forEach((point) => {
+      if (point.markForDeleting) {
+        point.deleted = true;
+        point.markForDeleting = false;
+        removed.push(point);
+      }
+    });
+    this.updateConnections(removed);
+  }
+
+  /**
+   * Disarms the right click functionality
+   */
+  disarmRightClick() {
+    this._graph.points.forEach((point) => {
+      point.markForDeleting = false;
+    });
+  }
+
+  private updateConnections(ids: Point2D[]): void {
+    this.removedPoints = this.removedPoints.concat(ids);
+  }
+
+  /**
+   * removes all deleted points from the connections and updates the begining/end
+   * @param connections
+   * @private
+   */
+  private filterDrawingConnections(connections: Connection[]): Connection[] {
+    // Todo!
+    return connections;
   }
 
   private drawPoint(point: Point2D): void {

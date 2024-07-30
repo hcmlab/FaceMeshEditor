@@ -18,6 +18,10 @@ import { ModelApi } from './model/modelApi';
 import { MediapipeModel } from './model/mediapipe';
 import { ModelType } from './model/models';
 import { urlError, WebServiceModel } from './model/webservice';
+import {
+  handleCanvasRightClick,
+  handleCanvasLeftClick,
+} from './view/right_click';
 
 export class App {
   private featureDrag: Slider;
@@ -25,7 +29,6 @@ export class App {
   private thumbnailGallery: JQuery<HTMLElement>;
   private numImages: HTMLOutputElement;
   private fileCache: FileAnnotationHistory<Point2D>[] = [];
-  private editor: Editor2D = new Editor2D();
   private readonly cacheSize: number;
   private readonly models = {
     mediapipe: { model: new MediapipeModel(), selected: true },
@@ -33,6 +36,8 @@ export class App {
   };
   private selectedFile: string | null = null;
   private _modelType: ModelType = ModelType.mediapipe;
+
+  editor: Editor2D = new Editor2D();
 
   get modelType(): ModelType {
     return this._modelType;
@@ -473,6 +478,17 @@ window.onload = (_) => {
         return '?';
       }
     }
+  });
+
+  $('#canvas-div')
+    .on(
+      'contextmenu',
+      async (event) => await handleCanvasRightClick(event, app.editor),
+    )
+    .on('click', () => handleCanvasLeftClick(app.editor));
+
+  $('#delete_point').on('click', () => {
+    app.editor.executeRightClick();
   });
 
   const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);

@@ -47,6 +47,16 @@ export class Point2D {
     this._hovered = value;
   }
 
+  private _markForDeleting: boolean = false;
+
+  get markForDeleting(): boolean {
+    return this._markForDeleting;
+  }
+
+  set markForDeleting(value: boolean) {
+    this._markForDeleting = value;
+  }
+
   private _deleted: boolean = false;
 
   /**
