@@ -6,7 +6,6 @@ import {
   Connection,
   FACE_LANDMARKS_NOSE,
 } from './graph/face_landmarks_features';
-import { handleCanvasRightClick } from './view/right_click';
 
 const COLOR_POINT_HOVERED = 'rgba(255,250,163,0.6)';
 
@@ -269,7 +268,7 @@ export class Editor2D {
   }
 
   /**
-   * removes all deleted points from the connections and updates the begining/end
+   * removes all deleted points from the connections and updates the beginning/end
    * @param connections
    * @private
    */
