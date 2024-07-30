@@ -214,6 +214,10 @@ export class App {
   reset(): boolean {
     this.getSelectedFileHistory()?.clear();
     this.runDetection();
+    Thumbnail.setStatus(
+      this.getSelectedFileHistory().file.name,
+      saveStatus.unedited,
+    );
     return false;
   }
 
