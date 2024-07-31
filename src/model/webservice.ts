@@ -1,4 +1,4 @@
-import { ModelApi } from './modelApi';
+import type { ModelApi } from './modelApi';
 import { Point2D } from '../graph/point2d';
 import { Graph } from '../graph/graph';
 import { findNeighbourPointIds } from '../graph/face_landmarks_features';
@@ -20,7 +20,7 @@ export class WebServiceModel implements ModelApi<Point2D> {
     this.url = url;
   }
 
-  async detect(imageFile: File): Promise<Graph<Point2D>> {
+  async detect(imageFile: File): Promise<Graph<Point2D> | null> {
     const formData: FormData = new FormData();
     formData.append('file', imageFile);
 
@@ -29,13 +29,10 @@ export class WebServiceModel implements ModelApi<Point2D> {
         fingerprint = fingerprint.hash.toString();
       }
 
-      const request: RequestInfo = new Request(
-        this.url + '/detect?__id__=' + fingerprint,
-        {
-          method: 'POST',
-          body: formData,
-        },
-      );
+      const request: RequestInfo = new Request(this.url + '/detect?__id__=' + fingerprint, {
+        method: 'POST',
+        body: formData
+      });
       return fetch(request)
         .then(async (res) => {
           if (!res.ok) {
@@ -46,9 +43,7 @@ export class WebServiceModel implements ModelApi<Point2D> {
         .then(async (json) => {
           const sha = await calculateSHA(imageFile);
           if (json['sha256'] !== sha) {
-            throw new Error(
-              `sha256 didn't match present file was ${json['sha256']},  is , ${sha}`,
-            );
+            throw new Error(`sha256 didn't match present file was ${json['sha256']},  is , ${sha}`);
           }
           if (!json['points']) {
             throw new Error("The request didn't return any point data.");
@@ -58,14 +53,10 @@ export class WebServiceModel implements ModelApi<Point2D> {
         .then((landmarks) =>
           landmarks.map((dict: { x: number; y: number }, idx: number) => {
             const ids = Array.from(
-              findNeighbourPointIds(
-                idx,
-                FaceLandmarker.FACE_LANDMARKS_TESSELATION,
-                1,
-              ),
+              findNeighbourPointIds(idx, FaceLandmarker.FACE_LANDMARKS_TESSELATION, 1)
             );
             return new Point2D(idx, dict.x, dict.y, ids);
-          }),
+          })
         )
         .then((landmarks) => new Graph(landmarks))
         .catch((err: Error) => {
@@ -90,7 +81,7 @@ export class WebServiceModel implements ModelApi<Point2D> {
       const request: RequestInfo = new Request(this.url + '/annotations', {
         method: 'POST',
         headers: headers,
-        body: JSON.stringify(json),
+        body: JSON.stringify(json)
       });
 
       return fetch(request);
@@ -112,7 +103,7 @@ export class WebServiceModel implements ModelApi<Point2D> {
         '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*' + // port and path
         '(\\?[;&a-z\\d%_.~+=-]*)?' + // query string
         '(\\#[-a-z\\d_]*)?$',
-      'i',
+      'i'
     ); // fragment locator
 
     if (!pattern.test(url)) {
@@ -121,7 +112,7 @@ export class WebServiceModel implements ModelApi<Point2D> {
 
     // try connecting to the url
     const request: RequestInfo = new Request(url, {
-      method: 'HEAD',
+      method: 'HEAD'
     });
 
     return fetch(request)
@@ -136,5 +127,5 @@ export class WebServiceModel implements ModelApi<Point2D> {
 
 export enum urlError {
   InvalidUrl = 'InvalidUrl',
-  Unreachable = 'Unreachable',
+  Unreachable = 'Unreachable'
 }

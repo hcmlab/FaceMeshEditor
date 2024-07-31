@@ -29,17 +29,14 @@ export class Graph<P extends Point2D> {
    * @param {() => P} newObject - A function to create a new point object.
    * @returns {Graph<P>} - A new Graph instance.
    */
-  static fromJson<P extends Point2D>(
-    jsonObject: P[],
-    newObject: (id) => P,
-  ): Graph<P> {
+  static fromJson<P extends Point2D>(jsonObject: P[], newObject: (id: number) => P): Graph<P> {
     return new Graph<P>(
       jsonObject.map((dict) => {
         const point = newObject(dict['id']);
         // @ts-expect-error: built in method uses readonly
         delete dict['id'];
         return Object.assign(point, dict);
-      }),
+      })
     );
   }
 
@@ -48,8 +45,8 @@ export class Graph<P extends Point2D> {
    * @param {number} id - The ID of the point.
    * @returns {P} - The point with the specified ID.
    */
-  getById(id: number): P {
-    return this.points.find((p) => p.id === id);
+  getById(id: number): P | undefined {
+    return this.points.find((p: P) => p.id === id);
   }
 
   /**
@@ -57,7 +54,7 @@ export class Graph<P extends Point2D> {
    * @param {P} point - The point for which neighbors are requested.
    * @returns {P[]} - An array of neighboring points.
    */
-  getNeighbourPointsOf(point: P): P[] {
+  getNeighbourPointsOf(point: P): (P | undefined)[] {
     return point.getNeighbourIds().map((id) => this.getById(id));
   }
 

@@ -12,7 +12,7 @@ import {
   FACE_FEATURE_LIPS,
   FACE_FEATURE_NOSE,
   FACE_FEATURE_RIGHT_EYE,
-  FACE_FEATURE_RIGHT_EYEBROW,
+  FACE_FEATURE_RIGHT_EYEBROW
 } from './graph/face_landmarks_features';
 import { ModelApi } from './model/modelApi';
 import { MediapipeModel } from './model/mediapipe';
@@ -29,7 +29,7 @@ export class App {
   private readonly cacheSize: number;
   private readonly models = {
     mediapipe: { model: new MediapipeModel(), selected: true },
-    custom: { model: null, selected: false },
+    custom: { model: null, selected: false }
   };
   private selectedFile: string | null = null;
   private _modelType: ModelType = ModelType.mediapipe;
@@ -48,7 +48,7 @@ export class App {
     });
     this.viewTesselation = new CheckBox(
       'view_tesselation',
-      () => (this.editor.showTesselation = this.viewTesselation.isChecked()),
+      () => (this.editor.showTesselation = this.viewTesselation.isChecked())
     );
     this.thumbnailGallery = $('#thumbnailGallery');
     this.numImages = document.getElementById('num_images') as HTMLOutputElement;
@@ -80,14 +80,10 @@ export class App {
         for (const f of files) {
           const history = new FileAnnotationHistory<Point2D>(f, this.cacheSize);
           this.fileCache.push(history);
-          const thumbnail = new Thumbnail((filename) =>
-            this.selectThumbnail(filename),
-          );
+          const thumbnail = new Thumbnail((filename) => this.selectThumbnail(filename));
           thumbnail.setSource(f);
           this.thumbnailGallery.append(thumbnail.toHtml());
-          this.numImages.value = this.thumbnailGallery
-            .children()
-            .length.toString();
+          this.numImages.value = this.thumbnailGallery.children().length.toString();
         }
         if (files.length > 0) {
           this.editor.setBackgroundSource(files[0]);
@@ -110,9 +106,7 @@ export class App {
       const annotationFile: File = input.files[0];
       const reader: FileReader = new FileReader();
       reader.onload = (_) => {
-        const jsonString = <{ string: Point2D[] }>(
-          JSON.parse(reader.result as string)
-        );
+        const jsonString = <{ string: Point2D[] }>JSON.parse(reader.result as string);
         for (const filename of Object.keys(jsonString)) {
           const workingImage = jsonString[filename];
           // skip files without annotation
@@ -121,11 +115,10 @@ export class App {
           }
           const graph: Graph<Point2D> = Graph.fromJson(
             workingImage['points'],
-            (id) => new Point2D(id, 0, 0, []),
+            (id) => new Point2D(id, 0, 0, [])
           );
           const cache = this.fileCache.find(
-            (f) =>
-              f.file.name === filename && f.hash === workingImage['sha256'],
+            (f) => f.file.name === filename && f.hash === workingImage['sha256']
           );
           if (cache) {
             cache.add(graph);
@@ -171,8 +164,7 @@ export class App {
 
     const jsonData: string = JSON.stringify(result);
     this.getModel().uploadAnnotations(jsonData);
-    const dataStr: string =
-      'data:text/json;charset=utf-8,' + encodeURIComponent(jsonData);
+    const dataStr: string = 'data:text/json;charset=utf-8,' + encodeURIComponent(jsonData);
     const a: HTMLAnchorElement = document.createElement('a');
     a.href = dataStr;
     a.download = Date.now() + '_face_mesh_annotations.json';
@@ -230,12 +222,8 @@ export class App {
 
     this._modelType = model;
 
-    const btnMediapipe = document.getElementById(
-      'btnModelMediapipe',
-    ) as HTMLInputElement;
-    const btnCustom = document.getElementById(
-      'btnModelCustom',
-    ) as HTMLInputElement;
+    const btnMediapipe = document.getElementById('btnModelMediapipe') as HTMLInputElement;
+    const btnCustom = document.getElementById('btnModelCustom') as HTMLInputElement;
     this.models.mediapipe.selected = false;
     this.models.custom.selected = false;
     switch (model) {
@@ -393,18 +381,13 @@ export class App {
 // INITIAL
 // #####################################################################################################################
 window.onload = (_) => {
-  const elements: NodeListOf<Element> = document.querySelectorAll(
-    '[aria-keyshortcuts]',
-  );
+  const elements: NodeListOf<Element> = document.querySelectorAll('[aria-keyshortcuts]');
   elements.forEach((elem: HTMLElement) => {
     elem.style.cssText = 'width: 100%; text-align: start; padding: .2vw;';
     const keys: string[] = elem.ariaKeyShortcuts
       .split('+')
       .map((k: string) =>
-        k
-          .replace('Control', 'CTRL')
-          .replace('Shift', 'SHIFT')
-          .replace('Wheel', 'SCROLL'),
+        k.replace('Control', 'CTRL').replace('Shift', 'SHIFT').replace('Wheel', 'SCROLL')
       );
     if (elem.ariaKeyShortcuts.length > 0) {
       const table: HTMLTableElement = document.createElement('table');
@@ -414,12 +397,9 @@ window.onload = (_) => {
       const menuTextCol: HTMLTableCellElement = document.createElement('td');
       menuTextCol.innerHTML = elem.innerHTML;
       row.appendChild(menuTextCol);
-      const menuShortCutCol: HTMLTableCellElement =
-        document.createElement('td');
+      const menuShortCutCol: HTMLTableCellElement = document.createElement('td');
       menuShortCutCol.style.cssText = 'text-align: end;';
-      menuShortCutCol.innerHTML = keys
-        .map((k: string) => '<kbd>' + k + '</kbd>')
-        .join('+');
+      menuShortCutCol.innerHTML = keys.map((k: string) => '<kbd>' + k + '</kbd>').join('+');
       row.appendChild(menuShortCutCol);
       elem.replaceChildren(table);
     }
@@ -432,22 +412,14 @@ window.onload = (_) => {
   document.getElementById('undo').onclick = () => app.undo();
   document.getElementById('redo').onclick = () => app.redo();
   document.getElementById('reset').onclick = () => app.reset();
-  document.getElementById('btnModelMediapipe').onclick = () =>
-    app.setModel(ModelType.mediapipe);
-  document.getElementById('btnCloseModal').onclick = () =>
-    app.setModel(ModelType.mediapipe);
-  document.getElementById('btnCancelModal').onclick = () =>
-    app.setModel(ModelType.mediapipe);
-  document.getElementById('btnSaveCustomModel').onclick = () =>
-    app.setModel(ModelType.custom);
-  document.getElementById('feat_le').onclick = (_) =>
-    app.deleteFeature('left_eye');
-  document.getElementById('feat_leb').onclick = (_) =>
-    app.deleteFeature('left_eyebrow');
-  document.getElementById('feat_re').onclick = (_) =>
-    app.deleteFeature('right_eye');
-  document.getElementById('feat_reb').onclick = (_) =>
-    app.deleteFeature('right_eyebrow');
+  document.getElementById('btnModelMediapipe').onclick = () => app.setModel(ModelType.mediapipe);
+  document.getElementById('btnCloseModal').onclick = () => app.setModel(ModelType.mediapipe);
+  document.getElementById('btnCancelModal').onclick = () => app.setModel(ModelType.mediapipe);
+  document.getElementById('btnSaveCustomModel').onclick = () => app.setModel(ModelType.custom);
+  document.getElementById('feat_le').onclick = (_) => app.deleteFeature('left_eye');
+  document.getElementById('feat_leb').onclick = (_) => app.deleteFeature('left_eyebrow');
+  document.getElementById('feat_re').onclick = (_) => app.deleteFeature('right_eye');
+  document.getElementById('feat_reb').onclick = (_) => app.deleteFeature('right_eyebrow');
   document.getElementById('feat_n').onclick = (_) => app.deleteFeature('nose');
   document.getElementById('feat_m').onclick = (_) => app.deleteFeature('mouth');
   window.onresize = () => app.resizeWindow();
@@ -479,7 +451,7 @@ window.onload = (_) => {
   if (isSafari) {
     alert(
       'You are using Safari. This website may not function as expected. ' +
-        'Please consider using a different browser.',
+        'Please consider using a different browser.'
     );
   }
 

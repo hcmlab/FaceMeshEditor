@@ -1,4 +1,4 @@
-import { ModelApi } from './modelApi';
+import type { ModelApi } from './modelApi';
 import { Graph } from '../graph/graph';
 import { findNeighbourPointIds } from '../graph/face_landmarks_features';
 import { FaceLandmarker, FilesetResolver } from '@mediapipe/tasks-vision';
@@ -10,14 +10,14 @@ import { Point3D } from '../graph/point3d';
  * Implements the ModelApi interface for working with Point2D graphs.
  */
 export class MediapipeModel implements ModelApi<Point2D> {
-  private meshLandmarker: FaceLandmarker;
+  private meshLandmarker: FaceLandmarker | null = null;
 
   /**
    * Creates a new MediapipeModel instance.
    */
   constructor() {
     FilesetResolver.forVisionTasks(
-      'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest/wasm',
+      'https://cdn.jsdelivr.net/npm/@mediapipe/tasks-vision@latest/wasm'
     )
       .then((filesetResolver) =>
         FaceLandmarker.createFromOptions(filesetResolver, {
@@ -25,13 +25,13 @@ export class MediapipeModel implements ModelApi<Point2D> {
             modelAssetPath:
               'https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task',
             // When adding user model of same type -> modelAssetBuffer
-            delegate: 'CPU',
+            delegate: 'CPU'
           },
           minFaceDetectionConfidence: 0.3,
           minFacePresenceConfidence: 0.3,
           runningMode: 'IMAGE',
-          numFaces: 1,
-        }),
+          numFaces: 1
+        })
       )
       .then((landmarker) => (this.meshLandmarker = landmarker));
   }
@@ -47,15 +47,11 @@ export class MediapipeModel implements ModelApi<Point2D> {
               landmarks
                 .map((dict, idx) => {
                   const ids = Array.from(
-                    findNeighbourPointIds(
-                      idx,
-                      FaceLandmarker.FACE_LANDMARKS_TESSELATION,
-                      1,
-                    ),
+                    findNeighbourPointIds(idx, FaceLandmarker.FACE_LANDMARKS_TESSELATION, 1)
                   );
                   return new Point3D(idx, dict.x, dict.y, dict.z, ids);
                 })
-                .map((point) => point as Point2D),
+                .map((point) => point as Point2D)
             )
             .map((landmarks) => new Graph(landmarks));
           if (graphs) {

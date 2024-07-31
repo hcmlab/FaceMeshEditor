@@ -1,3 +1,5 @@
+import $ from 'jquery';
+
 /**
  * Represents a canvas-based thumbnail for an image.
  */
@@ -16,10 +18,7 @@ export class Thumbnail {
    * @param {(filename: string) => void} onClickCallback - A callback function to execute when the thumbnail is clicked.
    * @param {number} imageSize - The desired size (width and height) of the thumbnail canvas.
    */
-  constructor(
-    onClickCallback: (filename: string) => void,
-    imageSize: number = 100,
-  ) {
+  constructor(onClickCallback: (filename: string) => void, imageSize: number = 100) {
     this.onClickCallback = onClickCallback;
     this.a = document.createElement('a');
     this.a.className = 'overlap-container w-15vh h-15vh my-1';
@@ -27,7 +26,7 @@ export class Thumbnail {
     this.canvas.className = 'img-thumbnail d-block w-100 rounded';
     this.canvas.width = imageSize;
     this.canvas.height = imageSize;
-    this.ctx = this.canvas.getContext('2d');
+    this.ctx = this.canvas.getContext('2d')!;
     this.image.onload = () => this.draw();
     this.a.href = '#';
     this.a.onclick = (_) => {
@@ -126,18 +125,12 @@ export class Thumbnail {
     this.ctx.fillRect(0, 0, size, size);
 
     // Draw the image on canvas, maintaining aspect ratio and centering
-    this.ctx.drawImage(
-      this.image,
-      offX,
-      offY,
-      this.image.width * scale,
-      this.image.height * scale,
-    );
+    this.ctx.drawImage(this.image, offX, offY, this.image.width * scale, this.image.height * scale);
   }
 }
 
 export enum saveStatus {
   unedited = 'unedited',
   edited = 'edited',
-  saved = 'saved',
+  saved = 'saved'
 }

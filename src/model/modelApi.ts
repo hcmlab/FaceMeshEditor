@@ -11,7 +11,7 @@ export interface ModelApi<P extends Point2D> {
    * @param {File} imageFile - The image file to analyze.
    * @returns {Promise<Graph<Point2D>>} - A promise resolving to a graph of detected face landmarks.
    */
-  detect(imageFile: File): Promise<Graph<P>>;
+  detect(imageFile: File): Promise<Graph<P> | null>;
 
   /**
    * Uploads annotations.

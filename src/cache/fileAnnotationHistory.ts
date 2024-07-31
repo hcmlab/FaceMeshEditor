@@ -12,7 +12,7 @@ export class FileAnnotationHistory<T extends Point2D> {
   private history: Graph<T>[] = [];
   private currentHistoryIndex: number = 0;
   private readonly _file: File;
-  private _hash: string;
+  private _hash: string = '';
   private _readyToSave: boolean;
 
   /**

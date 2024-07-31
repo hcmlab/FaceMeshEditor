@@ -1,5 +1,3 @@
-import test from 'ava';
+import { test } from 'vitest';
 
-test('dummy test', t => {
-  t.pass();
-});
+test('dummy test', () => {});
