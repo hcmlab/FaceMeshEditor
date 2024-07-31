@@ -1,7 +1,7 @@
 import * as bootstrap from 'bootstrap'; // import statically - don't grab it from a cdn
-import { Slider } from './view/Slider';
-import { CheckBox } from './view/Checkbox';
-import { saveStatus, Thumbnail } from './view/Thumbnail';
+import { Slider } from './view/menu/Slider';
+import { MenuCheckBox } from './view/menu/MenuCheckBox';
+import { saveStatus, Thumbnail } from './view/thumbnails/Thumbnail';
 import { FileAnnotationHistory } from './cache/FileAnnotationHistory';
 import { Point2D } from './annotation/graph/Point2d';
 import { ImageViewer } from './viewer/ImageViewer';
@@ -21,6 +21,7 @@ import { urlError, WebServiceModel } from './model/Webservice';
 import { EditorMesh2D } from './plugins/EditorMesh2d';
 import { AdvancedCanvas } from './view/AdvancedCanvas';
 import { FaceLandmarker } from '@mediapipe/tasks-vision';
+import { NavbarMenu, MenuBanner, MenuHeader, MenuLinkAction } from './view/menu/NavbarMenu';
 
 
 const COLOR_EDGES_TESSELATION = '#d5d5d5';
@@ -87,7 +88,7 @@ const meshConfig = [{
 
 export class App {
   private featureDrag: Slider;
-  private viewTesselation: CheckBox;
+  private viewTesselation: MenuCheckBox;
   private thumbnailGallery: JQuery<HTMLElement>;
   private numImages: HTMLOutputElement;
   private fileCache: FileAnnotationHistory[] = [];
@@ -107,6 +108,7 @@ export class App {
 
   constructor(cacheSize: number) {
     this.cacheSize = cacheSize;
+    this.createMenu();
     const canvas = new AdvancedCanvas('canvas-div', 'canvas');
     this.imageViewer = new ImageViewer(canvas);
     this.editorFaceMesh2D = new EditorMesh2D(this.imageViewer, meshConfig);
@@ -116,7 +118,7 @@ export class App {
       element.value = this.featureDrag.getValue().toString();
       this.editorFaceMesh2D.dragDepth = this.featureDrag.getValue();
     });
-    this.viewTesselation = new CheckBox(
+    this.viewTesselation = new MenuCheckBox(
       'view_tesselation',
       () => (this.editorFaceMesh2D.showTesselation = this.viewTesselation.isChecked())
     );
@@ -137,6 +139,16 @@ export class App {
         this.editorFaceMesh2D.graph = this.getSelectedFileHistory()?.get() as Graph<Point2D>;
       }
     });
+  }
+
+  private createMenu(): void {
+    const menu = new NavbarMenu();
+    menu.add(new MenuBanner("Face Mesh Editor", "/static/images/FaceMesh.png"));
+    const menuFile = new NavbarMenu(new MenuHeader("File"));
+    menuFile.add(new MenuLinkAction("Open Images", "Control+O", "bi bi-folder2-open", this.openImage));
+    menuFile.add(new MenuLinkAction("Open Annotations", "Control+A", "bi bi-folder2-open", this.openAnnotation));
+    menuFile.add(new MenuLinkAction("Download all", "Control+S", "bi bi-download", this.saveAnnotation));
+    menu.add(menuFile)
   }
 
   openImage(): boolean {
