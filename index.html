@@ -102,8 +102,13 @@
            style="padding: .2vw;"><i class="bi bi-info-circle"></i> Info</a>
     </div>
     <!-- The central drawing -->
-    <div class="w-70 h-100 flex-grow-1" id="canvas-div">
-        <canvas id="canvas" class="w-100 h-100"></canvas>
+    <div class="w-70 h-100 flex-grow-1 position-relative" id="canvas-div">
+        <canvas id="canvas" class="w-100 h-100 position-absolute"></canvas>
+        <div id="rmb-div" class="d-none bg-danger-subtle position-absolute ">
+            <button id="delete_point">
+                Delete Point
+            </button>
+        </div>
     </div>
     <!-- The picture selector -->
     <div class="w-10 h-100 rounded-start-1 shadow bg-white text-center">
