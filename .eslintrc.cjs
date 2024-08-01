@@ -1,9 +1,11 @@
+// eslint-disable-next-line @typescript-eslint/no-var-requires
 const globals = require("globals");
 require('@rushstack/eslint-patch/modern-module-resolution')
 
 module.exports = {
   env: {
     browser: true,
+    node: true,
   },
   globals: globals.browser,
   plugins: [
@@ -41,8 +43,12 @@ module.exports = {
   },
   settings: {
     "import/resolver": {
-      "typescript": true,
+      "typescript": {
+        alwaysTryTypes: true,
+        "project": "./tsconfig.app.json",
+      },
       "node": true,
+      "tsconfigRootDir": "./"
     }
   }
 };
