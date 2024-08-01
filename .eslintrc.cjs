@@ -14,7 +14,8 @@ module.exports = {
   ],
   rules: {
     "@typescript-eslint/no-unused-vars": ["error", { argsIgnorePattern: "^_" }],
-    "no-unused-vars": "off"
+    "no-unused-vars": "off",
+    "import/order": 2,
   },
   root: true,
   extends: [
@@ -49,6 +50,14 @@ module.exports = {
       },
       "node": true,
       "tsconfigRootDir": "./"
-    }
+    },
+    "import/order": [
+      "error",
+      {
+        "groups": [
+          "builtin", "external", "internal", "parent", "sibling", "index", "object", "type"
+        ]
+      }
+    ]
   }
 };

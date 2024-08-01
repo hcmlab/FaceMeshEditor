@@ -1,9 +1,9 @@
-import type { ModelApi } from './modelApi';
-import { Graph } from '../graph/graph';
-import { findNeighbourPointIds } from '../graph/face_landmarks_features';
 import { FaceLandmarker, FilesetResolver } from '@mediapipe/tasks-vision';
-import { Point2D } from '../graph/point2d';
-import { Point3D } from '../graph/point3d';
+import type { ModelApi } from './modelApi';
+import { findNeighbourPointIds } from '@/graph/face_landmarks_features';
+import { Graph } from '@/graph/graph';
+import { Point2D } from '@/graph/point2d';
+import { Point3D } from '@/graph/point3d';
 
 /**
  * Represents a model using MediaPipe for face landmark detection.

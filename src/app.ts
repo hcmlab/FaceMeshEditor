@@ -14,7 +14,7 @@ import {
   FACE_FEATURE_RIGHT_EYE,
   FACE_FEATURE_RIGHT_EYEBROW
 } from './graph/face_landmarks_features';
-import { ModelApi } from './model/modelApi';
+import type { ModelApi } from './model/modelApi';
 import { MediapipeModel } from './model/mediapipe';
 import { ModelType } from './model/models';
 import { urlError, WebServiceModel } from './model/webservice';

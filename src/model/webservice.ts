@@ -1,10 +1,10 @@
-import type { ModelApi } from './modelApi';
-import { Point2D } from '../graph/point2d';
-import { Graph } from '../graph/graph';
-import { findNeighbourPointIds } from '../graph/face_landmarks_features';
 import { FaceLandmarker } from '@mediapipe/tasks-vision';
-import { calculateSHA } from '../util/sha';
 import { getFingerprint } from '@thumbmarkjs/thumbmarkjs';
+import type { ModelApi } from './modelApi';
+import { Point2D } from '@/graph/point2d';
+import { Graph } from '@/graph/graph';
+import { findNeighbourPointIds } from '@/graph/face_landmarks_features';
+import { calculateSHA } from '@/util/sha';
 
 /**
  * Represents a model using a WebService for face landmark detection.

@@ -1,5 +1,5 @@
-import { Graph } from '../graph/graph';
-import { Point2D } from '../graph/point2d';
+import { Graph } from '@/graph/graph';
+import { Point2D } from '@/graph/point2d';
 
 /**
  * Represents an interface for a model API that performs face landmark detection.

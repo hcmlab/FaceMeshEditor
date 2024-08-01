@@ -1,7 +1,7 @@
+import { FaceLandmarker } from '@mediapipe/tasks-vision';
 import { Point2D } from './graph/point2d';
 import { Perspective2D } from './graph/perspective2d';
 import { Graph } from './graph/graph';
-import { FaceLandmarker } from '@mediapipe/tasks-vision';
 import { Connection, FACE_LANDMARKS_NOSE } from './graph/face_landmarks_features';
 
 const COLOR_POINT_HOVERED = 'rgba(255,250,163,0.6)';
