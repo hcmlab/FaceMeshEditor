@@ -10,12 +10,5 @@ export const useModelStore = defineStore({
   } => ({
     model: new MediapipeModel()
   }),
-  actions: {
-    getModel(): ModelApi<Point2D> {
-      return this.model;
-    },
-    setModel(model: ModelApi<Point2D>) {
-      this.model = model;
-    }
-  }
+  actions: {}
 });

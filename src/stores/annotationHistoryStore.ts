@@ -36,14 +36,16 @@ export const useAnnotationHistoryStore = defineStore({
     find(fileName: string, sha256: string): FileAnnotationHistory<Point2D> {
       return this.histories.find(
         (history) => history.file.file.name === fileName && history.file.sha === sha256
-      );
+      ) as FileAnnotationHistory<Point2D>;
     },
 
     /**
      * Returns any files with pending changes
      */
     getUnsaved(): FileAnnotationHistory<Point2D>[] {
-      return this.histories.filter((file) => (file.status = SaveStatus.saved));
+      return this.histories.filter(
+        (file) => (file.status = SaveStatus.saved)
+      ) as FileAnnotationHistory<Point2D>[];
     }
   }
 });
