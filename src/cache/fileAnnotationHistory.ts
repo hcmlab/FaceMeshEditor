@@ -1,6 +1,7 @@
-import { Point2D } from '../graph/point2d';
-import { Graph } from '../graph/graph';
-import { calculateSHA } from '../util/sha';
+import { Point2D } from '@/graph/point2d';
+import { Graph } from '@/graph/graph';
+import { ImageFile } from '@/imageFile';
+import { SaveStatus } from '@/enums/saveStatus';
 
 /**
  * Represents a history of annotations for a specific file.
@@ -11,40 +12,34 @@ export class FileAnnotationHistory<T extends Point2D> {
   private readonly cacheSize: number;
   private history: Graph<T>[] = [];
   private currentHistoryIndex: number = 0;
-  private readonly _file: File;
-  private _hash: string = '';
-  private _readyToSave: boolean;
+  private readonly _file: ImageFile;
+  private _status: SaveStatus;
 
   /**
    * Creates a new FileAnnotationHistory instance.
-   * @param {File} file - The file associated with the annotations.
+   * @param {ImageFile} file - The file associated with the annotations.
    * @param {number} cacheSize - The maximum number of history entries to retain.
    */
-  constructor(file: File, cacheSize: number) {
+  constructor(file: ImageFile, cacheSize: number) {
     this._file = file;
     this.cacheSize = cacheSize;
-    calculateSHA(this._file).then((sha) => (this._hash = sha));
-    this._readyToSave = false;
+    this._status = SaveStatus.unedited;
   }
 
   /**
    * Gets the associated file.
    * @returns {File} - The file associated with the annotations.
    */
-  get file(): File {
+  get file(): ImageFile {
     return this._file;
   }
 
-  get hash(): string {
-    return this._hash;
+  get status(): SaveStatus {
+    return this._status;
   }
 
-  get readyToSave(): boolean {
-    return this._readyToSave;
-  }
-
-  set readyToSave(value: boolean) {
-    this._readyToSave = value;
+  set status(value: SaveStatus) {
+    this._status = value;
   }
 
   /**
@@ -116,12 +111,13 @@ export class FileAnnotationHistory<T extends Point2D> {
   clear() {
     this.history.length = 0;
     this.currentHistoryIndex = 0;
+    this._status = SaveStatus.unedited;
   }
 
   /**
    * Resets the status if item is sent
    */
   markAsSent(): void {
-    this.readyToSave = false;
+    this._status = SaveStatus.unedited;
   }
 }

@@ -4,6 +4,7 @@ import { findNeighbourPointIds } from '@/graph/face_landmarks_features';
 import { Graph } from '@/graph/graph';
 import { Point2D } from '@/graph/point2d';
 import { Point3D } from '@/graph/point3d';
+import { ModelType } from '@/model/modelType';
 
 /**
  * Represents a model using MediaPipe for face landmark detection.
@@ -76,5 +77,9 @@ export class MediapipeModel implements ModelApi<Point2D> {
 
   async uploadAnnotations(_: string): Promise<void | Response> {
     return Promise.resolve();
+  }
+
+  type(): ModelType {
+    return ModelType.mediapipe;
   }
 }

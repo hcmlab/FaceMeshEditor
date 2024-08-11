@@ -1,7 +1,7 @@
 <script setup lang="ts">
-import Sidebar from '@/components/SidebarContainer.vue';
-import CentralCanvas from '@/components/CentralCanvas.vue';
-import ThumbnailGallery from '@/components/ThumbnailGallery.vue';
+import Sidebar from '@/components/Main/SidebarContainer.vue';
+import CentralCanvas from '@/components/Main/CentralCanvas.vue';
+import ThumbnailGallery from '@/components/Main/ThumbnailGallery.vue';
 </script>
 
 <template>

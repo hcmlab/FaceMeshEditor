@@ -3,6 +3,7 @@ import { Point2D } from './graph/point2d';
 import { Perspective2D } from './graph/perspective2d';
 import { Graph } from './graph/graph';
 import { Connection, FACE_LANDMARKS_NOSE } from './graph/face_landmarks_features';
+import type { ImageFile } from '@/imageFile';
 
 const COLOR_POINT_HOVERED = 'rgba(255,250,163,0.6)';
 
@@ -47,8 +48,8 @@ export class Editor2D {
   private image: HTMLImageElement = new Image();
   private onPointsEditedCallback: ((graph: Graph<Point2D>) => void) | null = null;
 
-  constructor() {
-    this.canvas = document.getElementById('canvas') as HTMLCanvasElement;
+  constructor(canvas: HTMLCanvasElement) {
+    this.canvas = canvas;
     this.ctx = this.canvas.getContext('2d') as CanvasRenderingContext2D;
     // Size canvas
     this.clearAndFitToWindow();
@@ -56,7 +57,7 @@ export class Editor2D {
     this.canvas.addEventListener('mousedown', (ev) => this.handleMouseDown(ev));
     this.canvas.addEventListener('mousemove', (ev) => this.handleMouseMove(ev));
     this.canvas.addEventListener('mouseup', (ev) => this.handleMouseUp(ev));
-    this.canvas.addEventListener('wheel', (ev) => this.handleWheel(ev));
+    this.canvas.addEventListener('wheel', (ev) => this.handleWheel(ev), { passive: false });
     this.canvas.addEventListener('mouseout', (ev) => this.handleMouseUp(ev));
   }
 
@@ -98,15 +99,9 @@ export class Editor2D {
     this.image.onload = (_) => callback(this.image);
   }
 
-  setBackgroundSource(source: File): void {
-    const reader = new FileReader();
-    reader.onload = (_) => {
-      const result = reader.result;
-      if (result) {
-        this.image.src = result.toString();
-      }
-    };
-    reader.readAsDataURL(source);
+  setBackgroundSource(source: ImageFile): void {
+    this.image.src = source.html;
+    this.draw();
   }
 
   getBackgroundImage(): HTMLImageElement {

@@ -1,5 +1,6 @@
 import { Graph } from '@/graph/graph';
 import { Point2D } from '@/graph/point2d';
+import type { ModelType } from '@/model/modelType';
 
 /**
  * Represents an interface for a model API that performs face landmark detection.
@@ -19,4 +20,6 @@ export interface ModelApi<P extends Point2D> {
    * @returns {Promise<void>} - A promise that resolves when the upload is complete.
    */
   uploadAnnotations(annotationsJson: string): Promise<void | Response>;
+
+  type(): ModelType;
 }

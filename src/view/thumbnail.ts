@@ -128,9 +128,3 @@ export class Thumbnail {
     this.ctx.drawImage(this.image, offX, offY, this.image.width * scale, this.image.height * scale);
   }
 }
-
-export enum saveStatus {
-  unedited = 'unedited',
-  edited = 'edited',
-  saved = 'saved'
-}

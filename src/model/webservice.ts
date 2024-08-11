@@ -5,6 +5,7 @@ import { Point2D } from '@/graph/point2d';
 import { Graph } from '@/graph/graph';
 import { findNeighbourPointIds } from '@/graph/face_landmarks_features';
 import { calculateSHA } from '@/util/sha';
+import { ModelType } from '@/model/modelType';
 
 /**
  * Represents a model using a WebService for face landmark detection.
@@ -122,6 +123,10 @@ export class WebServiceModel implements ModelApi<Point2D> {
       .catch((_) => {
         return urlError.Unreachable;
       });
+  }
+
+  type(): ModelType {
+    return ModelType.custom;
   }
 }
 

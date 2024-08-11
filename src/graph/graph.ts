@@ -1,10 +1,14 @@
 import { Point2D } from './point2d';
+import type { ModelApi } from '@/model/modelApi';
+import type { ImageFile } from '@/imageFile';
 
 /**
  * Represents a graph of points in a 2D space.
  * @template P - Type of the points (must extend Point2D).
  */
 export class Graph<P extends Point2D> {
+  static readonly MAX_ID = 478;
+
   private readonly _points: P[];
 
   /**
@@ -21,6 +25,20 @@ export class Graph<P extends Point2D> {
    */
   get points(): P[] {
     return this._points;
+  }
+
+  /**
+   * marks all listed points as deleted from graph
+   * @param pointIds points to delete
+   * @private
+   */
+  deletePoints(pointIds: number[]): void {
+    for (const id of pointIds) {
+      if (id < 0 || id > Graph.MAX_ID) {
+        continue;
+      }
+      this.points[id].deleted = true;
+    }
   }
 
   /**
@@ -81,5 +99,9 @@ export class Graph<P extends Point2D> {
    */
   toDictArray(): { deleted: boolean; x: number; y: number; id: number }[] {
     return this.points.map((point) => point.toDict());
+  }
+
+  static detect<P extends Point2D>(api: ModelApi<P>, file: ImageFile) {
+    return api.detect(file.file);
   }
 }
