@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { onMounted, ref, watch } from 'vue';
-import $ from 'jquery';
+import { onMounted, onUnmounted, ref, watch } from 'vue';
 import { useAnnotationHistoryStore } from '@/stores/annotationHistoryStore';
 import { Editor2D } from '@/editor2d';
 import { SaveStatus } from '@/enums/saveStatus';
@@ -39,8 +38,17 @@ watch(
   }
 );
 
-$(window).on('resize', () => {
+const onResize = () => {
   editor?.draw();
+};
+
+onMounted(() => {
+  window.addEventListener('resize', onResize);
+});
+
+onUnmounted(() => {
+  // Cleanup - remove the event listener when component is unmounted
+  window.removeEventListener('resize', onResize);
 });
 </script>
 
