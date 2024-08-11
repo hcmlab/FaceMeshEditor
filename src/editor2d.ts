@@ -4,6 +4,8 @@ import { Perspective2D } from './graph/perspective2d';
 import { Graph } from './graph/graph';
 import { Connection, FACE_LANDMARKS_NOSE } from './graph/face_landmarks_features';
 import type { ImageFile } from '@/imageFile';
+import { useEditorConfigStore } from '@/stores/editorConfig';
+import { useAnnotationHistoryStore } from '@/stores/annotationHistoryStore';
 
 const COLOR_POINT_HOVERED = 'rgba(255,250,163,0.6)';
 
@@ -47,6 +49,8 @@ export class Editor2D {
   private isPanning: boolean = false;
   private image: HTMLImageElement = new Image();
   private onPointsEditedCallback: ((graph: Graph<Point2D>) => void) | null = null;
+  private editorConfigStore = useEditorConfigStore();
+  private annotationHistoryStore = useAnnotationHistoryStore();
 
   constructor(canvas: HTMLCanvasElement) {
     this.canvas = canvas;
@@ -59,16 +63,12 @@ export class Editor2D {
     this.canvas.addEventListener('mouseup', (ev) => this.handleMouseUp(ev));
     this.canvas.addEventListener('wheel', (ev) => this.handleWheel(ev), { passive: false });
     this.canvas.addEventListener('mouseout', (ev) => this.handleMouseUp(ev));
-  }
-
-  private _dragDepth: number = 0;
-
-  get dragDepth(): number {
-    return this._dragDepth;
-  }
-
-  set dragDepth(value: number) {
-    this._dragDepth = value;
+    this.editorConfigStore.$subscribe(() => {
+      this.draw();
+    });
+    this.annotationHistoryStore.$subscribe(() => {
+      this.graph = this.annotationHistoryStore.selectedHistory?.get();
+    });
   }
 
   private _graph: Graph<Point2D> = new Graph<Point2D>([]);
@@ -82,17 +82,6 @@ export class Editor2D {
       this._graph = value.clone();
       this.draw();
     }
-  }
-
-  private _showTesselation: boolean = false;
-
-  get showTesselation(): boolean {
-    return this._showTesselation;
-  }
-
-  set showTesselation(value: boolean) {
-    this._showTesselation = value;
-    this.draw();
   }
 
   setOnBackgroundLoadedCallback(callback: (image: HTMLImageElement) => void): void {
@@ -165,7 +154,7 @@ export class Editor2D {
     // Draw Background
     this.ctx.drawImage(this.image, 0, 0);
     // Draw Mesh
-    if (this.showTesselation) {
+    if (this.editorConfigStore.showTesselation) {
       this.drawFaceTrait(FaceLandmarker.FACE_LANDMARKS_TESSELATION, COLOR_EDGES_TESSELATION);
     }
     this.drawFaceTrait(FaceLandmarker.FACE_LANDMARKS_FACE_OVAL, COLOR_EDGES_FACE_OVAL);
@@ -302,7 +291,7 @@ export class Editor2D {
       }
       const deltaX = relativeMouse.x - selectedPoint.x;
       const deltaY = relativeMouse.y - selectedPoint.y;
-      for (let depth = 0; depth <= this.dragDepth; depth++) {
+      for (let depth = 0; depth <= this.editorConfigStore.dragDepth; depth++) {
         // Go through each depth step
         let tmpPoints: Point2D[] = [];
         for (const neigP of neighbourPoints) {

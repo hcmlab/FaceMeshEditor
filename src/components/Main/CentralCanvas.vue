@@ -39,8 +39,6 @@ watch(
   }
 );
 
-// Todo: update if undo/redo/...
-
 $(window).on('resize', () => {
   editor?.draw();
 });

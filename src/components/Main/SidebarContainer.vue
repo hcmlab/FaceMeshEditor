@@ -3,7 +3,6 @@ import { onMounted, ref } from 'vue';
 import $ from 'jquery';
 import { ModelType } from '@/model/modelType';
 import { useAnnotationHistoryStore } from '@/stores/annotationHistoryStore';
-import { Thumbnail } from '@/view/thumbnail';
 import ModelSelector from '@/components/Sidebar/ModelSelector.vue';
 import { useModelStore } from '@/stores/modelStore';
 import EditButtons from '@/components/Sidebar/EditButtons.vue';
@@ -98,7 +97,7 @@ function sendAnnotation(): boolean {
   modelStore.model.uploadAnnotations(jsonData);
 
   Object.keys(result).forEach((fileName) => {
-    Thumbnail.setStatus(fileName, SaveStatus.saved);
+    annotationHistoryStore.find(fileName, jsonData[fileName]['sha256']).status = SaveStatus.saved;
   });
   return false;
 }
