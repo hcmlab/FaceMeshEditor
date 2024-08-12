@@ -4,9 +4,9 @@ import { createPinia, setActivePinia } from 'pinia';
 
 vi.mock('@/editor2d');
 
-import { Editor2D } from '@/editor2d';
-import { useAnnotationHistoryStore } from '@/stores/annotationHistoryStore';
-import CentralCanvas from '@/components/Main/CentralCanvas.vue';
+import { Editor2D } from '../../editor2d';
+import { useAnnotationHistoryStore } from '../../stores/annotationHistoryStore';
+import CentralCanvas from '../../components/Main/CentralCanvas.vue';
 
 describe('AnnotationCanvas.vue', () => {
   let wrapper;
