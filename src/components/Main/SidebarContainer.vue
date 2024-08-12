@@ -4,6 +4,8 @@ import ModelSelector from '@/components/Sidebar/ModelSelector.vue';
 import EditButtons from '@/components/Sidebar/EditButtons.vue';
 import FeatureSelector from '@/components/Sidebar/FeatureSelector.vue';
 import LoadSaveActions from '@/components/Sidebar/LoadSaveActions.vue';
+import ViewOptions from '@/components/Sidebar/ViewOptions.vue';
+import AboutSection from '@/components/Sidebar/AboutSection.vue';
 
 onMounted(() => {
   const elements = document.querySelectorAll('[aria-keyshortcuts]');
@@ -52,56 +54,11 @@ onMounted(() => {
       </tr>
     </table>
     <LoadSaveActions />
-    <!-- Edit Options-->
     <EditButtons />
+    <ViewOptions />
     <ModelSelector />
-    <!-- View Options-->
-    <h5 class="mt-4">View</h5>
-    <div class="form-check form-switch">
-      <input
-        class="form-check-input"
-        type="checkbox"
-        role="switch"
-        id="view_tesselation"
-        aria-checked="false"
-      />
-      <label class="form-check-label" for="view_tesselation" style="text-align: start"
-        >Tesselation</label
-      >
-    </div>
-    <!-- Feature Options-->
     <FeatureSelector />
-    <!-- About -->
-    <h5 class="mt-4">About</h5>
-    <a
-      class="nav-link btn btn-light text-start"
-      href="https://github.com/hcmlab/FaceMeshEditor"
-      target="_blank"
-      style="padding: 0.2vw"
-      ><i class="bi bi-github"></i>GitHub</a
-    >
-    <a
-      class="nav-link btn btn-light text-start"
-      href="https://github.com/hcmlab/FaceMeshEditor/issues/new"
-      target="_blank"
-      style="padding: 0.2vw"
-      ><i class="bi bi-bug"></i>Report Issue</a
-    >
-    <a
-      class="nav-link btn btn-light text-start"
-      href="https://github.com/hcmlab/FaceMeshEditor/issues"
-      target="_blank"
-      style="padding: 0.2vw"
-      ><i class="bi bi-question-circle"></i>Question</a
-    >
-    <a
-      class="nav-link btn btn-light text-start"
-      href="#"
-      data-bs-toggle="modal"
-      data-bs-target="#modalInfo"
-      style="padding: 0.2vw"
-      ><i class="bi bi-info-circle"></i>Info</a
-    >
+    <AboutSection />
   </div>
 </template>
 

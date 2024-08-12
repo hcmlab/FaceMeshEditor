@@ -7,6 +7,7 @@ import { SaveStatus } from '@/enums/saveStatus';
 import { ModelType } from '@/model/modelType';
 import { useModelStore } from '@/stores/modelStore';
 import { useAnnotationHistoryStore } from '@/stores/annotationHistoryStore';
+import ButtonWithIcon from '@/components/MenuItems/ButtonWithIcon.vue';
 
 const showSendAnno = ref<boolean>(false);
 
@@ -14,6 +15,7 @@ const modelStore = useModelStore();
 const annotationHistoryStore = useAnnotationHistoryStore();
 
 function handleSendAnno(): void {
+  sendAnnotation();
   showSendAnno.value = false;
 }
 
@@ -161,40 +163,31 @@ $(window).on('beforeunload', () => {
 <template>
   <!-- File Options-->
   <h5 class="mt-4">File</h5>
-  <a
-    id="openFile"
-    class="nav-link btn btn-light"
-    href="#"
-    aria-keyshortcuts="Control+O"
+  <button-with-icon
+    text="Open Images"
+    icon="bi-folder2-open"
+    shortcut="Control+O"
     @click="openImage"
-    ><i class="bi bi-folder2-open"></i>Open Images</a
-  >
-  <a
-    id="openAnno"
-    class="nav-link btn btn-light"
-    href="#"
-    aria-keyshortcuts="Control+A"
+  />
+  <button-with-icon
+    text="Open Annotations"
+    icon="bi-folder2-open"
+    shortcut="Control+A"
     @click="openAnnotation"
-    ><i class="bi bi-folder2-open"></i>Open Annotations</a
-  >
-  <a
-    id="saveAnno"
-    class="nav-link btn btn-light"
-    href="#"
-    aria-keyshortcuts="Control+S"
+  />
+  <button-with-icon
+    text="Download all"
+    icon="bi-download"
+    shortcut="Control+S"
     @click="saveAnnotation"
-    ><i class="bi bi-download"></i>Download all
-  </a>
-  <a
-    id="sendAnno"
-    class="nav-link btn btn-light"
-    href="#"
-    aria-keyshortcuts="Control+Shift+S"
+  />
+  <button-with-icon
+    text="Save"
+    icon="bi-floppy"
+    shortcut="Control+Shift+S"
     @click="handleSendAnno"
     v-if="showSendAnno"
-  >
-    <i class="bi bi-floppy"></i>Save</a
-  >
+  />
 </template>
 
 <style scoped></style>

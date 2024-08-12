@@ -4,14 +4,13 @@ import { onMounted, onUnmounted } from 'vue';
 import { useAnnotationHistoryStore } from '@/stores/annotationHistoryStore';
 import { useModelStore } from '@/stores/modelStore';
 import { Slider } from '@/view/slider';
-import { CheckBox } from '@/view/checkbox';
 import { useEditorConfigStore } from '@/stores/editorConfig';
+import ButtonWithIcon from '@/components/MenuItems/ButtonWithIcon.vue';
 
 const annotationHistoryStore = useAnnotationHistoryStore();
 const modelStore = useModelStore();
 const editorConfigStore = useEditorConfigStore();
 
-let viewTesselation: CheckBox;
 let featureDrag: Slider;
 
 function handleWheelEvent(e: WheelEvent) {
@@ -27,11 +26,6 @@ onMounted(() => {
     element.text(featureDrag.getValue().toString());
     editorConfigStore.dragDepth = featureDrag.getValue();
   });
-
-  viewTesselation = new CheckBox(
-    'view_tesselation',
-    () => (editorConfigStore.showTesselation = viewTesselation.isChecked())
-  );
   window.addEventListener('wheel', handleWheelEvent);
 });
 
@@ -73,20 +67,19 @@ function runDetection() {
 
 <template>
   <h5 class="mt-4">Edit</h5>
-  <a id="undo" class="nav-link btn btn-light" href="#" aria-keyshortcuts="Control+Z" @click="undo"
-    ><i class="bi bi-arrow-counterclockwise"></i>Undo</a
-  >
-  <a id="redo" class="nav-link btn btn-light" href="#" aria-keyshortcuts="Control+Y" @click="redo"
-    ><i class="bi bi-arrow-clockwise"></i>Redo</a
-  >
+  <button-with-icon
+    text="Undo"
+    icon="bi-arrow-counterclockwise"
+    shortcut="Control+Z"
+    @click="undo"
+  />
+  <button-with-icon text="Redo" icon="bi-arrow-clockwise" shortcut="Control+Y" @click="redo" />
   <hr />
-  <a id="reset" class="nav-link btn btn-light" href="#" aria-keyshortcuts="Control+R" @click="reset"
-    ><i class="bi bi-x-square"></i>Reset</a
-  >
+  <button-with-icon text="Reset" icon="bi-x-square" shortcut="Control+R" @click="reset" />
   <hr />
   <div class="form" style="padding-top: 0.2vw; padding-bottom: 0.2vw">
     <label for="feature_drag" class="form-label" aria-keyshortcuts="Shift+Wheel"
-      ><i class="bi bi-bounding-box-circles"></i>Drag Depth:
+      ><i class="bi bi-bounding-box-circles pe-1"></i>Drag Depth:
       <output id="num">0</output>
     </label>
     <input

@@ -8,6 +8,7 @@ import {
   FACE_FEATURE_RIGHT_EYEBROW
 } from '@/graph/face_landmarks_features';
 import { useAnnotationHistoryStore } from '@/stores/annotationHistoryStore';
+import ButtonWithIcon from '@/components/MenuItems/ButtonWithIcon.vue';
 
 const annotationHistoryStore = useAnnotationHistoryStore();
 
@@ -39,58 +40,20 @@ function deleteFeature(feature: string) {
   }
   annotationHistoryStore.selectedHistory?.add(graph);
 }
+
+const features = ['Left Eye', 'Left Eyebrow', 'Right Eye', 'Right Eyebrow', 'Nose', 'Mouth'];
 </script>
 
 <template>
   <h5 class="mt-4">Features</h5>
-  <a
-    id="feat_le"
-    class="nav-link btn btn-light"
-    href="#"
-    style="padding: 0.2vw"
-    @click="deleteFeature('left_eye')"
-    ><i class="bi bi-trash"></i>Left Eye</a
-  >
-  <a
-    id="feat_leb"
-    class="nav-link btn btn-light"
-    href="#"
-    style="padding: 0.2vw"
-    @click="deleteFeature('left_eyebrow')"
-    ><i class="bi bi-trash"></i>Left Eyebrow</a
-  >
-  <a
-    id="feat_re"
-    class="nav-link btn btn-light"
-    href="#"
-    style="padding: 0.2vw"
-    @click="deleteFeature('right_eye')"
-    ><i class="bi bi-trash"></i>Right Eye</a
-  >
-  <a
-    id="feat_reb"
-    class="nav-link btn btn-light"
-    href="#"
-    style="padding: 0.2vw"
-    @click="deleteFeature('right_eyebrow')"
-    ><i class="bi bi-trash"></i>Right Eyebrow</a
-  >
-  <a
-    id="feat_n"
-    class="nav-link btn btn-light"
-    href="#"
-    style="padding: 0.2vw"
-    @click="deleteFeature('nose')"
-    ><i class="bi bi-trash"></i>Nose</a
-  >
-  <a
-    id="feat_m"
-    class="nav-link btn btn-light"
-    href="#"
-    style="padding: 0.2vw"
-    @click="deleteFeature('mouth')"
-    ><i class="bi bi-trash"></i>Mouth</a
-  >
+  <div v-for="feature in features" :key="feature">
+    <button-with-icon
+      :text="feature"
+      icon="bi-trash"
+      shortcut=""
+      @click="deleteFeature(feature.toLowerCase().replace(/_/g, ''))"
+    />
+  </div>
 </template>
 
 <style scoped></style>
