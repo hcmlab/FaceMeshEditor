@@ -4,7 +4,8 @@ import { findNeighbourPointIds } from '@/graph/face_landmarks_features';
 import { Graph } from '@/graph/graph';
 import { Point2D } from '@/graph/point2d';
 import { Point3D } from '@/graph/point3d';
-import { ModelType } from '@/model/modelType';
+import { ModelType } from '@/enums/modelType';
+import type { ImageFile } from '@/imageFile';
 
 /**
  * Represents a model using MediaPipe for face landmark detection.
@@ -37,7 +38,7 @@ export class MediapipeModel implements ModelApi<Point2D> {
       .then((landmarker) => (this.meshLandmarker = landmarker));
   }
 
-  async detect(imageFile: File): Promise<Graph<Point2D>> {
+  async detect(imageFile: ImageFile): Promise<Graph<Point2D>> {
     return new Promise<Graph<Point2D>>((resolve, reject) => {
       const image = new Image();
       image.onload = (_) => {
@@ -62,16 +63,7 @@ export class MediapipeModel implements ModelApi<Point2D> {
           reject('Face(s) could not be detected!');
         }
       };
-      const reader = new FileReader();
-      reader.onload = (_) => {
-        const result = reader.result;
-        if (result) {
-          image.src = result.toString();
-        } else {
-          reject('Image could not be read!');
-        }
-      };
-      reader.readAsDataURL(imageFile);
+      image.src = imageFile.html;
     });
   }
 

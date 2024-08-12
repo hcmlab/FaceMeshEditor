@@ -4,8 +4,9 @@ import type { ModelApi } from './modelApi';
 import { Point2D } from '@/graph/point2d';
 import { Graph } from '@/graph/graph';
 import { findNeighbourPointIds } from '@/graph/face_landmarks_features';
-import { calculateSHA } from '@/util/sha';
-import { ModelType } from '@/model/modelType';
+import { ModelType } from '@/enums/modelType';
+import { urlError } from '@/enums/urlError';
+import type { ImageFile } from '@/imageFile';
 
 /**
  * Represents a model using a WebService for face landmark detection.
@@ -21,9 +22,9 @@ export class WebServiceModel implements ModelApi<Point2D> {
     this.url = url;
   }
 
-  async detect(imageFile: File): Promise<Graph<Point2D> | null> {
+  async detect(imageFile: ImageFile): Promise<Graph<Point2D> | null> {
     const formData: FormData = new FormData();
-    formData.append('file', imageFile);
+    formData.append('file', imageFile.file);
 
     return getFingerprint().then(async (fingerprint) => {
       if (typeof fingerprint !== 'string') {
@@ -42,9 +43,10 @@ export class WebServiceModel implements ModelApi<Point2D> {
           return res.json();
         })
         .then(async (json) => {
-          const sha = await calculateSHA(imageFile);
-          if (json['sha256'] !== sha) {
-            throw new Error(`sha256 didn't match present file was ${json['sha256']},  is , ${sha}`);
+          if (json['sha256'] !== imageFile.sha) {
+            throw new Error(
+              `sha256 didn't match present file was ${json['sha256']},  is , ${imageFile.sha}`
+            );
           }
           if (!json['points']) {
             throw new Error("The request didn't return any point data.");
@@ -128,9 +130,4 @@ export class WebServiceModel implements ModelApi<Point2D> {
   type(): ModelType {
     return ModelType.custom;
   }
-}
-
-export enum urlError {
-  InvalidUrl = 'InvalidUrl',
-  Unreachable = 'Unreachable'
 }

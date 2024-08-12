@@ -93,10 +93,6 @@ export class Editor2D {
     this.draw();
   }
 
-  getBackgroundImage(): HTMLImageElement {
-    return this.image;
-  }
-
   setOnPointsEditedCallback(callback: (graph: Graph<Point2D>) => void) {
     this.onPointsEditedCallback = callback;
   }
@@ -257,7 +253,7 @@ export class Editor2D {
           p.selected = true;
           this.isMoving = true;
         });
-      if (this.isMoving === false) {
+      if (!this.isMoving) {
         this.isPanning = true;
       }
     } else if (event.button === 1) {

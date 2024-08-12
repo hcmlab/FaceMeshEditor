@@ -1,10 +1,11 @@
 <script setup lang="ts">
 import * as bootstrap from 'bootstrap'; // import statically - don't grab it from a cdn
 import $ from 'jquery';
-import { ModelType } from '@/model/modelType';
-import { urlError, WebServiceModel } from '@/model/webservice';
+import { ModelType } from '@/enums/modelType';
+import { WebServiceModel } from '@/model/webservice';
 import { MediapipeModel } from '@/model/mediapipe';
 import { useModelStore } from '@/stores/modelStore';
+import { urlError } from '@/enums/urlError';
 
 const modelStore = useModelStore();
 

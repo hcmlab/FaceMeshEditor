@@ -102,6 +102,6 @@ export class Graph<P extends Point2D> {
   }
 
   static detect<P extends Point2D>(api: ModelApi<P>, file: ImageFile) {
-    return api.detect(file.file);
+    return api.detect(file);
   }
 }

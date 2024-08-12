@@ -6,6 +6,9 @@
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.vitest.tsbuildinfo",
 
     "lib": [],
-    "types": ["node", "jsdom", "jquery", "vitest/globals"]
+    "types": ["node", "jsdom", "jquery", "vitest/globals"],
+    "paths": {
+      "@/*": ["./src/*"]
+    }
   }
 }

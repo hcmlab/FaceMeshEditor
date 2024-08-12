@@ -56,7 +56,7 @@ function addFeatureDrag(value: number): void {
 function runDetection() {
   const history = annotationHistoryStore.selectedHistory;
   if (!history) return;
-  modelStore.model?.detect(history.file.file).then((graph) => {
+  modelStore.model?.detect(history.file).then((graph) => {
     if (graph === null) {
       return;
     }
