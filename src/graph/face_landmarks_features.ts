@@ -53,12 +53,12 @@ export function findNeighbourPointIds(
     .filter((conn) => conn.start === pointId || conn.end === pointId)
     .map((conn) => (conn.start === pointId ? conn.end : conn.start));
   const neighbourIds = new Set(neighbours);
-  for (const neighbour of neighbours) {
+  neighbours.forEach((neighbour) => {
     const subNeighbours = findNeighbourPointIds(neighbour, connections, depth - 1);
-    for (const subNeighbour of subNeighbours) {
+    subNeighbours.forEach((subNeighbour) => {
       neighbourIds.add(subNeighbour);
-    }
-  }
+    });
+  });
   return Array.from(neighbourIds);
 }
 

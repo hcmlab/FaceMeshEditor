@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import $ from 'jquery';
-import { onMounted } from 'vue';
+import { onMounted, onUnmounted } from 'vue';
 import { useAnnotationHistoryStore } from '@/stores/annotationHistoryStore';
 import { useModelStore } from '@/stores/modelStore';
 import { Slider } from '@/view/slider';
@@ -14,19 +14,17 @@ const editorConfigStore = useEditorConfigStore();
 let viewTesselation: CheckBox;
 let featureDrag: Slider;
 
-$(window).on('wheel', (e) => {
+function handleWheelEvent(e: WheelEvent) {
   if (e.shiftKey) {
-    addFeatureDrag(e.originalEvent?.deltaY / 100);
+    addFeatureDrag(e.deltaY / 100);
   }
-});
+}
 
 onMounted(() => {
   featureDrag = new Slider('feature_drag', () => {
     // TODO FIX Not working!
     const element = $('#num');
     element.text(featureDrag.getValue().toString());
-
-    // Todo. move this data
     editorConfigStore.dragDepth = featureDrag.getValue();
   });
 
@@ -34,6 +32,11 @@ onMounted(() => {
     'view_tesselation',
     () => (editorConfigStore.showTesselation = viewTesselation.isChecked())
   );
+  window.addEventListener('wheel', handleWheelEvent);
+});
+
+onUnmounted(() => {
+  window.removeEventListener('wheel', handleWheelEvent);
 });
 
 function undo(): boolean {

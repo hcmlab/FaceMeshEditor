@@ -11,11 +11,13 @@ module.exports = {
   plugins: [
     "import",
     "@typescript-eslint",
+    "no-loops"
   ],
   rules: {
     "@typescript-eslint/no-unused-vars": ["error", { argsIgnorePattern: "^_" }],
     "no-unused-vars": "off",
     "import/order": 2,
+    "no-loops/no-loops": 2,
   },
   root: true,
   extends: [

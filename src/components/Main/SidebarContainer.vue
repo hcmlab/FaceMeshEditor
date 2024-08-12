@@ -8,6 +8,8 @@ import { useModelStore } from '@/stores/modelStore';
 import EditButtons from '@/components/Sidebar/EditButtons.vue';
 import FeatureSelector from '@/components/Sidebar/FeatureSelector.vue';
 import { SaveStatus } from '@/enums/saveStatus';
+import { Point2D } from '@/graph/point2d';
+import { Graph } from '@/graph/graph';
 
 const showSendAnno = ref<boolean>(false);
 
@@ -26,12 +28,54 @@ function openImage(): void {
   input.onchange = () => {
     if (input.files) {
       const files: File[] = Array.from(input.files);
-      for (const f of files) {
+      files.forEach((f) => {
         annotationHistoryStore.add(f, modelStore.model);
-      }
+      });
     }
   };
   input.click();
+}
+
+function openAnnotation(): boolean {
+  const input: HTMLInputElement = document.createElement('input');
+  input.type = 'file';
+  input.accept = '.json,application/json';
+  input.onchange = () => {
+    if (!input.files) return;
+    if (input.files.length <= 0) return;
+    const annotationFile: File = input.files[0];
+    const reader: FileReader = new FileReader();
+    reader.onload = (_) => {
+      type Point2DArray = {
+        [key: string]: {
+          points: Point2D[][];
+          sha256: string;
+        };
+      };
+      const parsedData: Point2DArray = JSON.parse(reader.result as string);
+      Object.keys(parsedData).forEach((filename) => {
+        const workingImage = parsedData[filename];
+        // skip files without annotation
+        if (Object.keys(workingImage).length == 0) {
+          return;
+        }
+        const history = annotationHistoryStore.find(filename, workingImage['sha256']);
+        if (!history) {
+          return;
+        }
+        workingImage['points'].forEach((unparsedGraph) => {
+          const graph: Graph<Point2D> = Graph.fromJson(
+            unparsedGraph,
+            (id) => new Point2D(id, 0, 0, [])
+          );
+          history.add(graph);
+        });
+      });
+    };
+    reader.readAsText(annotationFile);
+  };
+  input.click();
+  return false;
 }
 
 function collectAnnotation() {
@@ -45,20 +89,20 @@ function collectAnnotation() {
   }
 
   const result: ResultObj = {};
-  for (const c of annotationHistoryStore.histories) {
-    if (c.status !== SaveStatus.saved) {
-      continue;
+  annotationHistoryStore.histories.forEach((h) => {
+    if (h.status !== SaveStatus.saved) {
+      return;
     }
-    c.markAsSent();
-    const graph = c.get();
-    const fileName = c.file.file.name;
+    h.markAsSent();
+    const graph = h.get();
+    const fileName = h.file.file.name;
 
     result[fileName] = {};
     if (graph) {
       result[fileName]['points'] = graph.toDictArray();
-      result[fileName]['sha256'] = c.file.sha;
+      result[fileName]['sha256'] = h.file.sha;
     }
-  }
+  });
   return result;
 }
 
@@ -97,7 +141,11 @@ function sendAnnotation(): boolean {
   modelStore.model.uploadAnnotations(jsonData);
 
   Object.keys(result).forEach((fileName) => {
-    annotationHistoryStore.find(fileName, jsonData[fileName]['sha256']).status = SaveStatus.saved;
+    const hash = result[fileName]['sha256'];
+    if (!hash) return;
+    const history = annotationHistoryStore.find(fileName, hash);
+    if (!history) return;
+    history.status = SaveStatus.saved;
   });
   return false;
 }
@@ -173,7 +221,7 @@ onMounted(() => {
       class="nav-link btn btn-light"
       href="#"
       aria-keyshortcuts="Control+A"
-      @click="app.openAnnotation"
+      @click="openAnnotation"
       ><i class="bi bi-folder2-open"></i>Open Annotations</a
     >
     <a
@@ -200,7 +248,13 @@ onMounted(() => {
     <!-- View Options-->
     <h5 class="mt-4">View</h5>
     <div class="form-check form-switch">
-      <input class="form-check-input" type="checkbox" role="switch" id="view_tesselation" />
+      <input
+        class="form-check-input"
+        type="checkbox"
+        role="switch"
+        id="view_tesselation"
+        aria-checked="false"
+      />
       <label class="form-check-label" for="view_tesselation" style="text-align: start"
         >Tesselation</label
       >

@@ -225,7 +225,7 @@ export class Editor2D {
       this.ctx.beginPath();
       this.ctx.strokeStyle = color;
       this.ctx.lineWidth = LINE_WIDTH_DEFAULT / this.zoomScale;
-      for (const connection of pointPairs) {
+      pointPairs.forEach((connection) => {
         let startPoint = connection.start;
         let endPoint = connection.end;
         if (startPoint && endPoint && !startPoint.deleted && !endPoint.deleted) {
@@ -234,16 +234,16 @@ export class Editor2D {
           this.ctx.moveTo(startPoint.x, startPoint.y);
           this.ctx.lineTo(endPoint.x, endPoint.y);
         }
-      }
+      });
       this.ctx.stroke();
       // Draw points
-      for (const connection of pointPairs) {
+      pointPairs.forEach((connection) => {
         const startPoint = connection.start;
         const endPoint = connection.end;
-        if (!startPoint || !endPoint) continue;
+        if (!startPoint || !endPoint) return;
         this.drawPoint(startPoint);
         this.drawPoint(endPoint);
-      }
+      });
     }
   }
 
@@ -291,27 +291,28 @@ export class Editor2D {
       }
       const deltaX = relativeMouse.x - selectedPoint.x;
       const deltaY = relativeMouse.y - selectedPoint.y;
+      // eslint-disable-next-line no-loops/no-loops
       for (let depth = 0; depth <= this.editorConfigStore.dragDepth; depth++) {
         // Go through each depth step
         let tmpPoints: Point2D[] = [];
-        for (const neigP of neighbourPoints) {
-          if (!neigP) {
-            continue;
+        neighbourPoints.forEach((neighbour) => {
+          if (!neighbour) {
+            return;
           }
           const influenceFactor = Math.exp(-depth);
-          const newX = neigP.x + deltaX * influenceFactor;
-          const newY = neigP.y + deltaY * influenceFactor;
+          const newX = neighbour.x + deltaX * influenceFactor;
+          const newY = neighbour.y + deltaY * influenceFactor;
           const newPoint = new Point2D(-1, newX, newY, []);
-          neigP.moveTo(newPoint);
-          alreadyUpdated.add(neigP.id);
+          neighbour.moveTo(newPoint);
+          alreadyUpdated.add(neighbour.id);
           // extract next depth of neighbours
-          const neighbors = this.graph.getNeighbourPointsOf(neigP);
+          const neighbors = this.graph.getNeighbourPointsOf(neighbour);
           if (neighbors) {
             tmpPoints = tmpPoints.concat(
               neighbors.filter((point): point is Point2D => point !== undefined)
             );
           }
-        }
+        });
         neighbourPoints = tmpPoints.filter((p) => !alreadyUpdated.has(p.id));
       }
       // Redraw

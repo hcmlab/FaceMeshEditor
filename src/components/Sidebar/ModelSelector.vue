@@ -20,7 +20,7 @@ function setModel(model: ModelType): boolean {
   switch (model) {
     case ModelType.mediapipe: {
       btnMediapipe.checked = true;
-      modelStore.setModel(new MediapipeModel());
+      modelStore.model = new MediapipeModel();
       break;
     }
     case ModelType.custom: {
@@ -31,7 +31,7 @@ function setModel(model: ModelType): boolean {
       WebServiceModel.verifyUrl(url).then((error) => {
         const errorText = $('#urlErrorText');
         if (error === null) {
-          modelStore.setModel(new WebServiceModel(url));
+          modelStore.model = new WebServiceModel(url);
           $('#modalSettingsModel').modal('hide');
           errorText.hide();
           const saveElement = $('#saveNotification')[0];
