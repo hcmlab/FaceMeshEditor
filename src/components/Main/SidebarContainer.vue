@@ -37,7 +37,7 @@ onMounted(() => {
 </script>
 
 <template>
-  <div class="w-20 h-100 overflow-y-scroll p-3 rounded-end shadow bg-white">
+  <div class="w-20 h-100 overflow-y-scroll p-3 rounded-end shadow bg-white" id="sidebar">
     <table class="text-center">
       <tr>
         <td>

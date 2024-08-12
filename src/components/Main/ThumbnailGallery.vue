@@ -26,7 +26,7 @@ function selectThumbnail(file: ImageFile): void {
 </script>
 
 <template>
-  <div class="w-10 h-100 rounded-start-1 shadow bg-white text-center">
+  <div class="w-10 h-100 rounded-start-1 shadow bg-white text-center" id="thumbnail-gallery">
     <h6 class="my-2">
       Images
       <small
