@@ -1,6 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue';
-import $ from 'jquery';
+import { onBeforeUnmount, ref } from 'vue';
 import { Point2D } from '@/graph/point2d';
 import { Graph } from '@/graph/graph';
 import { SaveStatus } from '@/enums/saveStatus';
@@ -149,7 +148,9 @@ function sendAnnotation(): boolean {
   return false;
 }
 
-$(window).on('beforeunload', () => {
+// @ts-expect-error the error complains that not all code paths return something.
+// This is completely intended. Since returning anything triggers a popup
+onBeforeUnmount(() => {
   if (annotationHistoryStore.getUnsaved()) {
     if (modelStore.model.type() === ModelType.custom) {
       sendAnnotation();
