@@ -51,8 +51,9 @@ const features = ['Left Eye', 'Left Eyebrow', 'Right Eye', 'Right Eyebrow', 'Nos
       :text="feature"
       icon="bi-trash"
       shortcut=""
-      @click="deleteFeature(feature.toLowerCase().replace(/_/g, ''))"
+      @click="deleteFeature(feature.toLowerCase().replace(/\s/g, '_'))"
     />
+    <!-- Todo: fix replacing -->
   </div>
 </template>
 
