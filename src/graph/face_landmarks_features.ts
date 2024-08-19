@@ -85,9 +85,9 @@ export const FACE_FEATURE_LIPS = Array.from(
  * remain untouched
  */
 export const UPDATED_LEFT_IRIS = [
-  FaceLandmarker.FACE_LANDMARKS_LEFT_IRIS[0],
+  FaceLandmarker.FACE_LANDMARKS_RIGHT_IRIS[1],
 ] as Connection[];
-// 474
+// 470
 export const UPDATED_RIGHT_IRIS = [
   FaceLandmarker.FACE_LANDMARKS_RIGHT_IRIS[0],
 ] as Connection[];
