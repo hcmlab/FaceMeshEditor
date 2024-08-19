@@ -2,9 +2,9 @@ import { test, expect, beforeEach } from 'vitest';
 import { createPinia, setActivePinia } from 'pinia';
 import { Graph } from '../../graph/graph';
 import { ModelType } from '../../enums/modelType';
-import { Point2D } from '@/graph/point2d';
-import { type ModelApi } from '@/model/modelApi';
-import { useAnnotationHistoryStore } from '@/stores/annotationHistoryStore';
+import { Point2D } from '../../graph/point2d';
+import { type ModelApi } from '../../model/modelApi';
+import { useAnnotationHistoryStore } from '../annotationHistoryStore';
 
 beforeEach(() => {
   setActivePinia(createPinia());

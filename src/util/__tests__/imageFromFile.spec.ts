@@ -1,5 +1,5 @@
 import { test, expect } from 'vitest';
-import { imageFromFile } from '@/util/imageFromFile';
+import { imageFromFile } from '../imageFromFile';
 
 test('imageFromFile - success case', async () => {
   const file = new File(['dummy content'], 'example.jpeg');

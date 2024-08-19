@@ -5,10 +5,6 @@ import { FileAnnotationHistory } from '@/cache/fileAnnotationHistory';
 import { Point2D } from '@/graph/point2d';
 
 const props = defineProps({
-  onClickCallback: {
-    type: Function,
-    required: true
-  },
   history: {
     type: FileAnnotationHistory<Point2D>,
     required: true
@@ -18,6 +14,8 @@ const props = defineProps({
     default: 100
   }
 });
+
+defineEmits(['click']);
 
 // Canvas reference
 const canvas = ref<HTMLCanvasElement | null>(null);
@@ -78,11 +76,6 @@ let iconDescription = computed(() => {
   }
 });
 
-const onClick = (event: MouseEvent) => {
-  event.preventDefault();
-  props.onClickCallback(props.history.file);
-};
-
 watch(
   () => props.history.file.html,
   (newSrc) => {
@@ -92,8 +85,8 @@ watch(
 </script>
 
 <template>
-  <div class="thumbnail">
-    <a class="overlap-container w-15vh h-15vh my-1" :href="href" @click="onClick">
+  <div class="thumbnail" @click="$emit('click', props.history.file)">
+    <a class="overlap-container w-15vh h-15vh my-1" :href="href">
       <canvas
         ref="canvas"
         class="img-thumbnail d-block w-100 rounded"

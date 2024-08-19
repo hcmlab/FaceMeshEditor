@@ -1,6 +1,6 @@
 import { test, expect, beforeEach } from 'vitest';
 import { createPinia, setActivePinia } from 'pinia';
-import { useEditorConfigStore } from '@/stores/editorConfig';
+import { useEditorConfigStore } from '../editorConfig';
 
 beforeEach(() => {
   setActivePinia(createPinia());

@@ -41,8 +41,9 @@ function selectThumbnail(file: ImageFile): void {
     >
       <div v-for="(history, idx) in histories" :key="idx" class="w-100 overflow-y-auto p-2">
         <ThumbnailContainer
-          :on-click-callback="selectThumbnail"
+          @click="selectThumbnail"
           :history="history as FileAnnotationHistory<Point2D>"
+          :id="'thumbnail-' + idx"
         />
       </div>
     </div>

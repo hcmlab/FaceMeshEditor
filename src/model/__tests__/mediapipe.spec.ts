@@ -23,7 +23,7 @@ describe('MediapipeModel', () => {
   });
 
   it('should try to detect image correctly', async () => {
-    /** This is doesn't work, since mediapipe doesn't run without a browser */
+    /** This doesn't work, since mediapipe doesn't run without a browser */
     /*
     const fileBuffer = fs.readFileSync('src/model/__tests__/testImage.png');
 

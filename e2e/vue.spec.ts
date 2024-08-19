@@ -24,6 +24,15 @@ test('Check Element Relative Width to Container', async ({ page }) => {
   const thumbnailsBox = await thumbnails.boundingBox();
   expect(thumbnailsBox).not.toBe(null);
 
+  // eslint-disable-next-line playwright/no-conditional-in-test
+  if (!containerBox) return;
+  // eslint-disable-next-line playwright/no-conditional-in-test
+  if (!sidebarBox) return;
+  // eslint-disable-next-line playwright/no-conditional-in-test
+  if (!canvasBox) return;
+  // eslint-disable-next-line playwright/no-conditional-in-test
+  if (!thumbnailsBox) return;
+
   let relativeWidth = sidebarBox.width / containerBox.width;
   expect(relativeWidth).toBeCloseTo(0.2, 1);
 
