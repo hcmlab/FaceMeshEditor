@@ -61,7 +61,9 @@ export class Editor2D {
     this.canvas.addEventListener('mousedown', (ev) => this.handleMouseDown(ev));
     this.canvas.addEventListener('mousemove', (ev) => this.handleMouseMove(ev));
     this.canvas.addEventListener('mouseup', (ev) => this.handleMouseUp(ev));
-    this.canvas.addEventListener('wheel', (ev) => this.handleWheel(ev), { passive: false });
+    this.canvas.addEventListener('wheel', (ev) => this.handleWheel(ev), {
+      passive: false
+    });
     this.canvas.addEventListener('mouseout', (ev) => this.handleMouseUp(ev));
     this.editorConfigStore.$subscribe(() => {
       this.draw();
@@ -86,6 +88,7 @@ export class Editor2D {
 
   setOnBackgroundLoadedCallback(callback: (image: HTMLImageElement) => void): void {
     this.image.onload = (_) => callback(this.image);
+    this.center();
   }
 
   setBackgroundSource(source: ImageFile): void {

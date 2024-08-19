@@ -51,7 +51,7 @@ export class WebServiceModel implements ModelApi<Point2D> {
           if (!json['points']) {
             throw new Error("The request didn't return any point data.");
           }
-          return json['points'];
+          return json['points'][0];
         })
         .then((landmarks) =>
           landmarks.map((dict: { x: number; y: number }, idx: number) => {
