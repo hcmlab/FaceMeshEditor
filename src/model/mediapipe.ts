@@ -101,12 +101,10 @@ export class MediapipeModel implements ModelApi<Point2D> {
             .map((landmarks) => {
               landmarks = landmarks.filter((point) => {
                 return ![
-                  ...FaceLandmarker.FACE_LANDMARKS_LEFT_IRIS.slice(1).map(
+                  ...FaceLandmarker.FACE_LANDMARKS_LEFT_IRIS.slice(2).map(
                     (con) => con.start,
                   ),
-                  ...FaceLandmarker.FACE_LANDMARKS_RIGHT_IRIS.slice(1).map(
-                    (con) => con.start,
-                  ),
+                  ...FaceLandmarker.FACE_LANDMARKS_RIGHT_IRIS,
                 ].includes(point.id);
               });
               return new Graph(landmarks);
