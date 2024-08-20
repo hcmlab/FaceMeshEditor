@@ -80,8 +80,8 @@ export const FACE_FEATURE_LIPS = Array.from(
  * and ignore the rest. The "UPDATED" arrays contain the center point. The array in FaceLandmarker
  * remain untouched
  */
-export const UPDATED_LEFT_IRIS = [FaceLandmarker.FACE_LANDMARKS_LEFT_IRIS[0]] as Connection[];
-// 474
+export const UPDATED_LEFT_IRIS = [FaceLandmarker.FACE_LANDMARKS_RIGHT_IRIS[1]] as Connection[];
+// 470
 export const UPDATED_RIGHT_IRIS = [FaceLandmarker.FACE_LANDMARKS_RIGHT_IRIS[0]] as Connection[];
 // 469
 
