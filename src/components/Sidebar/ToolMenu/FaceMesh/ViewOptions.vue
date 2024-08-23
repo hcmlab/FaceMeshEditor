@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted, watch } from 'vue';
 import { useEditorConfigStore } from '@/stores/editorConfig';
-import FeatureDragBar from '@/components/Sidebar/FeatureDragBar.vue';
+import FeatureDragBar from '@/components/Sidebar/ToolMenu/FaceMesh/FeatureDragBar.vue';
 
 const editorConfigStore = useEditorConfigStore();
 const isTesselationChecked = ref(editorConfigStore.showTesselation);

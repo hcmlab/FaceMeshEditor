@@ -8,7 +8,11 @@ export {}
 declare module 'vue' {
   export interface GlobalComponents {
     AboutSection: typeof import('./src/components/Navbar/AboutSection.vue')['default']
+    AnnotationToolSelector: typeof import('./src/components/Sidebar/AnnotationToolSelector.vue')['default']
     BButton: typeof import('bootstrap-vue-next')['BButton']
+    BCard: typeof import('bootstrap-vue-next')['BCard']
+    BCollapse: typeof import('bootstrap-vue-next')['BCollapse']
+    BDropdown: typeof import('bootstrap-vue-next')['BDropdown']
     BDropdownDivider: typeof import('bootstrap-vue-next')['BDropdownDivider']
     BDropdownItem: typeof import('bootstrap-vue-next')['BDropdownItem']
     BModal: typeof import('bootstrap-vue-next')['BModal']
@@ -19,15 +23,17 @@ declare module 'vue' {
     ButtonWithIcon: typeof import('./src/components/MenuItems/ButtonWithIcon.vue')['default']
     CentralCanvas: typeof import('./src/components/Main/CentralCanvas.vue')['default']
     EditButtons: typeof import('./src/components/Navbar/EditButtons.vue')['default']
-    FeatureDragBar: typeof import('./src/components/Sidebar/FeatureDragBar.vue')['default']
-    FeatureSelector: typeof import('./src/components/Sidebar/FeatureSelector.vue')['default']
+    FaceMesh: typeof import('./src/components/Sidebar/ToolMenu/FaceMesh.vue')['default']
+    FeatureDragBar: typeof import('./src/components/Sidebar/ToolMenu/FaceMesh/FeatureDragBar.vue')['default']
+    FeatureSelector: typeof import('./src/components/Sidebar/ToolMenu/FaceMesh/FeatureSelector.vue')['default']
     LoadSaveActions: typeof import('./src/components/Navbar/LoadSaveActions.vue')['default']
-    ModelSelector: typeof import('./src/components/Sidebar/ModelSelector.vue')['default']
+    ModelSelector: typeof import('./src/components/Sidebar/ToolMenu/FaceMesh/ModelSelector.vue')['default']
     SidebarContainer: typeof import('./src/components/Main/SidebarContainer.vue')['default']
     ThumbnailContainer: typeof import('./src/components/ThumbnailContainer.vue')['default']
     ThumbnailGallery: typeof import('./src/components/Main/ThumbnailGallery.vue')['default']
+    ToolMenuContainer: typeof import('./src/components/Sidebar/ToolMenuContainer.vue')['default']
     TopNavbar: typeof import('./src/components/Main/TopNavbar.vue')['default']
-    ViewOptions: typeof import('./src/components/Sidebar/ViewOptions.vue')['default']
+    ViewOptions: typeof import('./src/components/Sidebar/ToolMenu/FaceMesh/ViewOptions.vue')['default']
     WebserviceSelectModal: typeof import('./src/components/Modals/WebserviceSelectModal.vue')['default']
   }
 }

@@ -86,7 +86,10 @@ function setModel(model: ModelType): boolean {
 
 <template>
   <div>
-    <span class="nav-link"><i class="bi bi-cpu me-1"></i>Model</span>
+    <span class="nav-link">
+      <i class="bi bi-cpu me-1"></i>
+      Model
+    </span>
     <fieldset class="btn-group" role="group" style="padding: 0.2vw; width: 100%">
       <input
         type="radio"
