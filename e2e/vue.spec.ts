@@ -4,7 +4,7 @@ import { test, expect } from '@playwright/test';
 // https://playwright.dev/docs/intro
 test('visits the app root url', async ({ page }) => {
   await page.goto('/');
-  await expect(page.locator('h2')).toHaveText('Face Mesh Editor');
+  await expect(page.locator('h3')).toHaveText('Face Mesh Editor');
 });
 
 test('Check Element Relative Width to Container', async ({ page }) => {

@@ -162,33 +162,41 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <!-- File Options-->
-  <h5 class="mt-4">File</h5>
-  <button-with-icon
-    text="Open Images"
-    icon="bi-folder2-open"
-    shortcut="Control+O"
-    @click="openImage"
-  />
-  <button-with-icon
-    text="Open Annotations"
-    icon="bi-folder2-open"
-    shortcut="Control+A"
-    @click="openAnnotation"
-  />
-  <button-with-icon
-    text="Download all"
-    icon="bi-download"
-    shortcut="Control+S"
-    @click="saveAnnotation"
-  />
-  <button-with-icon
-    text="Save"
-    icon="bi-floppy"
-    shortcut="Control+Shift+S"
-    @click="handleSendAnno"
-    v-if="showSendAnno"
-  />
+  <BNavItemDropdown text="File" class="py-1">
+    <BDropdownItem>
+      <button-with-icon
+        text="Open Images"
+        icon="bi-folder2-open"
+        shortcut="Control+O"
+        @click="openImage"
+      />
+    </BDropdownItem>
+    <BDropdownItem>
+      <button-with-icon
+        text="Open Annotations"
+        icon="bi-folder2-open"
+        shortcut="Control+A"
+        @click="openAnnotation"
+      />
+    </BDropdownItem>
+    <BDropdownItem>
+      <button-with-icon
+        text="Download all"
+        icon="bi-download"
+        shortcut="Control+S"
+        @click="saveAnnotation"
+      />
+    </BDropdownItem>
+    <BDropdownItem>
+      <button-with-icon
+        text="Save"
+        icon="bi-floppy"
+        shortcut="Control+Shift+S"
+        @click="handleSendAnno"
+        v-if="showSendAnno"
+      />
+    </BDropdownItem>
+  </BNavItemDropdown>
 </template>
 
 <style scoped></style>

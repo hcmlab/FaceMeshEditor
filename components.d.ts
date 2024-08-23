@@ -7,17 +7,27 @@ export {}
 /* prettier-ignore */
 declare module 'vue' {
   export interface GlobalComponents {
-    AboutSection: typeof import('./src/components/Sidebar/AboutSection.vue')['default']
+    AboutSection: typeof import('./src/components/Navbar/AboutSection.vue')['default']
+    BButton: typeof import('bootstrap-vue-next')['BButton']
+    BDropdownDivider: typeof import('bootstrap-vue-next')['BDropdownDivider']
+    BDropdownItem: typeof import('bootstrap-vue-next')['BDropdownItem']
     BModal: typeof import('bootstrap-vue-next')['BModal']
+    BNavbarBrand: typeof import('bootstrap-vue-next')['BNavbarBrand']
+    BNavbarNav: typeof import('bootstrap-vue-next')['BNavbarNav']
+    BNavItem: typeof import('bootstrap-vue-next')['BNavItem']
+    BNavItemDropdown: typeof import('bootstrap-vue-next')['BNavItemDropdown']
     ButtonWithIcon: typeof import('./src/components/MenuItems/ButtonWithIcon.vue')['default']
     CentralCanvas: typeof import('./src/components/Main/CentralCanvas.vue')['default']
-    EditButtons: typeof import('./src/components/Sidebar/EditButtons.vue')['default']
+    EditButtons: typeof import('./src/components/Navbar/EditButtons.vue')['default']
+    FeatureDragBar: typeof import('./src/components/Sidebar/FeatureDragBar.vue')['default']
     FeatureSelector: typeof import('./src/components/Sidebar/FeatureSelector.vue')['default']
-    LoadSaveActions: typeof import('./src/components/Sidebar/LoadSaveActions.vue')['default']
+    LoadSaveActions: typeof import('./src/components/Navbar/LoadSaveActions.vue')['default']
     ModelSelector: typeof import('./src/components/Sidebar/ModelSelector.vue')['default']
     SidebarContainer: typeof import('./src/components/Main/SidebarContainer.vue')['default']
     ThumbnailContainer: typeof import('./src/components/ThumbnailContainer.vue')['default']
     ThumbnailGallery: typeof import('./src/components/Main/ThumbnailGallery.vue')['default']
+    TopNavbar: typeof import('./src/components/Main/TopNavbar.vue')['default']
     ViewOptions: typeof import('./src/components/Sidebar/ViewOptions.vue')['default']
+    WebserviceSelectModal: typeof import('./src/components/Modals/WebserviceSelectModal.vue')['default']
   }
 }

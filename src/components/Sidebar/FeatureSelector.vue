@@ -45,7 +45,7 @@ const features = ['Left Eye', 'Left Eyebrow', 'Right Eye', 'Right Eyebrow', 'Nos
 </script>
 
 <template>
-  <h5 class="mt-4">Features</h5>
+  <h5>Features</h5>
   <div v-for="feature in features" :key="feature">
     <button-with-icon
       :text="feature"
@@ -53,7 +53,6 @@ const features = ['Left Eye', 'Left Eyebrow', 'Right Eye', 'Right Eyebrow', 'Nos
       shortcut=""
       @click="deleteFeature(feature.toLowerCase().replace(/\s/g, '_'))"
     />
-    <!-- Todo: fix replacing -->
   </div>
 </template>
 

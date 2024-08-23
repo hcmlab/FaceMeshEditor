@@ -99,6 +99,7 @@ export class Editor2D {
   setBackgroundSource(source: ImageFile): void {
     this.image.src = source.html;
     this.draw();
+    this.center();
   }
 
   setOnPointsEditedCallback(callback: (graph: Graph<Point2D>) => void) {

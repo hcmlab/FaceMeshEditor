@@ -1,11 +1,8 @@
 <script setup lang="ts">
 import { onMounted } from 'vue';
 import ModelSelector from '@/components/Sidebar/ModelSelector.vue';
-import EditButtons from '@/components/Sidebar/EditButtons.vue';
 import FeatureSelector from '@/components/Sidebar/FeatureSelector.vue';
-import LoadSaveActions from '@/components/Sidebar/LoadSaveActions.vue';
 import ViewOptions from '@/components/Sidebar/ViewOptions.vue';
-import AboutSection from '@/components/Sidebar/AboutSection.vue';
 
 onMounted(() => {
   const elements = document.querySelectorAll('[aria-keyshortcuts]');
@@ -38,27 +35,9 @@ onMounted(() => {
 
 <template>
   <div class="w-20 h-100 overflow-y-scroll p-3 rounded-end shadow bg-white" id="sidebar">
-    <table class="text-center">
-      <tr>
-        <td>
-          <img
-            src="../../../static/images/FaceMesh.png"
-            class="rounded-circle border border-dark border-2"
-            style="width: 4vw; height: 4vw"
-            alt="Icon"
-          />
-        </td>
-        <td>
-          <h2>Face Mesh Editor</h2>
-        </td>
-      </tr>
-    </table>
-    <LoadSaveActions />
-    <EditButtons />
     <ViewOptions />
     <ModelSelector />
     <FeatureSelector />
-    <AboutSection />
   </div>
 </template>
 
