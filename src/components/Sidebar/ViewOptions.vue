@@ -1,34 +1,44 @@
 <script setup lang="ts">
-import { onMounted } from 'vue';
-import { CheckBox } from '@/view/checkbox';
+import { ref, onMounted, watch } from 'vue';
 import { useEditorConfigStore } from '@/stores/editorConfig';
+import FeatureDragBar from '@/components/Sidebar/FeatureDragBar.vue';
 
 const editorConfigStore = useEditorConfigStore();
+const isTesselationChecked = ref(editorConfigStore.showTesselation);
 
-let viewTesselation: CheckBox;
+const handleTesselationChange = () => {
+  editorConfigStore.showTesselation = isTesselationChecked.value;
+};
 
 onMounted(() => {
-  viewTesselation = new CheckBox(
-    'view_tesselation',
-    () => (editorConfigStore.showTesselation = viewTesselation.isChecked())
+  isTesselationChecked.value = editorConfigStore.showTesselation;
+  watch(
+    () => editorConfigStore.showTesselation,
+    (newVal) => {
+      isTesselationChecked.value = newVal;
+    }
   );
 });
 </script>
 
 <template>
-  <h5 class="mt-4">View</h5>
+  <h5>View</h5>
   <div class="form-check form-switch">
     <input
       class="form-check-input"
       type="checkbox"
       role="switch"
       id="view_tesselation"
-      aria-checked="false"
+      aria-checked="mixed"
+      v-model="isTesselationChecked"
+      @change="handleTesselationChange"
     />
     <label class="form-check-label" for="view_tesselation" style="text-align: start"
       >Tesselation</label
     >
   </div>
+  <FeatureDragBar />
+  <div class="mb-2" />
 </template>
 
 <style scoped></style>
