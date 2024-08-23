@@ -1,12 +1,19 @@
+import 'bootstrap';
 import '../static/css/base.css';
+import '../static/css/bootstrap.scss';
+import '../static/css/standard.css';
+
+import 'bootstrap-vue-next/dist/bootstrap-vue-next.css';
 
 import { createApp } from 'vue';
 import { createPinia } from 'pinia';
+import { createBootstrap } from 'bootstrap-vue-next';
 import App from './App.vue';
 
 const app = createApp(App);
 
 app.use(createPinia());
+app.use(createBootstrap());
 
 app.mount('#app');
 

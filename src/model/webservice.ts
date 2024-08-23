@@ -99,6 +99,9 @@ export class WebServiceModel implements ModelApi<Point2D> {
    * @returns {urlError} Returns the type of URL error, if any.
    */
   static async verifyUrl(url: string): Promise<urlError | null> {
+    if (!url.endsWith('/')) {
+      url = url += '/';
+    }
     const pattern = new RegExp(
       '^(https?:\\/\\/)?' + // protocol
         '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|' + // domain name
@@ -115,14 +118,17 @@ export class WebServiceModel implements ModelApi<Point2D> {
 
     // try connecting to the url
     const request: RequestInfo = new Request(url, {
-      method: 'HEAD'
+      method: 'POST'
     });
 
     return fetch(request)
       .then((_) => {
         return null;
       })
-      .catch((_) => {
+      .catch((error) => {
+        // Log the error message (optional)
+        console.error('Network or other error:', error.message);
+        // Return urlError.Unreachable for network errors or other exceptions
         return urlError.Unreachable;
       });
   }

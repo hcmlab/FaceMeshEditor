@@ -25,7 +25,7 @@ describe('WebServiceModel class', () => {
 
   describe('verifyUrl function', () => {
     it('should return null when a valid URL is given', async () => {
-      const goodUrl = 'https://www.example.com';
+      const goodUrl = 'https://www.google.com';
       const res = await WebServiceModel.verifyUrl(goodUrl);
       expect(res).toBeNull();
     });
