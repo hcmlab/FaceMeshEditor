@@ -1,9 +1,9 @@
 <script setup lang="ts">
 import { ref, onMounted, watch } from 'vue';
-import { useEditorConfigStore } from '@/stores/editorConfig';
+import { useFaceMeshConfig } from '@/stores/ToolSpecific/faceMeshConfig';
 import FeatureDragBar from '@/components/Sidebar/ToolMenu/FaceMesh/FeatureDragBar.vue';
 
-const editorConfigStore = useEditorConfigStore();
+const editorConfigStore = useFaceMeshConfig();
 const isTesselationChecked = ref(editorConfigStore.showTesselation);
 
 const handleTesselationChange = () => {

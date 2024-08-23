@@ -1,8 +1,8 @@
 <script setup lang="ts">
 import { ref, watch, onMounted, onUnmounted } from 'vue';
-import { useEditorConfigStore } from '@/stores/editorConfig';
+import { useFaceMeshConfig } from '@/stores/ToolSpecific/faceMeshConfig';
 
-const editorConfigStore = useEditorConfigStore();
+const editorConfigStore = useFaceMeshConfig();
 
 const featureDragValue = ref(1);
 
