@@ -2,7 +2,12 @@ import { FaceLandmarker } from '@mediapipe/tasks-vision';
 import { Point2D } from './graph/point2d';
 import { Perspective2D } from './graph/perspective2d';
 import { Graph } from './graph/graph';
-import { Connection, FACE_LANDMARKS_NOSE } from './graph/face_landmarks_features';
+import {
+  Connection,
+  FACE_LANDMARKS_NOSE,
+  UPDATED_LEFT_IRIS,
+  UPDATED_RIGHT_IRIS
+} from './graph/face_landmarks_features';
 import type { ImageFile } from '@/imageFile';
 import { useEditorConfigStore } from '@/stores/editorConfig';
 import { useAnnotationHistoryStore } from '@/stores/annotationHistoryStore';
@@ -160,10 +165,10 @@ export class Editor2D {
     this.drawFaceTrait(FaceLandmarker.FACE_LANDMARKS_LIPS, COLOR_EDGES_LIPS);
     this.drawFaceTrait(FaceLandmarker.FACE_LANDMARKS_RIGHT_EYEBROW, COLOR_EDGES_RIGHT_EYE);
     this.drawFaceTrait(FaceLandmarker.FACE_LANDMARKS_RIGHT_EYE, COLOR_EDGES_RIGHT_EYE);
-    this.drawFaceTrait(FaceLandmarker.FACE_LANDMARKS_RIGHT_IRIS, COLOR_EDGES_RIGHT_IRIS);
+    this.drawFaceTrait(UPDATED_RIGHT_IRIS, COLOR_EDGES_RIGHT_IRIS);
     this.drawFaceTrait(FaceLandmarker.FACE_LANDMARKS_LEFT_EYEBROW, COLOR_EDGES_LEFT_EYE);
     this.drawFaceTrait(FaceLandmarker.FACE_LANDMARKS_LEFT_EYE, COLOR_EDGES_LEFT_EYE);
-    this.drawFaceTrait(FaceLandmarker.FACE_LANDMARKS_LEFT_IRIS, COLOR_EDGES_LEFT_IRIS);
+    this.drawFaceTrait(UPDATED_LEFT_IRIS, COLOR_EDGES_LEFT_IRIS);
     this.drawFaceTrait(FACE_LANDMARKS_NOSE, COLOR_EDGES_NOSE);
   }
 
