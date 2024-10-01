@@ -78,7 +78,7 @@ function openAnnotation(): boolean {
 
 function collectAnnotation() {
   interface FileObj {
-    points?: { deleted: boolean; x: number; y: number; id: number }[];
+    points?: { deleted: boolean; x: number; y: number; id: number }[][];
     sha256?: string;
   }
 
@@ -97,7 +97,7 @@ function collectAnnotation() {
 
     result[fileName] = {};
     if (graph) {
-      result[fileName]['points'] = graph.toDictArray();
+      result[fileName]['points'] = [graph.toDictArray()];
       result[fileName]['sha256'] = h.file.sha;
     }
   });

@@ -92,8 +92,10 @@ export class Editor2D {
   }
 
   setOnBackgroundLoadedCallback(callback: (image: HTMLImageElement) => void): void {
-    this.image.onload = (_) => callback(this.image);
-    this.center();
+    this.image.onload = (_) => {
+      callback(this.image);
+      this.center();
+    };
   }
 
   setBackgroundSource(source: ImageFile): void {
@@ -113,12 +115,14 @@ export class Editor2D {
   }
 
   center() {
+    this.clearAndFitToWindow();
     const scaleX = this.canvas.width / this.image.width;
     const scaleY = this.canvas.height / this.image.height;
     this.zoomScale = scaleX < scaleY ? scaleX : scaleY;
     this.offsetX = this.canvas.width / 2 - (this.image.width / 2) * this.zoomScale;
     this.offsetY = this.canvas.height / 2 - (this.image.height / 2) * this.zoomScale;
-    // Redraw
+    this.ctx.translate(this.offsetX, this.offsetY);
+    this.ctx.scale(this.zoomScale, this.zoomScale);
     this.draw();
   }
 
@@ -360,6 +364,7 @@ export class Editor2D {
     this.isPanning = false;
     this.isMoving = false;
     this._graph.points.forEach((point) => (point.selected = false));
+    this.draw();
   }
 
   private handleWheel(event: WheelEvent): void {

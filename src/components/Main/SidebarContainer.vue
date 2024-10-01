@@ -55,8 +55,8 @@ onMounted(() => {
     </table>
     <LoadSaveActions />
     <EditButtons />
-    <ViewOptions />
     <ModelSelector />
+    <ViewOptions />
     <FeatureSelector />
     <AboutSection />
   </div>
