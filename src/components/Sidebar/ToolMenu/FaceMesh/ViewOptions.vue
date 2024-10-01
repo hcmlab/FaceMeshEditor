@@ -22,21 +22,23 @@ onMounted(() => {
 </script>
 
 <template>
-  <h5>View</h5>
-  <div class="form-check form-switch">
-    <input
-      class="form-check-input"
-      type="checkbox"
-      role="switch"
+  <div class="d-flex flex-column w-100 align-items-center">
+    <div>
+      <i class="bi bi-eye me-1"></i>
+      View
+    </div>
+  </div>
+  <b-form-group>
+    <b-form-checkbox
+      switch
       id="view_tesselation"
-      aria-checked="mixed"
       v-model="isTesselationChecked"
       @change="handleTesselationChange"
-    />
-    <label class="form-check-label" for="view_tesselation" style="text-align: start"
-      >Tesselation</label
+      aria-checked="mixed"
     >
-  </div>
+      Tesselation
+    </b-form-checkbox>
+  </b-form-group>
   <FeatureDragBar />
   <div class="mb-2" />
 </template>

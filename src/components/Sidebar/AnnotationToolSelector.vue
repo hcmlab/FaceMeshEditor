@@ -9,7 +9,7 @@ const tools = computed(() => annotationTools.tools);
 
 <template>
   <div class="d-flex justify-content-center">
-    <BDropdown text="Tools" center>
+    <BDropdown text="Tools" center variant="outline-dark">
       <BDropdownItem
         v-for="(annotationTool, idx) in allAnnotationTools"
         :key="idx"

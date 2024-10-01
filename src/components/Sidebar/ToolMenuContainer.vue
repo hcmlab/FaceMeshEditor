@@ -23,21 +23,30 @@ function toggleVisible(tool: AnnotationTool) {
   visible.value[tool] = !visible.value[tool];
 }
 
+function getIconClass(tool: AnnotationTool) {
+  return visible.value[tool] ? 'bi-arrows-expand' : 'bi-arrows-collapse';
+}
+
 const visible = ref<{ [key: string]: boolean }>({});
 </script>
 
 <template>
   <BCard v-if="tools.length > 0" class="mt-1">
     <div v-for="(tool, idx) in tools" :id="'tool-menu-' + idx.toString()" :key="idx">
-      <div class="d-flex justify-content-evenly mb-1">
-        <BButton @click="toggleVisible(tool)">
+      <!-- box -->
+      <div class="d-flex justify-content-evenly">
+        <!-- toggle -->
+        <BButton @click="toggleVisible(tool)" variant="outline-dark">
           {{ tool }}
+          <i :class="'bi ' + getIconClass(tool)" class="mb-1"> </i>
         </BButton>
-        <BButton @click="annotationTools.remove(tool)">
-          <i class="bi ' + bi-trash me-1"></i>
+        <!-- remove -->
+        <BButton @click="annotationTools.remove(tool)" variant="outline-dark">
+          <i class="bi bi-trash"></i>
         </BButton>
       </div>
-      <BCollapse v-model="visible[tool]" class="border bg-secondary-subtle shadow rounded-1">
+      <!-- options -->
+      <BCollapse v-model="visible[tool]" class="mt-2 p-1 border bg-light rounded-1">
         <component v-if="componentFromTool(tool)" :is="componentFromTool(tool)" />
         <div v-else>Component not found.</div>
       </BCollapse>

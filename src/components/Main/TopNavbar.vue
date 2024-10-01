@@ -6,12 +6,12 @@ import AboutSection from '@/components/Navbar/AboutSection.vue';
 </script>
 
 <template>
-  <BNavbar class="shadow" variant="secondary">
+  <BNavbar class="shadow" variant="light">
     <BNavbarBrand class="d-flex flex-row align-items-center py-1">
       <div class="me-3">
         <img
           src="../../../static/images/FaceMesh.png"
-          class="rounded-circle border border-dark border-2"
+          class="rounded-circle border border-dark border-2 shadow"
           style="width: 3vw; height: 3vw"
           alt="Icon"
         />

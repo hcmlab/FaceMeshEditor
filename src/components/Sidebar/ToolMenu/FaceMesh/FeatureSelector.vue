@@ -45,7 +45,12 @@ const features = ['Left Eye', 'Left Eyebrow', 'Right Eye', 'Right Eyebrow', 'Nos
 </script>
 
 <template>
-  <h5>Features</h5>
+  <div class="d-flex flex-column w-100 align-items-center">
+    <div>
+      <i class="bi bi-gear me-1"></i>
+      Features
+    </div>
+  </div>
   <div v-for="feature in features" :key="feature">
     <button-with-icon
       :text="feature"

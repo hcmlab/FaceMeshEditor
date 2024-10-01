@@ -104,15 +104,15 @@ function collectAnnotation() {
   return result;
 }
 
-function saveAnnotation(): boolean {
+function saveAnnotation(): void {
   if (annotationHistoryStore.empty()) {
-    return false;
+    return;
   }
 
   const result = collectAnnotation();
   console.log(result);
   if (Object.keys(result).length <= 0) {
-    return false;
+    return;
   }
 
   const jsonData: string = JSON.stringify(result);
@@ -122,17 +122,16 @@ function saveAnnotation(): boolean {
   a.href = dataStr;
   a.download = Date.now() + '_face_mesh_annotations.json';
   a.click();
-  return false;
 }
 
-function sendAnnotation(): boolean {
+function sendAnnotation(): void {
   if (annotationHistoryStore.empty()) {
-    return false;
+    return;
   }
 
   const result = collectAnnotation();
   if (Object.keys(result).length <= 0) {
-    return false;
+    return;
   }
 
   const jsonData: string = JSON.stringify(result);
@@ -145,7 +144,6 @@ function sendAnnotation(): boolean {
     if (!history) return;
     history.status = SaveStatus.saved;
   });
-  return false;
 }
 
 // @ts-expect-error the error complains that not all code paths return something.
@@ -162,7 +160,7 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <BNavItemDropdown text="File" class="py-1">
+  <BNavItemDropdown text="File" class="pt-1" variant="light">
     <BDropdownItem>
       <button-with-icon
         text="Open Images"
