@@ -22,17 +22,10 @@ onMounted(() => {
   window.addEventListener('resize', onResize);
   if (!canvas.value) return;
   Editor.setCanvas(canvas.value);
-  Editor.setOnBackgroundLoadedCallback(() => {
-    editors.value.forEach((editor) => {
-      editor.onBackgroundLoaded();
-    });
-  });
   annotationToolStore.tools.forEach((tool) => {
     editors.value.push(fromTool(tool));
   });
-  editors.value.forEach((editor) => {
-    editor.draw();
-  });
+  Editor.draw();
 });
 
 watch(
@@ -41,17 +34,17 @@ watch(
     const added = value.filter((tool) => oldValue.includes(tool));
     const removed = oldValue.filter((tool) => !value.includes(tool));
 
-    console.log(added);
-    console.log(removed);
-
+    editors.value.forEach((editor) => {
+      if (!removed.includes(editor.tool)) return;
+      Editor.remove(editor);
+    });
     editors.value = editors.value.filter((editor) => !removed.includes(editor.tool));
     added.forEach((tool) => {
       editors.value.push(fromTool(tool));
     });
-    console.log(editors.value);
+    Editor.draw();
     editors.value.forEach((editor) => {
       editor.onBackgroundLoaded();
-      editor.draw();
     });
   },
   { deep: true }
@@ -59,11 +52,13 @@ watch(
 
 watch(
   () => annotationHistoryStore.selectedHistory,
-  (value) => {
+  async (value) => {
     if (!value) return;
-    Editor.setBackgroundSource(value.file);
+    await Editor.setBackgroundSource(value.file);
+    Editor.center();
+    Editor.draw();
     editors.value.forEach((editor) => {
-      editor.center();
+      editor.onBackgroundLoaded();
     });
   }
 );
@@ -95,15 +90,15 @@ function handleMouseMove(event: MouseEvent): void {
   const relativeMouseY = (Editor.mouseY - Editor.offsetY) / Editor.zoomScale;
   if (Editor.isMoving) {
     canvas.value.style.cursor = 'pointer';
+    Editor.draw();
     editors.value.forEach((editor) => {
       editor.onMove(relativeMouseX, relativeMouseY);
-      editor.draw();
     });
   } else if (Editor.isPanning) {
     Editor.pan(Editor.mouseX - Editor.prevMouseX, Editor.mouseY - Editor.prevMouseY);
+    Editor.draw();
     editors.value.forEach((editor) => {
       editor.onPan(relativeMouseX, relativeMouseY);
-      editor.draw();
     });
   } else if (Editor.image) {
     editors.value.forEach((editor) => {
@@ -132,17 +127,13 @@ function handleMouseUp(e: MouseEvent): void {
 function handleWheel(event: WheelEvent): void {
   if (Editor.image && !event.shiftKey) {
     Editor.zoom(event.deltaY > 0);
-    editors.value.forEach((editor) => {
-      editor.draw();
-    });
+    Editor.draw();
     event.preventDefault();
   }
 }
 
 const onResize = () => {
-  editors.value.forEach((editor) => {
-    editor.draw();
-  });
+  Editor.draw();
 };
 </script>
 

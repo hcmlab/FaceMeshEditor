@@ -16,6 +16,21 @@ export abstract class Editor {
   public static isMoving: boolean = false;
   public static isPanning: boolean = false;
   public static image: HTMLImageElement = new Image();
+  private static allEditors: Editor[] = [];
+
+  protected static add(editor: Editor) {
+    Editor.allEditors.push(editor);
+  }
+
+  public static remove(editor: Editor) {
+    Editor.allEditors = Editor.allEditors.filter((e) => e !== editor);
+  }
+
+  public static draw() {
+    Editor.allEditors.forEach((editor: Editor) => {
+      editor.draw();
+    });
+  }
 
   public static setCanvas(canvas: HTMLCanvasElement) {
     Editor.canvas = canvas;
@@ -24,14 +39,39 @@ export abstract class Editor {
       window.location.reload();
     }
     Editor.ctx = ctx as CanvasRenderingContext2D;
+    Editor.image.onerror = (e) => {
+      console.error('Error loading image', e);
+      throw new Error('Failed to load image.');
+    };
   }
 
-  public static setBackgroundSource(source: ImageFile): void {
-    Editor.image.src = source.html;
-  }
+  public static async setBackgroundSource(source: ImageFile): Promise<void> {
+    const imageLoadPromise = new Promise<void>((resolve, reject) => {
+      Editor.image.src = source.html;
+      Editor.image.onload = () => {
+        if (Editor.image.width === 0) {
+          reject(new Error('Image loaded with width 0.'));
+        }
+        if (Editor.image.height === 0) {
+          reject(new Error('Image loaded with height 0.'));
+        }
+        resolve();
+      };
+      Editor.image.onerror = (e) => {
+        console.error('Error loading image', e);
+        reject(new Error('Failed to load image.'));
+      };
+    });
 
-  public static setOnBackgroundLoadedCallback(callback: () => void): void {
-    Editor.image.onload = (_) => callback();
+    // Wait for the image to load
+    await imageLoadPromise;
+
+    if (Editor.image.width === 0) {
+      throw new Error('image parsed with 0 width');
+    }
+    if (Editor.image.height === 0) {
+      throw new Error('image parsed with 0 height');
+    }
   }
 
   public static pan(deltaX: number, deltaY: number): void {
@@ -58,7 +98,7 @@ export abstract class Editor {
     Editor.offsetY = Editor.mouseY - dy * Editor.zoomScale;
   }
 
-  protected clearAndFitToWindow() {
+  protected static clearAndFitToWindow() {
     const canvas = $('#canvas-div');
     if (!canvas) return;
     if (!canvas.innerWidth) return;
@@ -68,13 +108,15 @@ export abstract class Editor {
     Editor.canvas.height = <number>canvas.innerHeight();
   }
 
-  public center() {
+  public static center() {
+    Editor.clearAndFitToWindow();
     const scaleX = Editor.canvas.width / Editor.image.width;
     const scaleY = Editor.canvas.height / Editor.image.height;
     Editor.zoomScale = scaleX < scaleY ? scaleX : scaleY;
     Editor.offsetX = Editor.canvas.width / 2 - (Editor.image.width / 2) * Editor.zoomScale;
     Editor.offsetY = Editor.canvas.height / 2 - (Editor.image.height / 2) * Editor.zoomScale;
-    this.draw();
+    Editor.ctx.translate(Editor.offsetX, Editor.offsetY);
+    Editor.ctx.scale(Editor.zoomScale, Editor.zoomScale);
   }
 
   public abstract draw(): void;

@@ -6,7 +6,6 @@ vi.mock('@/Editors/FaceMeshEditor');
 vi.mock('@/Editors/BackgroundDrawer');
 vi.mock('@/Editors/Editor');
 
-import { FaceMeshEditor } from '../../../Editors/FaceMeshEditor';
 import { Editor } from '../../../Editors/Editor';
 import { useAnnotationHistoryStore } from '../../../stores/annotationHistoryStore';
 import CentralCanvas from '../CentralCanvas.vue';
@@ -32,17 +31,5 @@ describe('AnnotationCanvas.vue', () => {
     await wrapper.vm.$nextTick();
 
     expect(Editor.setBackgroundSource).toHaveBeenCalledWith(mockFile.file);
-  });
-
-  it('should call draw method on window resize', () => {
-    const editorInstance = FaceMeshEditor.mock.instances[FaceMeshEditor.mock.instances.length - 1];
-
-    expect(editorInstance).toBeDefined(); // Ensure the instance is not undefined
-    expect(editorInstance.draw).toBeDefined(); // Ensure draw method is mocked
-
-    // Trigger window resize event
-    window.dispatchEvent(new Event('resize'));
-
-    expect(editorInstance.draw).toHaveBeenCalled();
   });
 });

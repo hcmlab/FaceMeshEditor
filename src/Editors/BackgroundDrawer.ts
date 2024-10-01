@@ -1,12 +1,20 @@
+/**
+ * Clears the canvas and draws the background image.
+ */
+
 import { Editor } from '@/Editors/Editor';
 import { AnnotationTool } from '@/enums/annotationTool';
 
 export class BackgroundDrawer extends Editor {
+  constructor() {
+    super();
+
+    Editor.add(this);
+  }
+
   draw() {
-    this.clearAndFitToWindow();
     // Set Transformations
-    Editor.ctx.translate(Editor.offsetX, Editor.offsetY);
-    Editor.ctx.scale(Editor.zoomScale, Editor.zoomScale);
+    Editor.ctx.clearRect(0, 0, Editor.canvas.width, Editor.canvas.height);
     Editor.ctx.drawImage(Editor.image, 0, 0);
   }
 

@@ -6,3 +6,5 @@ export enum AnnotationTool {
 export const allAnnotationTools: AnnotationTool[] = Object.values(
   AnnotationTool
 ) as AnnotationTool[];
+
+allAnnotationTools.shift();

@@ -52,11 +52,13 @@ export class FaceMeshEditor extends Editor {
 
     // Size canvas
     this.editorConfigStore.$subscribe(() => {
-      this.draw();
+      Editor.draw();
     });
     this.annotationHistoryStore.$subscribe(() => {
       this.graph = this.annotationHistoryStore.selectedHistory?.get();
     });
+
+    Editor.add(this);
   }
 
   private _graph: Graph<Point2D> = new Graph<Point2D>([]);
@@ -68,7 +70,6 @@ export class FaceMeshEditor extends Editor {
   set graph(value: Graph<Point2D> | null | undefined) {
     if (value) {
       this._graph = value.clone();
-      this.draw();
     }
   }
 
@@ -105,8 +106,10 @@ export class FaceMeshEditor extends Editor {
           0,
           Math.PI * 2
         );
-        // AbstractEditor.ctx.font = 20 / zoomScale + "px serif";
-        // AbstractEditor.ctx.fillText(point.getId(), projectedPoint.x, projectedPoint.y);
+        /* Draws the ID of the point next to it. Useful for debugging
+        Editor.ctx.font = 20 / Editor.zoomScale + 'px serif';
+        Editor.ctx.fillText(String(point.id), projectedPoint.x, projectedPoint.y);
+        */
         Editor.ctx.fill();
       }
       if (point.selected) {
@@ -258,7 +261,7 @@ export class FaceMeshEditor extends Editor {
       }
     });
     if (pointHover) {
-      this.draw();
+      Editor.draw();
     }
   }
 
@@ -268,7 +271,6 @@ export class FaceMeshEditor extends Editor {
 
   onBackgroundLoaded() {
     this.graph = this.annotationHistoryStore.selectedHistory?.get();
-    console.log(this.graph);
   }
 
   onPointsEdited() {
