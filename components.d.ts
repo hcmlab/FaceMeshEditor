@@ -9,6 +9,8 @@ declare module 'vue' {
   export interface GlobalComponents {
     AboutSection: typeof import('./src/components/Navbar/AboutSection.vue')['default']
     AnnotationToolSelector: typeof import('./src/components/Sidebar/AnnotationToolSelector.vue')['default']
+    BAccordion: typeof import('bootstrap-vue-next')['BAccordion']
+    BAccordionItem: typeof import('bootstrap-vue-next')['BAccordionItem']
     BButton: typeof import('bootstrap-vue-next')['BButton']
     BCard: typeof import('bootstrap-vue-next')['BCard']
     BCollapse: typeof import('bootstrap-vue-next')['BCollapse']
