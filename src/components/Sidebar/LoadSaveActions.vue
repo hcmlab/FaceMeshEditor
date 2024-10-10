@@ -61,6 +61,10 @@ function openAnnotation(): boolean {
         if (!history) {
           return;
         }
+        /* backward compatibility if the file contains the old Points2D[] format instead of Points2D[][] */
+        if (!Array.isArray(workingImage['points'][0])) {
+          workingImage['points'] = [workingImage['points'] as unknown as Point2D[]];
+        }
         workingImage['points'].forEach((unparsedGraph) => {
           const graph: Graph<Point2D> = Graph.fromJson(
             unparsedGraph,
