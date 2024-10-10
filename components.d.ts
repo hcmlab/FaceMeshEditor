@@ -12,8 +12,6 @@ declare module 'vue' {
     BAccordion: typeof import('bootstrap-vue-next')['BAccordion']
     BAccordionItem: typeof import('bootstrap-vue-next')['BAccordionItem']
     BButton: typeof import('bootstrap-vue-next')['BButton']
-    BCard: typeof import('bootstrap-vue-next')['BCard']
-    BCollapse: typeof import('bootstrap-vue-next')['BCollapse']
     BDropdown: typeof import('bootstrap-vue-next')['BDropdown']
     BDropdownDivider: typeof import('bootstrap-vue-next')['BDropdownDivider']
     BDropdownItem: typeof import('bootstrap-vue-next')['BDropdownItem']
