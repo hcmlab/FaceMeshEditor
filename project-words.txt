@@ -19,3 +19,4 @@ webservice
 jssha
 Checkmark
 thumbmarkjs
+pinia

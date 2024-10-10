@@ -13,13 +13,7 @@ export class Point3D extends Point2D {
    * @param {number} z - The z-coordinate of the point (additional dimension).
    * @param {number[]} neighbourIds - An array of neighbor IDs.
    */
-  constructor(
-    id: number,
-    x: number,
-    y: number,
-    z: number,
-    neighbourIds: number[],
-  ) {
+  constructor(id: number, x: number, y: number, z: number, neighbourIds: number[]) {
     super(id, x, y, neighbourIds);
     this._z = z;
   }
@@ -51,13 +45,7 @@ export class Point3D extends Point2D {
    * @returns {Point3D} - A new Point3D instance with cloned properties.
    */
   clone() {
-    const copy = new Point3D(
-      this.id,
-      this.x,
-      this.y,
-      this.z,
-      this.getNeighbourIds(),
-    );
+    const copy = new Point3D(this.id, this.x, this.y, this.z, this.getNeighbourIds());
     copy.hovered = this.hovered;
     copy.deleted = this.deleted;
     copy.selected = this.selected;
@@ -75,7 +63,7 @@ export class Point3D extends Point2D {
       y: this.y,
       z: this.z,
       // hovered: this.hovered,
-      deleted: this.deleted,
+      deleted: this.deleted
       // selected: this.selected,
       // neighbourIds: this.neighbourIds
     };
