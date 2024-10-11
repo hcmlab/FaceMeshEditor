@@ -8,12 +8,14 @@ import 'bootstrap-vue-next/dist/bootstrap-vue-next.css';
 import { createApp } from 'vue';
 import { createPinia } from 'pinia';
 import { createBootstrap } from 'bootstrap-vue-next';
+import ShortKey from 'vue3-shortkey';
 import App from './App.vue';
 
 const app = createApp(App);
 
 app.use(createPinia());
 app.use(createBootstrap());
+app.use(ShortKey);
 
 app.mount('#app');
 
