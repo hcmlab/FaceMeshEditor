@@ -17,7 +17,7 @@ import AboutSection from '@/components/Navbar/AboutSection.vue';
         />
       </div>
       <div>
-        <h3 class="m-0">Face Mesh Editor</h3>
+        <h3 class="m-0" id="title">Face Mesh Editor</h3>
       </div>
     </BNavbarBrand>
     <BNavbarNav align="start">

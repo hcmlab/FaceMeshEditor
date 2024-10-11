@@ -31,14 +31,14 @@ onMounted(() => {
 watch(
   () => annotationToolStore.tools,
   (value, oldValue) => {
-    const added = value.filter((tool) => oldValue.includes(tool));
-    const removed = oldValue.filter((tool) => !value.includes(tool));
+    const added = new Set([...value].filter((tool) => !oldValue.has(tool)));
+    const removed = new Set([...oldValue].filter((tool) => !value.has(tool)));
 
     editors.value.forEach((editor) => {
-      if (!removed.includes(editor.tool)) return;
+      if (!removed.has(editor.tool)) return;
       Editor.remove(editor);
     });
-    editors.value = editors.value.filter((editor) => !removed.includes(editor.tool));
+    editors.value = editors.value.filter((editor) => !removed.has(editor.tool));
     added.forEach((tool) => {
       editors.value.push(fromTool(tool));
     });

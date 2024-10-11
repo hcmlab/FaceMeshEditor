@@ -10,13 +10,13 @@ describe('useAnnotationToolStore', () => {
 
   it('initializes with FaceMesh Tool', () => {
     const store = useAnnotationToolStore();
-    expect(store.tools).toEqual([AnnotationTool.FaceMesh]);
+    expect(store.tools).toEqual(new Set([AnnotationTool.FaceMesh]));
   });
 
   it('adds a new tool to the tools array', () => {
     const store = useAnnotationToolStore();
     const newTool = AnnotationTool.FaceMesh;
-    store.tools.push(newTool);
+    store.tools.add(newTool);
     expect(store.tools).toContain(newTool);
   });
 });

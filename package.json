@@ -46,10 +46,12 @@
     "jquery": "^3.7.1",
     "jssha": "^3.3.1",
     "pinia": "^2.1.7",
+    "sortablejs": "^1.15.3",
     "vue": "^3.4.29"
   },
   "devDependencies": {
     "@eslint/js": "^8.57.0",
+    "@floating-ui/vue": "^1.1.4",
     "@playwright/test": "^1.44.1",
     "@rushstack/eslint-patch": "^1.8.0",
     "@sindresorhus/tsconfig": "^5.0.0",
@@ -63,7 +65,6 @@
     "@vue/eslint-config-typescript": "^13.0.0",
     "@vue/test-utils": "^2.4.6",
     "@vue/tsconfig": "^0.5.1",
-    "@floating-ui/vue": "^1.1.4",
     "codecov": "^3.8.3",
     "cross-env": "^7.0.3",
     "cspell": "^8.8.4",
@@ -86,6 +87,7 @@
     "open-cli": "^8.0.0",
     "prettier": "^3.3.0",
     "sass": "^1.77.6",
+    "sortablejs-vue3": "^1.2.11",
     "standard-version": "^9.5.0",
     "ts-node": "^10.9.2",
     "typedoc": "^0.25.13",

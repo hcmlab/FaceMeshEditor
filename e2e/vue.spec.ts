@@ -3,7 +3,7 @@ import { test, expect } from '@playwright/test';
 test.describe('check title and main page layout', () => {
   test('visits the app root url', async ({ page }) => {
     await page.goto('/');
-    await expect(page.locator('h3')).toHaveText('Face Mesh Editor');
+    await expect(page.locator('#title')).toHaveText('Face Mesh Editor');
   });
 
   test('Check Element Relative Width to Container', async ({ page }) => {

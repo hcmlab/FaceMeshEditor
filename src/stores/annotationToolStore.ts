@@ -5,13 +5,9 @@ export const useAnnotationToolStore = defineStore({
   id: 'annotationTool',
 
   state: (): {
-    tools: AnnotationTool[];
+    tools: Set<AnnotationTool>;
   } => ({
-    tools: [AnnotationTool.FaceMesh]
+    tools: new Set([AnnotationTool.FaceMesh])
   }),
-  actions: {
-    remove(delTool: AnnotationTool) {
-      this.tools = this.tools.filter((tool) => tool !== delTool);
-    }
-  }
+  actions: {}
 });
