@@ -14,8 +14,13 @@ export class BackgroundDrawer extends Editor {
 
   draw() {
     // Set Transformations
+    Editor.clearAndFitToWindow();
+    Editor.ctx.translate(Editor.offsetX, Editor.offsetY);
+    Editor.ctx.scale(Editor.zoomScale, Editor.zoomScale);
     Editor.ctx.clearRect(0, 0, Editor.canvas.width, Editor.canvas.height);
     Editor.ctx.drawImage(Editor.image, 0, 0);
+    console.log(Editor.offsetX, Editor.offsetY);
+    console.log(Editor.zoomScale);
   }
 
   onBackgroundLoaded(): void {}
