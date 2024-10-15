@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onBeforeUnmount, ref } from 'vue';
+import { computed, onBeforeUnmount } from 'vue';
 import { Point2D } from '@/graph/point2d';
 import { Graph } from '@/graph/graph';
 import { SaveStatus } from '@/enums/saveStatus';
@@ -8,14 +8,13 @@ import { useModelStore } from '@/stores/modelStore';
 import { useAnnotationHistoryStore } from '@/stores/annotationHistoryStore';
 import ButtonWithIcon from '@/components/MenuItems/ButtonWithIcon.vue';
 
-const showSendAnno = ref<boolean>(false);
-
 const modelStore = useModelStore();
 const annotationHistoryStore = useAnnotationHistoryStore();
 
+const showSendAnno = computed(() => annotationHistoryStore.getUnsaved().length > 0);
+
 function handleSendAnno(): void {
   sendAnnotation();
-  showSendAnno.value = false;
 }
 
 function openImage(): void {
