@@ -1,9 +1,7 @@
 <script setup lang="ts">
-import $ from 'jquery';
-import { onMounted, onUnmounted } from 'vue';
+import { computed, onMounted, onUnmounted } from 'vue';
 import { useAnnotationHistoryStore } from '@/stores/annotationHistoryStore';
 import { useModelStore } from '@/stores/modelStore';
-import { Slider } from '@/view/slider';
 import { useEditorConfigStore } from '@/stores/editorConfig';
 import ButtonWithIcon from '@/components/MenuItems/ButtonWithIcon.vue';
 
@@ -11,7 +9,7 @@ const annotationHistoryStore = useAnnotationHistoryStore();
 const modelStore = useModelStore();
 const editorConfigStore = useEditorConfigStore();
 
-let featureDrag: Slider;
+const dragDepth = computed(() => editorConfigStore.dragDepth);
 
 function handleWheelEvent(e: WheelEvent) {
   if (e.shiftKey) {
@@ -20,12 +18,6 @@ function handleWheelEvent(e: WheelEvent) {
 }
 
 onMounted(() => {
-  featureDrag = new Slider('feature_drag', () => {
-    // TODO FIX Not working!
-    const element = $('#num');
-    element.text(featureDrag.getValue().toString());
-    editorConfigStore.dragDepth = featureDrag.getValue();
-  });
   window.addEventListener('wheel', handleWheelEvent);
 });
 
@@ -50,7 +42,7 @@ function reset(): boolean {
 }
 
 function addFeatureDrag(value: number): void {
-  featureDrag.setValue(featureDrag.getValue() + value);
+  editorConfigStore.dragDepth += value;
 }
 
 function runDetection() {
@@ -77,22 +69,29 @@ function runDetection() {
   <hr />
   <button-with-icon text="Reset" icon="bi-x-square" shortcut="Control+R" @click="reset" />
   <hr />
-  <div class="form" style="padding-top: 0.2vw; padding-bottom: 0.2vw">
-    <label for="feature_drag" class="form-label" aria-keyshortcuts="Shift+Wheel"
-      ><i class="bi bi-bounding-box-circles pe-1"></i>Drag Depth:
-      <output id="num">0</output>
-    </label>
-    <input
-      type="range"
-      class="form-range"
-      min="0"
-      max="5"
-      value="0"
-      step="1"
-      id="feature_drag"
-      style="padding-left: 0.2vw; padding-right: 0.2vw"
-    />
+  <div class="d-flex">
+    <i class="bi bi-bounding-box-circles pe-1" />
+    Drag Depth:
+    {{ editorConfigStore.dragDepth }}
+    <div class="ms-auto"><kbd>SHIFT</kbd>+<kbd>SCROLL</kbd></div>
   </div>
+  <BFormInput
+    id="FaceMesh-DragDepth"
+    type="range"
+    min="0"
+    max="5"
+    value="1"
+    step="1"
+    style="padding-left: 0.2vw; padding-right: 0.2vw"
+    v-model.number="editorConfigStore.dragDepth"
+    @update:model-value="
+      (value) => {
+        console.log(value);
+        console.log(dragDepth);
+        console.log(editorConfigStore.dragDepth);
+      }
+    "
+  />
 </template>
 
 <style scoped></style>
