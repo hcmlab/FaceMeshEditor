@@ -1,5 +1,7 @@
-import { Graph } from '../graph/graph';
-import { Point2D } from '../graph/point2d';
+import { Graph } from '@/graph/graph';
+import { Point2D } from '@/graph/point2d';
+import type { ModelType } from '@/enums/modelType';
+import type { ImageFile } from '@/imageFile';
 
 /**
  * Represents an interface for a model API that performs face landmark detection.
@@ -8,10 +10,10 @@ import { Point2D } from '../graph/point2d';
 export interface ModelApi<P extends Point2D> {
   /**
    * Detects face landmarks in the provided image file.
-   * @param {File} imageFile - The image file to analyze.
+   * @param {ImageFile} imageFile - The image file to analyze.
    * @returns {Promise<Graph<Point2D>>} - A promise resolving to a graph of detected face landmarks.
    */
-  detect(imageFile: File): Promise<Graph<P>>;
+  detect(imageFile: ImageFile): Promise<Graph<P> | null>;
 
   /**
    * Uploads annotations.
@@ -19,4 +21,6 @@ export interface ModelApi<P extends Point2D> {
    * @returns {Promise<void>} - A promise that resolves when the upload is complete.
    */
   uploadAnnotations(annotationsJson: string): Promise<void | Response>;
+
+  type(): ModelType;
 }

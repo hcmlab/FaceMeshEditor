@@ -1,10 +1,12 @@
-import { ModelApi } from './modelApi';
-import { Point2D } from '../graph/point2d';
-import { Graph } from '../graph/graph';
-import { findNeighbourPointIds } from '../graph/face_landmarks_features';
 import { FaceLandmarker } from '@mediapipe/tasks-vision';
-import { calculateSHA } from '../util/sha';
 import { getFingerprint } from '@thumbmarkjs/thumbmarkjs';
+import type { ModelApi } from './modelApi';
+import { Point2D } from '@/graph/point2d';
+import { Graph } from '@/graph/graph';
+import { findNeighbourPointIds } from '@/graph/face_landmarks_features';
+import { ModelType } from '@/enums/modelType';
+import { urlError } from '@/enums/urlError';
+import type { ImageFile } from '@/imageFile';
 
 /**
  * Represents a model using a WebService for face landmark detection.
@@ -20,22 +22,19 @@ export class WebServiceModel implements ModelApi<Point2D> {
     this.url = url;
   }
 
-  async detect(imageFile: File): Promise<Graph<Point2D>> {
+  async detect(imageFile: ImageFile): Promise<Graph<Point2D> | null> {
     const formData: FormData = new FormData();
-    formData.append('file', imageFile);
+    formData.append('file', imageFile.file);
 
     return getFingerprint().then(async (fingerprint) => {
       if (typeof fingerprint !== 'string') {
         fingerprint = fingerprint.hash.toString();
       }
 
-      const request: RequestInfo = new Request(
-        this.url + '/detect?__id__=' + fingerprint,
-        {
-          method: 'POST',
-          body: formData,
-        },
-      );
+      const request: RequestInfo = new Request(this.url + '/detect?__id__=' + fingerprint, {
+        method: 'POST',
+        body: formData
+      });
       return fetch(request)
         .then(async (res) => {
           if (!res.ok) {
@@ -44,10 +43,9 @@ export class WebServiceModel implements ModelApi<Point2D> {
           return res.json();
         })
         .then(async (json) => {
-          const sha = await calculateSHA(imageFile);
-          if (json['sha256'] !== sha) {
+          if (json['sha256'] !== imageFile.sha) {
             throw new Error(
-              `sha256 didn't match present file was ${json['sha256']},  is , ${sha}`,
+              `sha256 didn't match present file was ${json['sha256']},  is , ${imageFile.sha}`
             );
           }
           if (!json['points']) {
@@ -58,14 +56,10 @@ export class WebServiceModel implements ModelApi<Point2D> {
         .then((landmarks) =>
           landmarks.map((dict: { x: number; y: number }, idx: number) => {
             const ids = Array.from(
-              findNeighbourPointIds(
-                idx,
-                FaceLandmarker.FACE_LANDMARKS_TESSELATION,
-                1,
-              ),
+              findNeighbourPointIds(idx, FaceLandmarker.FACE_LANDMARKS_TESSELATION, 1)
             );
             return new Point2D(idx, dict.x, dict.y, ids);
-          }),
+          })
         )
         .then((landmarks) => new Graph(landmarks))
         .catch((err: Error) => {
@@ -90,7 +84,7 @@ export class WebServiceModel implements ModelApi<Point2D> {
       const request: RequestInfo = new Request(this.url + '/annotations', {
         method: 'POST',
         headers: headers,
-        body: JSON.stringify(json),
+        body: JSON.stringify(json)
       });
 
       return fetch(request);
@@ -105,6 +99,9 @@ export class WebServiceModel implements ModelApi<Point2D> {
    * @returns {urlError} Returns the type of URL error, if any.
    */
   static async verifyUrl(url: string): Promise<urlError | null> {
+    if (!url.endsWith('/')) {
+      url = url += '/';
+    }
     const pattern = new RegExp(
       '^(https?:\\/\\/)?' + // protocol
         '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|' + // domain name
@@ -112,7 +109,7 @@ export class WebServiceModel implements ModelApi<Point2D> {
         '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*' + // port and path
         '(\\?[;&a-z\\d%_.~+=-]*)?' + // query string
         '(\\#[-a-z\\d_]*)?$',
-      'i',
+      'i'
     ); // fragment locator
 
     if (!pattern.test(url)) {
@@ -121,20 +118,22 @@ export class WebServiceModel implements ModelApi<Point2D> {
 
     // try connecting to the url
     const request: RequestInfo = new Request(url, {
-      method: 'HEAD',
+      method: 'POST'
     });
 
     return fetch(request)
       .then((_) => {
         return null;
       })
-      .catch((_) => {
+      .catch((error) => {
+        // Log the error message (optional)
+        console.error('Network or other error:', error.message);
+        // Return urlError.Unreachable for network errors or other exceptions
         return urlError.Unreachable;
       });
   }
-}
 
-export enum urlError {
-  InvalidUrl = 'InvalidUrl',
-  Unreachable = 'Unreachable',
+  type(): ModelType {
+    return ModelType.custom;
+  }
 }

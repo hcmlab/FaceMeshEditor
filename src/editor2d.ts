@@ -1,13 +1,16 @@
+import { FaceLandmarker } from '@mediapipe/tasks-vision';
 import { Point2D } from './graph/point2d';
 import { Perspective2D } from './graph/perspective2d';
 import { Graph } from './graph/graph';
-import { FaceLandmarker } from '@mediapipe/tasks-vision';
 import {
   Connection,
   FACE_LANDMARKS_NOSE,
   UPDATED_LEFT_IRIS,
-  UPDATED_RIGHT_IRIS,
+  UPDATED_RIGHT_IRIS
 } from './graph/face_landmarks_features';
+import type { ImageFile } from '@/imageFile';
+import { useEditorConfigStore } from '@/stores/editorConfig';
+import { useAnnotationHistoryStore } from '@/stores/annotationHistoryStore';
 
 const COLOR_POINT_HOVERED = 'rgba(255,250,163,0.6)';
 
@@ -50,11 +53,12 @@ export class Editor2D {
   private isMoving: boolean = false;
   private isPanning: boolean = false;
   private image: HTMLImageElement = new Image();
-  private onPointsEditedCallback: ((graph: Graph<Point2D>) => void) | null =
-    null;
+  private onPointsEditedCallback: ((graph: Graph<Point2D>) => void) | null = null;
+  private editorConfigStore = useEditorConfigStore();
+  private annotationHistoryStore = useAnnotationHistoryStore();
 
-  constructor() {
-    this.canvas = document.getElementById('canvas') as HTMLCanvasElement;
+  constructor(canvas: HTMLCanvasElement) {
+    this.canvas = canvas;
     this.ctx = this.canvas.getContext('2d') as CanvasRenderingContext2D;
     // Size canvas
     this.clearAndFitToWindow();
@@ -62,18 +66,16 @@ export class Editor2D {
     this.canvas.addEventListener('mousedown', (ev) => this.handleMouseDown(ev));
     this.canvas.addEventListener('mousemove', (ev) => this.handleMouseMove(ev));
     this.canvas.addEventListener('mouseup', (ev) => this.handleMouseUp(ev));
-    this.canvas.addEventListener('wheel', (ev) => this.handleWheel(ev));
+    this.canvas.addEventListener('wheel', (ev) => this.handleWheel(ev), {
+      passive: false
+    });
     this.canvas.addEventListener('mouseout', (ev) => this.handleMouseUp(ev));
-  }
-
-  private _dragDepth: number = 0;
-
-  get dragDepth(): number {
-    return this._dragDepth;
-  }
-
-  set dragDepth(value: number) {
-    this._dragDepth = value;
+    this.editorConfigStore.$subscribe(() => {
+      this.draw();
+    });
+    this.annotationHistoryStore.$subscribe(() => {
+      this.graph = this.annotationHistoryStore.selectedHistory?.get();
+    });
   }
 
   private _graph: Graph<Point2D> = new Graph<Point2D>([]);
@@ -89,36 +91,16 @@ export class Editor2D {
     }
   }
 
-  private _showTesselation: boolean = false;
-
-  get showTesselation(): boolean {
-    return this._showTesselation;
-  }
-
-  set showTesselation(value: boolean) {
-    this._showTesselation = value;
-    this.draw();
-  }
-
-  setOnBackgroundLoadedCallback(
-    callback: (image: HTMLImageElement) => void,
-  ): void {
-    this.image.onload = (_) => callback(this.image);
-  }
-
-  setBackgroundSource(source: File): void {
-    const reader = new FileReader();
-    reader.onload = (_) => {
-      const result = reader.result;
-      if (result) {
-        this.image.src = result.toString();
-      }
+  setOnBackgroundLoadedCallback(callback: (image: HTMLImageElement) => void): void {
+    this.image.onload = (_) => {
+      callback(this.image);
+      this.center();
     };
-    reader.readAsDataURL(source);
   }
 
-  getBackgroundImage(): HTMLImageElement {
-    return this.image;
+  setBackgroundSource(source: ImageFile): void {
+    this.image.src = source.html;
+    this.draw();
   }
 
   setOnPointsEditedCallback(callback: (graph: Graph<Point2D>) => void) {
@@ -127,19 +109,20 @@ export class Editor2D {
 
   clearAndFitToWindow() {
     const canvas = $('#canvas-div');
-    this.canvas.width = canvas.innerWidth();
-    this.canvas.height = canvas.innerHeight();
+    if (!canvas) return;
+    this.canvas.width = canvas.innerWidth()!;
+    this.canvas.height = canvas.innerHeight()!;
   }
 
   center() {
+    this.clearAndFitToWindow();
     const scaleX = this.canvas.width / this.image.width;
     const scaleY = this.canvas.height / this.image.height;
     this.zoomScale = scaleX < scaleY ? scaleX : scaleY;
-    this.offsetX =
-      this.canvas.width / 2 - (this.image.width / 2) * this.zoomScale;
-    this.offsetY =
-      this.canvas.height / 2 - (this.image.height / 2) * this.zoomScale;
-    // Redraw
+    this.offsetX = this.canvas.width / 2 - (this.image.width / 2) * this.zoomScale;
+    this.offsetY = this.canvas.height / 2 - (this.image.height / 2) * this.zoomScale;
+    this.ctx.translate(this.offsetX, this.offsetY);
+    this.ctx.scale(this.zoomScale, this.zoomScale);
     this.draw();
   }
 
@@ -179,34 +162,16 @@ export class Editor2D {
     // Draw Background
     this.ctx.drawImage(this.image, 0, 0);
     // Draw Mesh
-    if (this.showTesselation) {
-      this.drawFaceTrait(
-        FaceLandmarker.FACE_LANDMARKS_TESSELATION,
-        COLOR_EDGES_TESSELATION,
-      );
+    if (this.editorConfigStore.showTesselation) {
+      this.drawFaceTrait(FaceLandmarker.FACE_LANDMARKS_TESSELATION, COLOR_EDGES_TESSELATION);
     }
-    this.drawFaceTrait(
-      FaceLandmarker.FACE_LANDMARKS_FACE_OVAL,
-      COLOR_EDGES_FACE_OVAL,
-    );
+    this.drawFaceTrait(FaceLandmarker.FACE_LANDMARKS_FACE_OVAL, COLOR_EDGES_FACE_OVAL);
     this.drawFaceTrait(FaceLandmarker.FACE_LANDMARKS_LIPS, COLOR_EDGES_LIPS);
-    this.drawFaceTrait(
-      FaceLandmarker.FACE_LANDMARKS_RIGHT_EYEBROW,
-      COLOR_EDGES_RIGHT_EYE,
-    );
-    this.drawFaceTrait(
-      FaceLandmarker.FACE_LANDMARKS_RIGHT_EYE,
-      COLOR_EDGES_RIGHT_EYE,
-    );
+    this.drawFaceTrait(FaceLandmarker.FACE_LANDMARKS_RIGHT_EYEBROW, COLOR_EDGES_RIGHT_EYE);
+    this.drawFaceTrait(FaceLandmarker.FACE_LANDMARKS_RIGHT_EYE, COLOR_EDGES_RIGHT_EYE);
     this.drawFaceTrait(UPDATED_RIGHT_IRIS, COLOR_EDGES_RIGHT_IRIS);
-    this.drawFaceTrait(
-      FaceLandmarker.FACE_LANDMARKS_LEFT_EYEBROW,
-      COLOR_EDGES_LEFT_EYE,
-    );
-    this.drawFaceTrait(
-      FaceLandmarker.FACE_LANDMARKS_LEFT_EYE,
-      COLOR_EDGES_LEFT_EYE,
-    );
+    this.drawFaceTrait(FaceLandmarker.FACE_LANDMARKS_LEFT_EYEBROW, COLOR_EDGES_LEFT_EYE);
+    this.drawFaceTrait(FaceLandmarker.FACE_LANDMARKS_LEFT_EYE, COLOR_EDGES_LEFT_EYE);
     this.drawFaceTrait(UPDATED_LEFT_IRIS, COLOR_EDGES_LEFT_IRIS);
     this.drawFaceTrait(FACE_LANDMARKS_NOSE, COLOR_EDGES_NOSE);
   }
@@ -222,7 +187,7 @@ export class Editor2D {
           projectedPoint.y,
           POINT_EXTENDED_WIDTH / this.zoomScale,
           0,
-          Math.PI * 2,
+          Math.PI * 2
         );
         // this.ctx.font = 20 / zoomScale + "px serif";
         // this.ctx.fillText(point.getId(), projectedPoint.x, projectedPoint.y);
@@ -236,7 +201,7 @@ export class Editor2D {
           projectedPoint.y,
           POINT_EXTENDED_WIDTH / this.zoomScale,
           0,
-          Math.PI * 2,
+          Math.PI * 2
         );
         this.ctx.fill();
       }
@@ -247,7 +212,7 @@ export class Editor2D {
         projectedPoint.y,
         POINT_WIDTH / this.zoomScale,
         0,
-        Math.PI * 2,
+        Math.PI * 2
       );
       this.ctx.fill();
     }
@@ -255,42 +220,38 @@ export class Editor2D {
 
   private drawFaceTrait(
     connections: Connection[],
-    color: string | CanvasGradient | CanvasPattern,
+    color: string | CanvasGradient | CanvasPattern
   ): void {
     if (this.graph) {
       const pointPairs = connections.map((connection) => {
         return {
           start: this.graph.getById(connection.start),
-          end: this.graph.getById(connection.end),
+          end: this.graph.getById(connection.end)
         };
       });
       // Draw edges
       this.ctx.beginPath();
       this.ctx.strokeStyle = color;
       this.ctx.lineWidth = LINE_WIDTH_DEFAULT / this.zoomScale;
-      for (const connection of pointPairs) {
+      pointPairs.forEach((connection) => {
         let startPoint = connection.start;
         let endPoint = connection.end;
-        if (
-          startPoint &&
-          endPoint &&
-          !startPoint.deleted &&
-          !endPoint.deleted
-        ) {
+        if (startPoint && endPoint && !startPoint.deleted && !endPoint.deleted) {
           startPoint = Perspective2D.project(this.image, startPoint);
           endPoint = Perspective2D.project(this.image, endPoint);
           this.ctx.moveTo(startPoint.x, startPoint.y);
           this.ctx.lineTo(endPoint.x, endPoint.y);
         }
-      }
+      });
       this.ctx.stroke();
       // Draw points
-      for (const connection of pointPairs) {
+      pointPairs.forEach((connection) => {
         const startPoint = connection.start;
         const endPoint = connection.end;
+        if (!startPoint || !endPoint) return;
         this.drawPoint(startPoint);
         this.drawPoint(endPoint);
-      }
+      });
     }
   }
 
@@ -304,7 +265,7 @@ export class Editor2D {
           p.selected = true;
           this.isMoving = true;
         });
-      if (this.isMoving === false) {
+      if (!this.isMoving) {
         this.isPanning = true;
       }
     } else if (event.button === 1) {
@@ -318,6 +279,7 @@ export class Editor2D {
     this.prevMouseX = this.mouseX;
     this.prevMouseY = this.mouseY;
     const canvasPos = $('#canvas').offset();
+    if (!canvasPos) return;
     this.mouseX = event.clientX - canvasPos.left;
     this.mouseY = event.clientY - canvasPos.top;
     const relativeMouseX = (this.mouseX - this.offsetX) / this.zoomScale;
@@ -328,25 +290,37 @@ export class Editor2D {
       const alreadyUpdated = new Set();
       const relativeMouse = Perspective2D.unproject(
         this.image,
-        new Point2D(-1, relativeMouseX, relativeMouseY, []),
+        new Point2D(-1, relativeMouseX, relativeMouseY, [])
       );
       const selectedPoint = this.graph.getSelected();
       let neighbourPoints = [selectedPoint];
+      if (!selectedPoint) {
+        return;
+      }
       const deltaX = relativeMouse.x - selectedPoint.x;
       const deltaY = relativeMouse.y - selectedPoint.y;
-      for (let depth = 0; depth <= this.dragDepth; depth++) {
+      // eslint-disable-next-line no-loops/no-loops
+      for (let depth = 0; depth <= this.editorConfigStore.dragDepth; depth++) {
         // Go through each depth step
         let tmpPoints: Point2D[] = [];
-        for (const neigP of neighbourPoints) {
+        neighbourPoints.forEach((neighbour) => {
+          if (!neighbour) {
+            return;
+          }
           const influenceFactor = Math.exp(-depth);
-          const newX = neigP.x + deltaX * influenceFactor;
-          const newY = neigP.y + deltaY * influenceFactor;
+          const newX = neighbour.x + deltaX * influenceFactor;
+          const newY = neighbour.y + deltaY * influenceFactor;
           const newPoint = new Point2D(-1, newX, newY, []);
-          neigP.moveTo(newPoint);
-          alreadyUpdated.add(neigP.id);
+          neighbour.moveTo(newPoint);
+          alreadyUpdated.add(neighbour.id);
           // extract next depth of neighbours
-          tmpPoints = tmpPoints.concat(this.graph.getNeighbourPointsOf(neigP));
-        }
+          const neighbors = this.graph.getNeighbourPointsOf(neighbour);
+          if (neighbors) {
+            tmpPoints = tmpPoints.concat(
+              neighbors.filter((point): point is Point2D => point !== undefined)
+            );
+          }
+        });
         neighbourPoints = tmpPoints.filter((p) => !alreadyUpdated.has(p.id));
       }
       // Redraw
@@ -357,7 +331,7 @@ export class Editor2D {
       let pointHover = false;
       const relativeMouse = Perspective2D.unproject(
         this.image,
-        new Point2D(-1, relativeMouseX, relativeMouseY, []),
+        new Point2D(-1, relativeMouseX, relativeMouseY, [])
       );
       this._graph.points.forEach((point) => {
         if (
@@ -366,7 +340,7 @@ export class Editor2D {
             this.image,
             point,
             relativeMouse,
-            POINT_EXTENDED_WIDTH / this.zoomScale,
+            POINT_EXTENDED_WIDTH / this.zoomScale
           )
         ) {
           point.hovered = true;
@@ -390,6 +364,7 @@ export class Editor2D {
     this.isPanning = false;
     this.isMoving = false;
     this._graph.points.forEach((point) => (point.selected = false));
+    this.draw();
   }
 
   private handleWheel(event: WheelEvent): void {
