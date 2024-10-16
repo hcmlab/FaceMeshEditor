@@ -20,7 +20,7 @@
     "test:prettier": "prettier \"src/**/*.ts\" --list-different",
     "test:spelling": "cspell \"{README.md,.github/*.md,src/**/*.ts}\"",
     "deploy": "run-s deploy:*",
-    "deploy:build": "parcel build index.html --public-url ./",
+    "deploy:build": "vite build",
     "deploy:publish": "gh-pages -d dist -u \"github-actions-bot <support+actions@github.com>\"",
     "prepare": "husky",
     "postinstall": "cp ./node_modules/@mediapipe/tasks-vision/vision_bundle.mjs.map ./node_modules/@mediapipe/tasks-vision/vision_bundle_mjs.js.map"

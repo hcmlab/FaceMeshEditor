@@ -12,6 +12,7 @@ export default defineConfig({
       resolvers: [BootstrapVueNextResolver()]
     })
   ],
+  base: '/FaceMeshEditor/',
   resolve: {
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url))
