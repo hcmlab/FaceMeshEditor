@@ -5,7 +5,7 @@ const showInfo = ref(false);
 </script>
 
 <template>
-  <BNavItemDropdown text="About" class="py-1">
+  <BNavItemDropdown text="About" class="py-1" variant="light">
     <BDropdownItem>
       <a
         class="nav-link btn btn-light text-start"

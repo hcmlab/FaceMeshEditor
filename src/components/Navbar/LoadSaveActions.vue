@@ -160,7 +160,7 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <BNavItemDropdown text="File" class="pt-1" variant="light">
+  <BNavItemDropdown text="File" class="pt-1" variant="light" auto-close="outside">
     <BDropdownItem>
       <button-with-icon
         text="Open Images"

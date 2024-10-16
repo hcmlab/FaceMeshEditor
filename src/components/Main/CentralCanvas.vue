@@ -138,7 +138,7 @@ const onResize = () => {
 </script>
 
 <template>
-  <div class="w-70" id="canvas-div">
+  <div class="w-70 border" id="canvas-div">
     <canvas
       id="canvas"
       ref="canvas"
