@@ -33,11 +33,10 @@ export class Graph<P extends Point2D> {
    * @private
    */
   deletePoints(pointIds: number[]): void {
-    pointIds.forEach((id) => {
-      if (id < 0 || id > Graph.MAX_ID) {
-        return;
+    this.points.forEach((point) => {
+      if (pointIds.includes(point.id)) {
+        point.deleted = true;
       }
-      this.points[id].deleted = true;
     });
   }
 

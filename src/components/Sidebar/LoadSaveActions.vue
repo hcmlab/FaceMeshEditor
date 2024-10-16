@@ -11,7 +11,10 @@ import ButtonWithIcon from '@/components/MenuItems/ButtonWithIcon.vue';
 const modelStore = useModelStore();
 const annotationHistoryStore = useAnnotationHistoryStore();
 
-const showSendAnno = computed(() => annotationHistoryStore.getUnsaved().length > 0);
+const showSendAnno = computed(
+  () =>
+    annotationHistoryStore.getUnsaved().length > 0 && modelStore.model.type() === ModelType.custom
+);
 
 function handleSendAnno(): void {
   sendAnnotation();

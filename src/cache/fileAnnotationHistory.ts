@@ -10,7 +10,7 @@ import { SaveStatus } from '@/enums/saveStatus';
  */
 export class FileAnnotationHistory<T extends Point2D> {
   private readonly cacheSize: number;
-  private history: Graph<T>[] = [];
+  private readonly history: Graph<T>[] = [];
   private currentHistoryIndex: number = 0;
   private readonly _file: ImageFile;
   private _status: SaveStatus;

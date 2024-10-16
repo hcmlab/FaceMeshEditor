@@ -78,8 +78,8 @@ export const FACE_FEATURE_LIPS = Array.from(
 /**
  * Only show the center of the iris
  */
-export const UPDATED_LEFT_IRIS = convertToConnections([468, 468]);
-export const UPDATED_RIGHT_IRIS = convertToConnections([473, 473]);
+export const UPDATED_LEFT_IRIS = convertToConnections([473, 473]);
+export const UPDATED_RIGHT_IRIS = convertToConnections([468, 468]);
 
 /**
  * Array of unique face feature point IDs related to the left eye.

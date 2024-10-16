@@ -53,7 +53,6 @@ const features = ['Left Eye', 'Left Eyebrow', 'Right Eye', 'Right Eyebrow', 'Nos
       shortcut=""
       @click="deleteFeature(feature.toLowerCase().replace(/\s/g, '_'))"
     />
-    <!-- Todo: fix replacing -->
   </div>
 </template>
 

@@ -11,6 +11,7 @@ const annotationHistoryStore = useAnnotationHistoryStore();
 const histories = ref(useAnnotationHistoryStore().histories);
 
 function selectThumbnail(file: ImageFile): void {
+  console.log(file);
   /* clicking to save */
   const oldHistory = annotationHistoryStore.selectedHistory;
   if (
