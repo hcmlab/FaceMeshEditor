@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { onBeforeUnmount, ref } from 'vue';
+import { computed, onBeforeUnmount } from 'vue';
 import { Point2D } from '@/graph/point2d';
 import { Graph } from '@/graph/graph';
 import { SaveStatus } from '@/enums/saveStatus';
@@ -8,14 +8,16 @@ import { useModelStore } from '@/stores/modelStore';
 import { useAnnotationHistoryStore } from '@/stores/annotationHistoryStore';
 import ButtonWithIcon from '@/components/MenuItems/ButtonWithIcon.vue';
 
-const showSendAnno = ref<boolean>(false);
-
 const modelStore = useModelStore();
 const annotationHistoryStore = useAnnotationHistoryStore();
 
+const showSendAnno = computed(
+  () =>
+    annotationHistoryStore.getUnsaved().length > 0 && modelStore.model.type() === ModelType.custom
+);
+
 function handleSendAnno(): void {
   sendAnnotation();
-  showSendAnno.value = false;
 }
 
 function openImage(): void {
@@ -61,6 +63,10 @@ function openAnnotation(): boolean {
         if (!history) {
           return;
         }
+        /* backward compatibility if the file contains the old Points2D[] format instead of Points2D[][] */
+        if (!Array.isArray(workingImage['points'][0])) {
+          workingImage['points'] = [workingImage['points'] as unknown as Point2D[]];
+        }
         workingImage['points'].forEach((unparsedGraph) => {
           const graph: Graph<Point2D> = Graph.fromJson(
             unparsedGraph,
@@ -78,7 +84,7 @@ function openAnnotation(): boolean {
 
 function collectAnnotation() {
   interface FileObj {
-    points?: { deleted: boolean; x: number; y: number; id: number }[];
+    points?: { deleted: boolean; x: number; y: number; id: number }[][];
     sha256?: string;
   }
 
@@ -97,7 +103,7 @@ function collectAnnotation() {
 
     result[fileName] = {};
     if (graph) {
-      result[fileName]['points'] = graph.toDictArray();
+      result[fileName]['points'] = [graph.toDictArray()];
       result[fileName]['sha256'] = h.file.sha;
     }
   });

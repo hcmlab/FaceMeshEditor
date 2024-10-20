@@ -44,7 +44,7 @@ export const useAnnotationHistoryStore = defineStore({
      */
     getUnsaved(): FileAnnotationHistory<Point2D>[] {
       return this.histories.filter(
-        (file) => (file.status = SaveStatus.saved)
+        (file) => file.status === SaveStatus.saved
       ) as FileAnnotationHistory<Point2D>[];
     }
   }

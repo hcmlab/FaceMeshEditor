@@ -1,10 +1,10 @@
-import { FaceLandmarker, FilesetResolver } from '@mediapipe/tasks-vision';
-import type { ModelApi } from './modelApi';
 import {
-  findNeighbourPointIds,
-  UPDATED_LEFT_IRIS,
-  UPDATED_RIGHT_IRIS
-} from '@/graph/face_landmarks_features';
+  FaceLandmarker,
+  type FaceLandmarkerResult,
+  FilesetResolver
+} from '@mediapipe/tasks-vision';
+import type { ModelApi } from './modelApi';
+import { findNeighbourPointIds } from '@/graph/face_landmarks_features';
 import { Graph } from '@/graph/graph';
 import { Point2D } from '@/graph/point2d';
 import { Point3D } from '@/graph/point3d';
@@ -47,70 +47,45 @@ export class MediapipeModel implements ModelApi<Point2D> {
       const image = new Image();
       image.onload = (_) => {
         const result = this.meshLandmarker?.detect(image);
-        if (result) {
-          const graphs = result.faceLandmarks
-            .map((landmarks) =>
-              landmarks
-                .map((dict, idx) => {
-                  // calculate the iris center
-                  if (idx === UPDATED_LEFT_IRIS[0].start) {
-                    const iris = FaceLandmarker.FACE_LANDMARKS_LEFT_IRIS.reduce(
-                      (acc, con) => {
-                        acc.x += landmarks[con.start].x;
-                        acc.y += landmarks[con.start].y;
-                        acc.z += landmarks[con.start].z;
-                        return acc;
-                      },
-                      { x: 0.0, y: 0.0, z: 0.0 }
-                    );
-
-                    const avgFactor = FaceLandmarker.FACE_LANDMARKS_LEFT_IRIS.length;
-                    dict.x = iris.x / avgFactor;
-                    dict.y = iris.y / avgFactor;
-                    dict.z = iris.z / avgFactor;
-                  }
-                  if (idx === UPDATED_RIGHT_IRIS[0].start) {
-                    const iris = FaceLandmarker.FACE_LANDMARKS_RIGHT_IRIS.reduce(
-                      (acc, con) => {
-                        acc.x += landmarks[con.start].x;
-                        acc.y += landmarks[con.start].y;
-                        acc.z += landmarks[con.start].z;
-                        return acc;
-                      },
-                      { x: 0.0, y: 0.0, z: 0.0 }
-                    );
-
-                    const avgFactor = FaceLandmarker.FACE_LANDMARKS_RIGHT_IRIS.length;
-                    dict.x = iris.x / avgFactor;
-                    dict.y = iris.y / avgFactor;
-                    dict.z = iris.z / avgFactor;
-                  }
-
-                  const ids = Array.from(
-                    findNeighbourPointIds(idx, FaceLandmarker.FACE_LANDMARKS_TESSELATION, 1)
-                  );
-                  return new Point3D(idx, dict.x, dict.y, dict.z, ids);
-                })
-                .map((point) => point as Point2D)
-            )
-            .map((landmarks) => {
-              landmarks = landmarks.filter((point) => {
-                return ![
-                  ...FaceLandmarker.FACE_LANDMARKS_LEFT_IRIS.slice(2).map((con) => con.start),
-                  ...FaceLandmarker.FACE_LANDMARKS_RIGHT_IRIS
-                ].includes(point.id);
-              });
-              return new Graph(landmarks);
-            });
-          if (graphs) {
-            resolve(graphs[0]);
-          }
-        } else {
-          reject('Face(s) could not be detected!');
+        if (!result) {
+          reject(new Error('Face(s) could not be detected!'));
         }
+        const res = MediapipeModel.processResult(result as FaceLandmarkerResult);
+        if (!res) {
+          reject(new Error('Face(s) could not be detected!'));
+        }
+        resolve(res as Graph<Point2D>);
       };
       image.src = imageFile.html;
     });
+  }
+
+  private static processResult(result: FaceLandmarkerResult) {
+    const graphs = result.faceLandmarks
+      .map((landmarks) =>
+        landmarks
+          .map((dict, idx) => {
+            const ids = Array.from(
+              findNeighbourPointIds(idx, FaceLandmarker.FACE_LANDMARKS_TESSELATION, 1)
+            );
+            return new Point3D(idx, dict.x, dict.y, dict.z, ids);
+          })
+          .map((point) => point as Point2D)
+      )
+      // filter out the iris markings
+      .map((landmarks) => {
+        landmarks = landmarks.filter((point) => {
+          return ![
+            ...FaceLandmarker.FACE_LANDMARKS_LEFT_IRIS.map((con) => con.start),
+            ...FaceLandmarker.FACE_LANDMARKS_RIGHT_IRIS.map((con) => con.start)
+          ].includes(point.id);
+        });
+        return new Graph(landmarks);
+      });
+    if (graphs) {
+      return graphs[0];
+    }
+    return null;
   }
 
   async uploadAnnotations(_: string): Promise<void | Response> {

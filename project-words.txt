@@ -20,3 +20,4 @@ jssha
 Checkmark
 thumbmarkjs
 pinia
+shortkey
