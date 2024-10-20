@@ -79,7 +79,7 @@
     "gh-pages": "^6.1.1",
     "globals": "^15.3.0",
     "husky": "^9.0.11",
-    "jsdom": "^24.1.0",
+    "jsdom": "^25.0.1",
     "node-gyp": "^10.1.0",
     "npm-run-all": "^4.1.5",
     "npm-run-all2": "^6.2.0",
