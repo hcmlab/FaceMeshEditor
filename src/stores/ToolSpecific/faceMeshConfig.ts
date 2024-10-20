@@ -1,7 +1,7 @@
 import { defineStore } from 'pinia';
 
-export const useEditorConfigStore = defineStore({
-  id: 'editorConfig',
+export const useFaceMeshConfig = defineStore({
+  id: 'faceMeshConfig',
 
   state: (): {
     dragDepth: number;
