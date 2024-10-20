@@ -17,9 +17,6 @@ function componentFromTool(tool: AnnotationTool) {
     case AnnotationTool.FaceMesh: {
       return defineAsyncComponent(() => import('./ToolMenu/FaceMesh.vue'));
     }
-    case AnnotationTool.HandLandmark: {
-      return defineAsyncComponent(() => import('./ToolMenu/HandLandmark.vue'));
-    }
     default:
       return null;
   }
