@@ -35,7 +35,7 @@ function runDetection() {
 </script>
 
 <template>
-  <BNavItemDropdown text="Edit" class="pt-1" variant="light">
+  <BNavItemDropdown text="Edit" class="pt-1" variant="light" id="edit-dropdown">
     <BDropdownItem>
       <button-with-icon
         text="Undo"

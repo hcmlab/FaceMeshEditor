@@ -35,7 +35,7 @@ function selectThumbnail(file: ImageFile): void {
       Images
       <small
         >(
-        <output id="num_images">0</output>
+        <output id="num-images">0</output>
         )</small
       >
     </h6>

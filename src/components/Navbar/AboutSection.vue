@@ -5,12 +5,13 @@ const showInfo = ref(false);
 </script>
 
 <template>
-  <BNavItemDropdown text="About" class="py-1" variant="light">
+  <BNavItemDropdown text="About" class="py-1" variant="light" id="about-dropdown">
     <BDropdownItem>
       <a
         class="nav-link btn btn-light text-start"
         href="https://github.com/hcmlab/FaceMeshEditor"
         target="_blank"
+        id="button-github"
         ><i class="bi bi-github me-1"></i>GitHub</a
       >
     </BDropdownItem>
@@ -20,6 +21,7 @@ const showInfo = ref(false);
         class="nav-link btn btn-light text-start"
         href="https://github.com/hcmlab/FaceMeshEditor/issues/new"
         target="_blank"
+        id="button-report-issue"
         ><i class="bi bi-bug me-1"></i>Report Issue</a
       >
     </BDropdownItem>
@@ -28,11 +30,16 @@ const showInfo = ref(false);
         class="nav-link btn btn-light text-start"
         href="https://github.com/hcmlab/FaceMeshEditor/issues"
         target="_blank"
+        id="button-question"
         ><i class="bi bi-question-circle me-1"></i>Question</a
       >
     </BDropdownItem>
     <BDropdownItem>
-      <a class="nav-link btn btn-light text-start" href="#" @click="showInfo = true"
+      <a
+        class="nav-link btn btn-light text-start"
+        href="#"
+        @click="showInfo = true"
+        id="button-info"
         ><i class="bi bi-info-circle me-1"></i>Info</a
       >
     </BDropdownItem>

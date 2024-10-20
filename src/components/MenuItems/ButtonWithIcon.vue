@@ -23,7 +23,7 @@ function handleClick(e: MouseEvent) {
 
 <template>
   <BButton
-    :id="'button_' + text.toLowerCase().replace(/ /g, '_')"
+    :id="'button-' + text.toLowerCase().replace(/ /g, '-')"
     class="nav-link btn btn-light text-start"
     href="#"
     :aria-keyshortcuts="shortcut"

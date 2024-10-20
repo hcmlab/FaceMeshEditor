@@ -15,6 +15,7 @@ import AboutSection from '@/components/Navbar/AboutSection.vue';
             class="rounded-circle border border-dark border-2 shadow"
             style="width: 3vw; height: 3vw"
             alt="Icon"
+            id="app-icon"
           />
         </div>
         <div>
@@ -22,7 +23,7 @@ import AboutSection from '@/components/Navbar/AboutSection.vue';
         </div>
       </div>
     </BNavbarBrand>
-    <BNavbarNav class="w-50" align="evenly">
+    <BNavbarNav class="w-50" align="evenly" id="navbar-buttons">
       <LoadSaveActions />
       <EditButtons />
       <AboutSection />

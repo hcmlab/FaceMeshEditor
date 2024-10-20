@@ -14,7 +14,7 @@ describe('ButtonWithIcon', () => {
 
     const textElement = wrapped.get('a');
 
-    expect(textElement.attributes('id')).to.equal('button_some_text');
+    expect(textElement.attributes('id')).to.equal('button-some-text');
     expect(textElement.text()).to.equal('Some Text');
 
     await textElement.trigger('click');

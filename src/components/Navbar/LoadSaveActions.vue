@@ -22,6 +22,7 @@ function handleSendAnno(): void {
 
 function openImage(): void {
   const input: HTMLInputElement = document.createElement('input');
+  input.id = 'image-input';
   input.type = 'file';
   input.accept = 'image/png, image/jpeg, image/jpg';
   input.multiple = true;
@@ -38,6 +39,7 @@ function openImage(): void {
 
 function openAnnotation(): boolean {
   const input: HTMLInputElement = document.createElement('input');
+  input.id = 'annotation-input';
   input.type = 'file';
   input.accept = '.json,application/json';
   input.onchange = () => {
@@ -116,7 +118,6 @@ function saveAnnotation(): void {
   }
 
   const result = collectAnnotation();
-  console.log(result);
   if (Object.keys(result).length <= 0) {
     return;
   }
@@ -125,6 +126,7 @@ function saveAnnotation(): void {
   modelStore.model.uploadAnnotations(jsonData);
   const dataStr: string = 'data:text/json;charset=utf-8,' + encodeURIComponent(jsonData);
   const a: HTMLAnchorElement = document.createElement('a');
+  a.id = 'download-all';
   a.href = dataStr;
   a.download = Date.now() + '_face_mesh_annotations.json';
   a.click();
@@ -166,7 +168,13 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <BNavItemDropdown text="File" class="pt-1" variant="light" auto-close="outside">
+  <BNavItemDropdown
+    text="File"
+    class="pt-1"
+    variant="light"
+    auto-close="outside"
+    id="file-dropdown"
+  >
     <BDropdownItem>
       <button-with-icon
         text="Open Images"

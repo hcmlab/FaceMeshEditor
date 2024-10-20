@@ -44,7 +44,7 @@ watch(featureDragValue, (newValue) => {
         max="5"
         v-model="featureDragValue"
         step="1"
-        id="feature_drag"
+        id="feature-drag"
       />
     </div>
   </div>
