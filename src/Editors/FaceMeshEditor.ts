@@ -44,8 +44,8 @@ const POINT_WIDTH = 3;
 const POINT_EXTENDED_WIDTH = 5;
 
 export class FaceMeshEditor extends Editor {
-  private editorConfigStore = useFaceMeshConfig();
-  private annotationHistoryStore = useAnnotationHistoryStore();
+  private readonly editorConfigStore = useFaceMeshConfig();
+  private readonly annotationHistoryStore = useAnnotationHistoryStore();
 
   constructor() {
     super();
@@ -56,6 +56,7 @@ export class FaceMeshEditor extends Editor {
     });
     this.annotationHistoryStore.$subscribe(() => {
       this.graph = this.annotationHistoryStore.selectedHistory?.get();
+      Editor.draw();
     });
 
     Editor.add(this);
