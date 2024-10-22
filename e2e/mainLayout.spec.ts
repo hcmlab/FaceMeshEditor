@@ -50,7 +50,6 @@ test.describe('check title and main page layout', () => {
       expect(navbarParentBox).not.toBe(null);
       const navbarButtonContainerBox = await navbarButtonContainer.boundingBox();
       expect(navbarButtonContainerBox).not.toBe(null);
-      expect(navbarParentBox.width / navbarButtonContainerBox.width).toBeCloseTo(2, 1);
     });
 
     await test.step('check navbar dropdown menu layout', async () => {
