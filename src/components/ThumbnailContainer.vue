@@ -15,8 +15,6 @@ const props = defineProps({
   }
 });
 
-console.log(props.history.status);
-
 defineEmits(['click']);
 
 // Canvas reference

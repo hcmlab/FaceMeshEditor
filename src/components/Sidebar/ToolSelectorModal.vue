@@ -17,11 +17,6 @@ const toolsDesc = [
     Tool: AnnotationTool.FaceMesh,
     Description: 'Annotates a face with landmarks',
     Active: toolsStore.tools.has(AnnotationTool.FaceMesh)
-  },
-  {
-    Tool: AnnotationTool.HandLandmark,
-    Description: 'Annotates the position of a hand in the image',
-    Active: toolsStore.tools.has(AnnotationTool.HandLandmark)
   }
 ];
 
