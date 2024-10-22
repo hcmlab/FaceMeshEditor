@@ -4,7 +4,7 @@ import { useFaceMeshConfig } from '@/stores/ToolSpecific/faceMeshConfig';
 
 const editorConfigStore = useFaceMeshConfig();
 
-const featureDragValue = ref(1);
+const featureDragValue = ref(0);
 
 function handleWheelEvent(e: WheelEvent) {
   if (e.shiftKey) {
@@ -40,7 +40,7 @@ watch(featureDragValue, (newValue) => {
       <input
         type="range"
         class="form-range"
-        min="1"
+        min="0"
         max="5"
         v-model="featureDragValue"
         step="1"
