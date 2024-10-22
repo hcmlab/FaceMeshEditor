@@ -36,8 +36,8 @@ onMounted(() => {
 
 <template>
   <div class="vh-100 vw-100 overflow-hidden shadow">
-    <TopNavbar />
-    <div class="d-flex flex-row h-100 w-100">
+    <TopNavbar class="h-5" />
+    <div class="d-flex flex-row h-95 w-100">
       <Sidebar />
       <CentralCanvas />
       <ThumbnailGallery />

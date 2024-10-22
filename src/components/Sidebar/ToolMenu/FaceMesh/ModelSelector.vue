@@ -88,8 +88,10 @@ function setModel(model: ModelType): boolean {
   <div>
     <div class="d-flex flex-column w-100 align-items-center">
       <div>
-        <i class="bi bi-cpu me-1"></i>
-        Model
+        <b>
+          <i class="bi bi-cpu me-1"></i>
+          Model
+        </b>
       </div>
     </div>
 

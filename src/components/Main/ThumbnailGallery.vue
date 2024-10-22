@@ -26,20 +26,19 @@ function selectThumbnail(file: ImageFile): void {
 </script>
 
 <template>
-  <div
-    class="w-10 h-100 rounded-start-1 shadow bg-light text-center overflow-y-scroll"
-    id="thumbnail-gallery"
-  >
-    <h6 class="my-2">
-      Images
-      <small
-        >(
-        <output id="num-images">0</output>
-        )</small
-      >
-    </h6>
-    <div id="thumbnailGallery" class="p-1 d-flex flex-column align-items-center">
-      <div v-for="(history, idx) in histories" :key="idx" class="w-100 p-1">
+  <div class="w-10 h-100 rounded-start-1 shadow bg-light text-center" id="thumbnail-gallery">
+    <div class="h-5 d-flex align-items-center justify-content-center">
+      <h6>
+        Images
+        <small
+          >(
+          <output id="num-images"> {{ histories.length }}</output>
+          )</small
+        >
+      </h6>
+    </div>
+    <div id="thumbnailGalleryContainer" class="overflow-auto mh-95 w-100">
+      <div v-for="(history, idx) in histories" :key="idx" class="pb-1">
         <ThumbnailContainer
           @click="selectThumbnail"
           :history="history as FileAnnotationHistory<Point2D>"

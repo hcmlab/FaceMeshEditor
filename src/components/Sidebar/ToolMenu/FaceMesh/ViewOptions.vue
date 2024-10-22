@@ -1,7 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted, watch } from 'vue';
 import { useFaceMeshConfig } from '@/stores/ToolSpecific/faceMeshConfig';
-import FeatureDragBar from '@/components/Sidebar/ToolMenu/FaceMesh/FeatureDragBar.vue';
 
 const editorConfigStore = useFaceMeshConfig();
 const isTesselationChecked = ref(editorConfigStore.showTesselation);
@@ -24,8 +23,10 @@ onMounted(() => {
 <template>
   <div class="d-flex flex-column w-100 align-items-center">
     <div>
-      <i class="bi bi-eye me-1"></i>
-      View
+      <b>
+        <i class="bi bi-eye me-1"></i>
+        View
+      </b>
     </div>
   </div>
   <b-form-group>
@@ -39,7 +40,6 @@ onMounted(() => {
       Tesselation
     </b-form-checkbox>
   </b-form-group>
-  <FeatureDragBar />
   <div class="mb-2" />
 </template>
 

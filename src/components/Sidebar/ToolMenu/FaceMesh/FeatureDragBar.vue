@@ -21,7 +21,7 @@ onUnmounted(() => {
 });
 
 function addFeatureDrag(value: number): void {
-  featureDragValue.value = Math.min(5, Math.max(1, featureDragValue.value + value));
+  featureDragValue.value = Math.min(5, Math.max(0, featureDragValue.value + value));
 }
 
 watch(featureDragValue, (newValue) => {
@@ -31,12 +31,16 @@ watch(featureDragValue, (newValue) => {
 
 <template>
   <div class="form" style="padding-top: 0.2vw; padding-bottom: 0.2vw">
-    <label for="feature_drag" class="form-label" aria-keyshortcuts="Shift+Wheel">
-      <i class="bi bi-bounding-box-circles pe-1"></i>
-      Drag Depth:
-    </label>
+    <div class="d-flex flex-column w-100 align-items-center">
+      <label for="feature_drag" class="form-label" aria-keyshortcuts="Shift+Wheel">
+        <b>
+          <i class="bi bi-bounding-box-circles pe-1"></i>
+          Drag Depth
+        </b>
+      </label>
+    </div>
     <div class="d-flex align-items-center justify-content-around">
-      <div class="me-2">{{ featureDragValue }}</div>
+      <div class="me-2">{{ Math.round(featureDragValue) }}</div>
       <input
         type="range"
         class="form-range"

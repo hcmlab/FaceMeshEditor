@@ -47,8 +47,10 @@ const features = ['Left Eye', 'Left Eyebrow', 'Right Eye', 'Right Eyebrow', 'Nos
 <template>
   <div class="d-flex flex-column w-100 align-items-center">
     <div>
-      <i class="bi bi-gear me-1"></i>
-      Features
+      <b>
+        <i class="bi bi-gear me-1"></i>
+        Features
+      </b>
     </div>
   </div>
   <div v-for="feature in features" :key="feature">

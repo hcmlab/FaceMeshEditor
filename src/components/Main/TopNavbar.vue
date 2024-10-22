@@ -6,29 +6,28 @@ import AboutSection from '@/components/Navbar/AboutSection.vue';
 </script>
 
 <template>
-  <BNavbar class="border-0" variant="light">
-    <BNavbarBrand>
-      <div class="d-flex flex-row align-items-center py-1">
+  <BNavbar variant="light" sticky="top">
+    <BNavbarBrand variant="light" fixed="top">
+      <div class="d-flex flex-row align-items-center">
         <div class="me-3">
           <img
             src="../../../static/images/FaceMesh.png"
             class="rounded-circle border border-dark border-2 shadow"
-            style="width: 3vw; height: 3vw"
+            style="width: 2vw; height: 2vw"
             alt="Icon"
             id="app-icon"
           />
         </div>
         <div>
-          <h3 class="m-0" id="title">Face Mesh Editor</h3>
+          <h5 class="m-0" id="title">Face Mesh Editor</h5>
         </div>
       </div>
     </BNavbarBrand>
-    <BNavbarNav class="w-50" align="evenly" id="navbar-buttons">
+    <BNavbarNav id="navbar-buttons" class="w-100">
       <LoadSaveActions />
       <EditButtons />
       <AboutSection />
     </BNavbarNav>
-    <div />
   </BNavbar>
 </template>
 
