@@ -72,6 +72,11 @@ export abstract class Editor {
     if (Editor.image.height === 0) {
       throw new Error('image parsed with 0 height');
     }
+
+    // on success reset global zoom and pan
+    Editor.zoomScale = 1;
+    Editor.offsetX = 0;
+    Editor.offsetY = 0;
   }
 
   public static pan(deltaX: number, deltaY: number): void {
