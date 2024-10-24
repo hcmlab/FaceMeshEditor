@@ -22,6 +22,7 @@ function handleSendAnno(): void {
 
 function openImage(): void {
   const input: HTMLInputElement = document.createElement('input');
+  input.id = 'image-input';
   input.type = 'file';
   input.accept = 'image/png, image/jpeg, image/jpg';
   input.multiple = true;
@@ -38,6 +39,7 @@ function openImage(): void {
 
 function openAnnotation(): boolean {
   const input: HTMLInputElement = document.createElement('input');
+  input.id = 'annotation-input';
   input.type = 'file';
   input.accept = '.json,application/json';
   input.onchange = () => {
@@ -110,35 +112,34 @@ function collectAnnotation() {
   return result;
 }
 
-function saveAnnotation(): boolean {
+function saveAnnotation(): void {
   if (annotationHistoryStore.empty()) {
-    return false;
+    return;
   }
 
   const result = collectAnnotation();
-  console.log(result);
   if (Object.keys(result).length <= 0) {
-    return false;
+    return;
   }
 
   const jsonData: string = JSON.stringify(result);
   modelStore.model.uploadAnnotations(jsonData);
   const dataStr: string = 'data:text/json;charset=utf-8,' + encodeURIComponent(jsonData);
   const a: HTMLAnchorElement = document.createElement('a');
+  a.id = 'download-all';
   a.href = dataStr;
   a.download = Date.now() + '_face_mesh_annotations.json';
   a.click();
-  return false;
 }
 
-function sendAnnotation(): boolean {
+function sendAnnotation(): void {
   if (annotationHistoryStore.empty()) {
-    return false;
+    return;
   }
 
   const result = collectAnnotation();
   if (Object.keys(result).length <= 0) {
-    return false;
+    return;
   }
 
   const jsonData: string = JSON.stringify(result);
@@ -151,7 +152,6 @@ function sendAnnotation(): boolean {
     if (!history) return;
     history.status = SaveStatus.saved;
   });
-  return false;
 }
 
 // @ts-expect-error the error complains that not all code paths return something.
@@ -168,33 +168,47 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
-  <!-- File Options-->
-  <h5 class="mt-4">File</h5>
-  <button-with-icon
-    text="Open Images"
-    icon="bi-folder2-open"
-    shortcut="Control+O"
-    @click="openImage"
-  />
-  <button-with-icon
-    text="Open Annotations"
-    icon="bi-folder2-open"
-    shortcut="Control+A"
-    @click="openAnnotation"
-  />
-  <button-with-icon
-    text="Download all"
-    icon="bi-download"
-    shortcut="Control+S"
-    @click="saveAnnotation"
-  />
-  <button-with-icon
-    text="Save"
-    icon="bi-floppy"
-    shortcut="Control+Shift+S"
-    @click="handleSendAnno"
-    v-if="showSendAnno"
-  />
+  <BNavItemDropdown
+    text="File"
+    class="pt-1"
+    variant="light"
+    auto-close="outside"
+    id="file-dropdown"
+  >
+    <BDropdownItem>
+      <button-with-icon
+        text="Open Images"
+        icon="bi-folder2-open"
+        shortcut="Control+O"
+        @click="openImage"
+      />
+    </BDropdownItem>
+    <BDropdownItem>
+      <button-with-icon
+        text="Open Annotations"
+        icon="bi-folder2-open"
+        shortcut="Control+A"
+        @click="openAnnotation"
+      />
+    </BDropdownItem>
+    <BDropdownItem>
+      <button-with-icon
+        text="Download all"
+        icon="bi-download"
+        shortcut="Control+S"
+        @click="saveAnnotation"
+      />
+    </BDropdownItem>
+    <BDropdownItem>
+      <button-with-icon
+        text="Save"
+        icon="bi-floppy"
+        shortcut="Control+Shift+S"
+        @click="handleSendAnno"
+        v-if="showSendAnno"
+      />
+    </BDropdownItem>
+  </BNavItemDropdown>
 </template>
 
 <style scoped></style>

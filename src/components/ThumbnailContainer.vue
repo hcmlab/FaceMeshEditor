@@ -15,8 +15,6 @@ const props = defineProps({
   }
 });
 
-console.log(props.history.status);
-
 defineEmits(['click']);
 
 // Canvas reference
@@ -88,16 +86,16 @@ watch(
 
 <template>
   <div class="thumbnail" @click="$emit('click', props.history.file)">
-    <a class="overlap-container w-15vh h-15vh my-1" :href="href">
+    <a class="overlap-container" :href="href">
       <canvas
         ref="canvas"
-        class="img-thumbnail d-block w-100 rounded"
+        class="d-block img-thumbnail w-100 box-sizing-border-box"
         :width="imageSize"
         :height="imageSize"
-      ></canvas>
+      />
       <div
         :class="[
-          'p-1 w-100 h-100 bg-dark bg-opacity-50 rounded border border-dark d-flex justify-content-center align-items-center',
+          'p-1 w-100 bg-dark bg-opacity-50 rounded border border-dark d-flex justify-content-center align-items-center',
           { 'd-none': history.status === SaveStatus.unedited }
         ]"
       >
@@ -122,9 +120,9 @@ watch(
   right: 0;
   bottom: 0;
   left: 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  text-align: center;
+}
+
+.box-sizing-border-box {
+  box-sizing: border-box;
 }
 </style>
