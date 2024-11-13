@@ -11,7 +11,6 @@ const imageLoadStore = useImageLoadStore();
 const disableHide = ref(true);
 const imageCount = ref(100);
 const progress = ref(50);
-const imageScrollContainer = ref<HTMLDivElement | null>(null);
 const imageInput = ref<HTMLInputElement | null>(null);
 const orientations = ref<orientationGuessResult[]>([]);
 const screenHeight = ref(window.innerHeight);
@@ -125,59 +124,73 @@ onBeforeUnmount(() => {
     <input type="file" multiple accept="image/*" ref="imageInput" hidden />
     <div class="d-flex flex-column h-100">
       <!-- Top elements -->
-      <div class="flex-fill h-100 w-100 d-flex justify-content-center">
+      <div class="flex-shrink-0 w-100 d-flex justify-content-center">
         <div>
           <BButton @click="disableHide = !disableHide"> toggle disable hide </BButton>
         </div>
       </div>
+
       <!-- the images to select -->
-      <div
-        v-if="orientations.length > 0"
-        class="flex-fill h-100 w-100 d-flex justify-content-center"
-        ref="imageScrollContainer"
-      >
-        <div class="flex-grow-1 h-100 overflow-y-auto d-flex flex-column align-items-center">
+      <div v-if="orientations.length > 0" class="d-flex flex-grow-1 h-60vh">
+        <!-- Left Images Section -->
+        <div class="flex-grow-1 d-flex flex-column align-items-center">
           <h2>Left</h2>
-          <div
-            v-for="res in orientations.filter((val) => val.orientation === Orientation.left)"
-            :key="res.image.sha"
-            :id="res.image.sha + '-container'"
-          >
-            <BButton @click="imageClicked(res.image)" variant="outline-dark" class="w-100">
-              <canvas :id="res.image.sha + '-canvas'" class="w-100 rounded border border-2" />
-            </BButton>
+          <div class="overflow-y-auto">
+            <div
+              v-for="res in orientations.filter((val) => val.orientation === Orientation.left)"
+              :key="res.image.sha"
+              :id="res.image.sha + '-container'"
+              class="overflow-y-auto"
+            >
+              <BButton @click="imageClicked(res.image)" variant="outline-dark" class="w-100">
+                <canvas :id="res.image.sha + '-canvas'" class="w-100 rounded border border-2" />
+              </BButton>
+            </div>
           </div>
         </div>
-        <div class="flex-grow-1 h-100 overflow-y-auto d-flex flex-column align-items-center">
+
+        <!-- Frontal Images Section -->
+        <div class="flex-grow-1 d-flex flex-column align-items-center">
           <h2>Frontal</h2>
-          <div
-            v-for="res in orientations.filter((val) => val.orientation === Orientation.front)"
-            :key="res.image.sha"
-            :id="res.image.sha + '-container'"
-          >
-            <BButton @click="imageClicked(res.image)" variant="outline-dark" class="w-100">
-              <canvas :id="res.image.sha + '-canvas'" class="w-100 rounded border border-2" />
-            </BButton>
+          <div class="overflow-y-auto">
+            <div
+              v-for="res in orientations.filter((val) => val.orientation === Orientation.front)"
+              :key="res.image.sha"
+              :id="res.image.sha + '-container'"
+              class="overflow-y-auto"
+            >
+              <BButton @click="imageClicked(res.image)" variant="outline-dark" class="w-100">
+                <canvas :id="res.image.sha + '-canvas'" class="w-100 rounded border border-2" />
+              </BButton>
+            </div>
           </div>
         </div>
-        <div class="flex-grow-1 h-100 overflow-y-auto d-flex flex-column align-items-center">
+
+        <!-- Front Images Section -->
+        <div class="flex-grow-1 d-flex flex-column align-items-center">
           <h2>Right</h2>
-          <div
-            v-for="res in orientations.filter((val) => val.orientation === Orientation.right)"
-            :key="res.image.sha"
-            :id="res.image.sha + '-container'"
-          >
-            <BButton @click="imageClicked(res.image)" variant="outline-dark" class="w-100">
-              <canvas :id="res.image.sha + '-canvas'" class="w-100 rounded border border-2" />
-            </BButton>
+          <div class="overflow-y-auto">
+            <div
+              v-for="res in orientations.filter((val) => val.orientation === Orientation.right)"
+              :key="res.image.sha"
+              :id="res.image.sha + '-container'"
+            >
+              <BButton @click="imageClicked(res.image)" variant="outline-dark" class="w-100">
+                <canvas :id="res.image.sha + '-canvas'" class="w-100 rounded border border-2" />
+              </BButton>
+            </div>
           </div>
         </div>
       </div>
+
       <!-- Bottom row -->
       <div class="mt-auto w-100">
         <hr />
         <div class="d-flex">
-          <BButton @click="loadImages" variant="outline-dark">Load</BButton>
+          <BButton @click="loadImages" variant="outline-dark">
+            <BSpinner small v-if="processing" />
+            Load
+          </BButton>
           <BProgress :value="progress" :max="imageCount" show-value class="w-75 mx-4" />
           <BButton @click="nextImage" variant="primary">Next</BButton>
         </div>

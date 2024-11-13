@@ -33,7 +33,7 @@ $utilities: map-merge(
         values: map-merge(
           map-get(map-get($utilities, "height"), "values"),
           (
-            75vh: 75vh,
+            60vh: 60vh,
             15vh: 15vh,
             5vh: 5vh,
             5: 5%,
