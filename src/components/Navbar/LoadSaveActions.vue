@@ -7,9 +7,11 @@ import { ModelType } from '@/enums/modelType';
 import { useModelStore } from '@/stores/modelStore';
 import { useAnnotationHistoryStore } from '@/stores/annotationHistoryStore';
 import ButtonWithIcon from '@/components/MenuItems/ButtonWithIcon.vue';
+import { useImageLoadStore } from '@/stores/imageLoadStore';
 
 const modelStore = useModelStore();
 const annotationHistoryStore = useAnnotationHistoryStore();
+const imageLoadStore = useImageLoadStore();
 
 const showSendAnno = computed(
   () =>
@@ -21,20 +23,7 @@ function handleSendAnno(): void {
 }
 
 function openImage(): void {
-  const input: HTMLInputElement = document.createElement('input');
-  input.id = 'image-input';
-  input.type = 'file';
-  input.accept = 'image/png, image/jpeg, image/jpg';
-  input.multiple = true;
-  input.onchange = () => {
-    if (input.files) {
-      const files: File[] = Array.from(input.files);
-      files.forEach((f) => {
-        annotationHistoryStore.add(f, modelStore.model);
-      });
-    }
-  };
-  input.click();
+  imageLoadStore.showLoadModal = true;
 }
 
 function openAnnotation(): boolean {

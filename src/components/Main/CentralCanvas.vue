@@ -6,6 +6,7 @@ import { useAnnotationToolStore } from '@/stores/annotationToolStore';
 import { AnnotationTool } from '@/enums/annotationTool';
 import { FaceMeshEditor } from '@/Editors/FaceMeshEditor';
 import { BackgroundDrawer } from '@/Editors/BackgroundDrawer';
+import ThreeDimViewContainer from '@/components/ImageLoadModal.vue';
 
 const annotationHistoryStore = useAnnotationHistoryStore();
 const annotationToolStore = useAnnotationToolStore();
@@ -54,12 +55,15 @@ watch(
   () => annotationHistoryStore.selectedHistory,
   async (value) => {
     if (!value) return;
-    await Editor.setBackgroundSource(value.file);
-    Editor.center();
-    Editor.draw();
-    editors.value.forEach((editor) => {
-      editor.onBackgroundLoaded();
-    });
+    Editor.setBackgroundSource(value.file)
+      .then(() => {
+        Editor.center();
+        Editor.draw();
+        editors.value.forEach((editor) => {
+          editor.onBackgroundLoaded();
+        });
+      })
+      .catch((reason) => console.error(reason));
   }
 );
 
@@ -138,17 +142,20 @@ const onResize = () => {
 </script>
 
 <template>
-  <div class="w-70 border" id="canvas-div">
-    <canvas
-      id="canvas"
-      ref="canvas"
-      class=""
-      @mousedown="handleMouseDown"
-      @mousemove="handleMouseMove"
-      @mouseup="handleMouseUp"
-      @wheel="handleWheel"
-      @mouseout="handleMouseUp"
-    />
+  <div class="w-70 border">
+    <three-dim-view-container />
+    <div class="w-100 h-100" id="canvas-div">
+      <canvas
+        id="canvas"
+        ref="canvas"
+        class=""
+        @mousedown="handleMouseDown"
+        @mousemove="handleMouseMove"
+        @mouseup="handleMouseUp"
+        @wheel="handleWheel"
+        @mouseout="handleMouseUp"
+      />
+    </div>
   </div>
 </template>
 

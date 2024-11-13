@@ -18,6 +18,10 @@ export abstract class Editor {
   public static image: HTMLImageElement = new Image();
   private static allEditors: Editor[] = [];
 
+  protected constructor() {
+    Editor.add(this);
+  }
+
   protected static add(editor: Editor) {
     Editor.allEditors.push(editor);
   }
@@ -46,7 +50,7 @@ export abstract class Editor {
   }
 
   public static async setBackgroundSource(source: ImageFile): Promise<void> {
-    const imageLoadPromise = new Promise<void>((resolve, reject) => {
+    return new Promise<void>((resolve, reject) => {
       Editor.image.src = source.html;
       Editor.image.onload = () => {
         if (Editor.image.width === 0) {
@@ -55,6 +59,11 @@ export abstract class Editor {
         if (Editor.image.height === 0) {
           reject(new Error('Image loaded with height 0.'));
         }
+        // on success reset global zoom and pan
+        Editor.zoomScale = 1;
+        Editor.offsetX = 0;
+        Editor.offsetY = 0;
+
         resolve();
       };
       Editor.image.onerror = (e) => {
@@ -62,21 +71,6 @@ export abstract class Editor {
         reject(new Error('Failed to load image.'));
       };
     });
-
-    // Wait for the image to load
-    await imageLoadPromise;
-
-    if (Editor.image.width === 0) {
-      throw new Error('image parsed with 0 width');
-    }
-    if (Editor.image.height === 0) {
-      throw new Error('image parsed with 0 height');
-    }
-
-    // on success reset global zoom and pan
-    Editor.zoomScale = 1;
-    Editor.offsetX = 0;
-    Editor.offsetY = 0;
   }
 
   public static pan(deltaX: number, deltaY: number): void {

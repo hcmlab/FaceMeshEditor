@@ -58,8 +58,6 @@ export class FaceMeshEditor extends Editor {
       this.graph = this.annotationHistoryStore.selectedHistory?.get();
       Editor.draw();
     });
-
-    Editor.add(this);
   }
 
   private _graph: Graph<Point2D> = new Graph<Point2D>([]);
