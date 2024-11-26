@@ -6,15 +6,30 @@ import { ImageFile } from '@/imageFile';
 import { guessOrientation, type orientationGuessResult } from '@/util/orientationGuesser';
 import { Orientation } from '@/enums/orientation';
 import { imageFromFile } from '@/util/imageFromFile';
+import { useAnnotationHistoryStore } from '@/stores/annotationHistoryStore';
 
 const imageLoadStore = useImageLoadStore();
 const disableHide = ref(true);
-const imageCount = ref(100);
-const progress = ref(50);
+const imageCount = ref(0);
+const progress = ref(0);
 const imageInput = ref<HTMLInputElement | null>(null);
 const orientations = ref<orientationGuessResult[]>([]);
 const screenHeight = ref(window.innerHeight);
 const processing = ref(false);
+const confirmModal = ref(false);
+const result = ref<MultipleViewImage[]>([]);
+
+export interface MultipleViewImage {
+  left: orientationGuessResult | null;
+  center: orientationGuessResult | null;
+  right: orientationGuessResult | null;
+}
+
+const selectedImages = ref<MultipleViewImage>({
+  left: null,
+  center: null,
+  right: null
+});
 
 watch(orientations, (newVal) => {
   nextTick().then(() => {
@@ -29,6 +44,13 @@ watch(orientations, (newVal) => {
   });
 });
 
+/**
+ * Draws an image onto a given canvas element.
+ *
+ * @param canvas - The canvas element to draw the image on.
+ * @param image - The image file to be drawn.
+ * @return A promise that resolves when the image has been drawn to the canvas.
+ */
 async function drawImageToCanvas(canvas: HTMLCanvasElement, image: ImageFile) {
   const context = canvas.getContext('2d');
   if (!context) {
@@ -56,6 +78,11 @@ async function loadImages() {
   imageInput.value.click();
 }
 
+/**
+ * Handles the escape event of the Main modal. Is used to stop the user from accidentally closing it.
+ *
+ * @param e - The event object representing the hide event.
+ */
 function handleHide(e: BvTriggerableEvent) {
   if (disableHide.value) {
     e.preventDefault();
@@ -63,13 +90,70 @@ function handleHide(e: BvTriggerableEvent) {
 }
 
 /**
+ * Handles the logic for when an image is clicked by assigning the image to the corresponding
+ * orientation slot in the selectedImages object.
  *
- * @param image
+ * @param image - The image that was clicked and needs to be assigned.
+ * @param direction - The direction (left, right, or center) to which the image should be assigned.
  */
-function imageClicked(image: ImageFile) {}
+function imageClicked(image: orientationGuessResult, direction: Orientation) {
+  switch (direction) {
+    case Orientation.left: {
+      selectedImages.value.left = image;
+      break;
+    }
+    case Orientation.right: {
+      selectedImages.value.right = image;
+      break;
+    }
+    case Orientation.center: {
+      selectedImages.value.center = image;
+      break;
+    }
+  }
+}
 
-function nextImage() {}
+function nextImage() {
+  // remove selected images
+  orientations.value = orientations.value.filter((value) => {
+    return (
+      !(
+        selectedImages.value.left &&
+        selectedImages.value.left.image.sha === value.image.sha &&
+        selectedImages.value.left.orientation === Orientation.left
+      ) &&
+      !(
+        selectedImages.value.right &&
+        selectedImages.value.right.image.sha === value.image.sha &&
+        selectedImages.value.right.orientation === Orientation.right
+      ) &&
+      !(
+        selectedImages.value.center &&
+        selectedImages.value.center.image.sha === value.image.sha &&
+        selectedImages.value.center.orientation === Orientation.center
+      )
+    );
+  });
 
+  result.value.push(selectedImages.value);
+
+  // clean up
+  selectedImages.value = {
+    left: null,
+    center: null,
+    right: null
+  };
+
+  progress.value++;
+  if (progress.value === imageCount.value) {
+    disableHide.value = false;
+    confirmModal.value = true;
+  }
+}
+
+/**
+ * Callback when the input component is clicked. Loads all marked files and guesses their orientation.
+ */
 async function handleImageLoad() {
   if (!imageInput.value) {
     console.error('imageInput not found on change');
@@ -86,9 +170,19 @@ async function handleImageLoad() {
     );
     processing.value = true;
     orientations.value = orientations.value.concat(await guessOrientation(import_images));
+    imageCount.value = orientations.value.filter(
+      (value) => value.orientation === Orientation.center
+    ).length;
+    progress.value = 0;
     processing.value = false;
   }
 }
+
+const save = () => {
+  const store = useAnnotationHistoryStore();
+  store.merge(result.value);
+  imageLoadStore.showLoadModal = false;
+};
 
 onMounted(() => {
   if (!imageInput.value) {
@@ -120,69 +214,92 @@ onBeforeUnmount(() => {
     size="lg"
     hide-footer
     scrollable
+    centered
   >
     <input type="file" multiple accept="image/*" ref="imageInput" hidden />
     <div class="d-flex flex-column h-100">
-      <!-- Top elements -->
-      <div class="flex-shrink-0 w-100 d-flex justify-content-center">
-        <div>
-          <BButton @click="disableHide = !disableHide"> toggle disable hide </BButton>
-        </div>
-      </div>
-
       <!-- the images to select -->
-      <div v-if="orientations.length > 0" class="d-flex flex-grow-1 h-60vh">
-        <!-- Left Images Section -->
-        <div class="flex-grow-1 d-flex flex-column align-items-center">
-          <h2>Left</h2>
-          <div class="overflow-y-auto">
-            <div
-              v-for="res in orientations.filter((val) => val.orientation === Orientation.left)"
-              :key="res.image.sha"
-              :id="res.image.sha + '-container'"
-              class="overflow-y-auto"
-            >
-              <BButton @click="imageClicked(res.image)" variant="outline-dark" class="w-100">
-                <canvas :id="res.image.sha + '-canvas'" class="w-100 rounded border border-2" />
-              </BButton>
+      <div>
+        <div v-if="progress < imageCount && imageCount != 0">
+          <div class="d-flex flex-grow-1 h-60vh">
+            <!-- Left Images Section -->
+            <div class="flex-grow-1 d-flex flex-column align-items-center">
+              <h2>Left</h2>
+              <div class="overflow-y-auto">
+                <div
+                  v-for="res in orientations.filter((val) => val.orientation === Orientation.left)"
+                  :key="res.image.sha"
+                  :id="res.image.sha + '-container'"
+                  class="overflow-y-auto"
+                >
+                  <BButton
+                    @click="+imageClicked(res, Orientation.left)"
+                    :variant="
+                      selectedImages.left?.image.sha === res.image.sha ? 'primary' : 'outline-dark'
+                    "
+                    class="w-100"
+                  >
+                    <canvas :id="res.image.sha + '-canvas'" class="w-100 rounded border border-2" />
+                  </BButton>
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
 
-        <!-- Frontal Images Section -->
-        <div class="flex-grow-1 d-flex flex-column align-items-center">
-          <h2>Frontal</h2>
-          <div class="overflow-y-auto">
-            <div
-              v-for="res in orientations.filter((val) => val.orientation === Orientation.front)"
-              :key="res.image.sha"
-              :id="res.image.sha + '-container'"
-              class="overflow-y-auto"
-            >
-              <BButton @click="imageClicked(res.image)" variant="outline-dark" class="w-100">
-                <canvas :id="res.image.sha + '-canvas'" class="w-100 rounded border border-2" />
-              </BButton>
+            <!-- Frontal Images Section -->
+            <div class="flex-grow-1 d-flex flex-column align-items-center">
+              <h2>Frontal</h2>
+              <div class="overflow-y-auto">
+                <div
+                  v-for="res in orientations.filter(
+                    (val) => val.orientation === Orientation.center
+                  )"
+                  :key="res.image.sha"
+                  :id="res.image.sha + '-container'"
+                  class="overflow-y-auto"
+                >
+                  <BButton
+                    @click="imageClicked(res, Orientation.center)"
+                    :variant="
+                      selectedImages.center?.image.sha === res.image.sha
+                        ? 'primary'
+                        : 'outline-dark'
+                    "
+                    class="w-100"
+                  >
+                    <canvas :id="res.image.sha + '-canvas'" class="w-100 rounded border border-2" />
+                  </BButton>
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
 
-        <!-- Front Images Section -->
-        <div class="flex-grow-1 d-flex flex-column align-items-center">
-          <h2>Right</h2>
-          <div class="overflow-y-auto">
-            <div
-              v-for="res in orientations.filter((val) => val.orientation === Orientation.right)"
-              :key="res.image.sha"
-              :id="res.image.sha + '-container'"
-            >
-              <BButton @click="imageClicked(res.image)" variant="outline-dark" class="w-100">
-                <canvas :id="res.image.sha + '-canvas'" class="w-100 rounded border border-2" />
-              </BButton>
+            <!-- Front Images Section -->
+            <div class="flex-grow-1 d-flex flex-column align-items-center">
+              <h2>Right</h2>
+              <div class="overflow-y-auto">
+                <div
+                  v-for="res in orientations.filter((val) => val.orientation === Orientation.right)"
+                  :key="res.image.sha"
+                  :id="res.image.sha + '-container'"
+                >
+                  <BButton
+                    @click="imageClicked(res, Orientation.right)"
+                    :variant="
+                      selectedImages.right?.image.sha === res.image.sha ? 'primary' : 'outline-dark'
+                    "
+                    class="w-100"
+                  >
+                    <canvas :id="res.image.sha + '-canvas'" class="w-100 rounded border border-2" />
+                  </BButton>
+                </div>
+              </div>
             </div>
           </div>
         </div>
+        <div v-if="imageCount == 0" class="d-flex justify-content-around">
+          <h1>Press "Load" to get started</h1>
+        </div>
+        <div v-if="imageCount === progress && imageCount != 0">Finished</div>
       </div>
-
       <!-- Bottom row -->
       <div class="mt-auto w-100">
         <hr />
@@ -197,4 +314,5 @@ onBeforeUnmount(() => {
       </div>
     </div>
   </BModal>
+  <BModal v-model="confirmModal" @ok="save"> Confirm? </BModal>
 </template>

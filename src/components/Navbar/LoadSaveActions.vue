@@ -90,12 +90,13 @@ function collectAnnotation() {
     }
     h.markAsSent();
     const graph = h.get();
-    const fileName = h.file.file.name;
+    if (!h.file.center) return;
+    const fileName = h.file.center?.image.file.name;
 
     result[fileName] = {};
     if (graph) {
       result[fileName]['points'] = [graph.toDictArray()];
-      result[fileName]['sha256'] = h.file.sha;
+      result[fileName]['sha256'] = h.file.center?.image.sha;
     }
   });
   return result;

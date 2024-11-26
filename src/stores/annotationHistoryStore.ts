@@ -1,10 +1,9 @@
 import { defineStore } from 'pinia';
 import { FileAnnotationHistory } from '@/cache/fileAnnotationHistory';
 import { Point2D } from '@/graph/point2d';
-import { ImageFile } from '@/imageFile';
-import { Graph } from '@/graph/graph';
-import type { ModelApi } from '@/model/modelApi';
 import { SaveStatus } from '@/enums/saveStatus';
+import type { MultipleViewImage } from '@/components/ImageLoadModal.vue';
+import { Graph } from '@/graph/graph';
 
 export const useAnnotationHistoryStore = defineStore({
   id: 'annotationHistory',
@@ -18,13 +17,15 @@ export const useAnnotationHistoryStore = defineStore({
   }),
 
   actions: {
-    async add(file: File, api: ModelApi<Point2D>) {
-      const imageFile = await ImageFile.create(file);
-      const history = new FileAnnotationHistory<Point2D>(imageFile, 25);
-      const anno = await Graph.detect(api, imageFile);
-      if (anno) {
-        history.add(anno);
+    async add(image: MultipleViewImage) {
+      if (!image.center?.image.file) {
+        return;
       }
+      if (!image.center.mesh) {
+        return;
+      }
+      const history = new FileAnnotationHistory<Point2D>(image, 25);
+      history.add(Graph.fromMesh(image.center.mesh));
       this.histories.push(history);
       if (!this.selectedHistory) {
         this.selectedHistory = history;
@@ -35,8 +36,20 @@ export const useAnnotationHistoryStore = defineStore({
     },
     find(fileName: string, sha256: string): FileAnnotationHistory<Point2D> {
       return this.histories.find(
-        (history) => history.file.file.name === fileName && history.file.sha === sha256
+        (history) =>
+          (history.file.left?.image.file.name === fileName &&
+            history.file.left.image.sha === sha256) ||
+          (history.file.right?.image.file.name === fileName &&
+            history.file.right.image.sha === sha256) ||
+          (history.file.center?.image.file.name === fileName &&
+            history.file.center.image.sha === sha256)
       ) as FileAnnotationHistory<Point2D>;
+    },
+
+    async merge(data: MultipleViewImage[]) {
+      data.forEach((value) => {
+        this.add(value);
+      });
     },
 
     /**

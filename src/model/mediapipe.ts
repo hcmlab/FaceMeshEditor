@@ -4,10 +4,8 @@ import {
   FilesetResolver
 } from '@mediapipe/tasks-vision';
 import type { ModelApi } from './modelApi';
-import { findNeighbourPointIds } from '@/graph/face_landmarks_features';
 import { Graph } from '@/graph/graph';
 import { Point2D } from '@/graph/point2d';
-import { Point3D } from '@/graph/point3d';
 import { ModelType } from '@/enums/modelType';
 import type { ImageFile } from '@/imageFile';
 
@@ -50,7 +48,7 @@ export class MediapipeModel implements ModelApi<Point2D> {
         if (!result) {
           reject(new Error('Face(s) could not be detected!'));
         }
-        const res = MediapipeModel.processResult(result as FaceLandmarkerResult);
+        const res = Graph.fromMesh((result as FaceLandmarkerResult).faceLandmarks[0]);
         if (!res) {
           reject(new Error('Face(s) could not be detected!'));
         }
@@ -58,34 +56,6 @@ export class MediapipeModel implements ModelApi<Point2D> {
       };
       image.src = imageFile.html;
     });
-  }
-
-  private static processResult(result: FaceLandmarkerResult) {
-    const graphs = result.faceLandmarks
-      .map((landmarks) =>
-        landmarks
-          .map((dict, idx) => {
-            const ids = Array.from(
-              findNeighbourPointIds(idx, FaceLandmarker.FACE_LANDMARKS_TESSELATION, 1)
-            );
-            return new Point3D(idx, dict.x, dict.y, dict.z, ids);
-          })
-          .map((point) => point as Point2D)
-      )
-      // filter out the iris markings
-      .map((landmarks) => {
-        landmarks = landmarks.filter((point) => {
-          return ![
-            ...FaceLandmarker.FACE_LANDMARKS_LEFT_IRIS.map((con) => con.start),
-            ...FaceLandmarker.FACE_LANDMARKS_RIGHT_IRIS.map((con) => con.start)
-          ].includes(point.id);
-        });
-        return new Graph(landmarks);
-      });
-    if (graphs) {
-      return graphs[0];
-    }
-    return null;
   }
 
   async uploadAnnotations(_: string): Promise<void | Response> {

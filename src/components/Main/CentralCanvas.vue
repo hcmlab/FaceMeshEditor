@@ -55,15 +55,13 @@ watch(
   () => annotationHistoryStore.selectedHistory,
   async (value) => {
     if (!value) return;
-    Editor.setBackgroundSource(value.file)
-      .then(() => {
-        Editor.center();
-        Editor.draw();
-        editors.value.forEach((editor) => {
-          editor.onBackgroundLoaded();
-        });
-      })
-      .catch((reason) => console.error(reason));
+    if (!value.file.center) return;
+    await Editor.setBackgroundSource(value.file.center.image.file);
+    Editor.center();
+    Editor.draw();
+    editors.value.forEach((editor) => {
+      editor.onBackgroundLoaded();
+    });
   }
 );
 

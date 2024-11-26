@@ -1,5 +1,5 @@
 export enum Orientation {
-  front,
+  center,
   left,
   right,
   unknown

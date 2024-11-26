@@ -5,6 +5,7 @@ import type { ImageFile } from '@/imageFile';
 export type orientationGuessResult = {
   image: ImageFile;
   orientation: Orientation;
+  mesh: NormalizedLandmark[];
 };
 
 export async function guessOrientation(images: ImageFile[]): Promise<orientationGuessResult[]> {
@@ -17,7 +18,7 @@ export async function guessOrientation(images: ImageFile[]): Promise<orientation
       const mesh = res.faceLandmarks[0];
       const orientation = orientationFromMesh(mesh);
 
-      const result: orientationGuessResult = { image, orientation };
+      const result: orientationGuessResult = { image, orientation, mesh };
       return result;
     })
   );
@@ -85,7 +86,7 @@ function orientationFromMesh(mesh: NormalizedLandmark[]) {
   }
 
   if (turn >= 60 && turn <= 120) {
-    return Orientation.front;
+    return Orientation.center;
   }
 
   return Orientation.unknown;

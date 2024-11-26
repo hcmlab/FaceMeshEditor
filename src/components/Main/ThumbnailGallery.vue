@@ -1,27 +1,32 @@
 <script setup lang="ts">
 import { ref } from 'vue';
-import { ImageFile } from '@/imageFile';
 import { useAnnotationHistoryStore } from '@/stores/annotationHistoryStore';
 import ThumbnailContainer from '@/components/ThumbnailContainer.vue';
 import { SaveStatus } from '@/enums/saveStatus';
 import { FileAnnotationHistory } from '@/cache/fileAnnotationHistory';
 import { Point2D } from '@/graph/point2d';
+import type { MultipleViewImage } from '@/components/ImageLoadModal.vue';
 
 const annotationHistoryStore = useAnnotationHistoryStore();
 const histories = ref(useAnnotationHistoryStore().histories);
 
-function selectThumbnail(file: ImageFile): void {
+function selectThumbnail(file: MultipleViewImage): void {
   /* clicking to save */
   const oldHistory = annotationHistoryStore.selectedHistory;
+  const selected = file.center?.image;
+  if (!selected) return;
   if (
     oldHistory &&
-    file.file.name === oldHistory.file.file.name &&
+    selected.file.name === oldHistory.file.center?.image.file.name &&
     oldHistory.status !== SaveStatus.unedited
   ) {
     oldHistory.status = SaveStatus.saved;
     return;
   }
-  annotationHistoryStore.selectedHistory = annotationHistoryStore.find(file.file.name, file.sha);
+  annotationHistoryStore.selectedHistory = annotationHistoryStore.find(
+    selected.file.name,
+    selected.sha
+  );
 }
 </script>
 

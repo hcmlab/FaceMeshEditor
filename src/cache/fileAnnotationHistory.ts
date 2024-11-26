@@ -1,7 +1,7 @@
 import { Point2D } from '@/graph/point2d';
 import { Graph } from '@/graph/graph';
-import { ImageFile } from '@/imageFile';
 import { SaveStatus } from '@/enums/saveStatus';
+import type { MultipleViewImage } from '@/components/ImageLoadModal.vue';
 
 /**
  * Represents a history of annotations for a specific file.
@@ -12,15 +12,15 @@ export class FileAnnotationHistory<T extends Point2D> {
   private readonly cacheSize: number;
   private readonly history: Graph<T>[] = [];
   private currentHistoryIndex: number = 0;
-  private readonly _file: ImageFile;
+  private readonly _file: MultipleViewImage;
   private _status: SaveStatus;
 
   /**
    * Creates a new FileAnnotationHistory instance.
-   * @param {ImageFile} file - The file associated with the annotations.
-   * @param {number} cacheSize - The maximum number of history entries to retain.
+   * @param file - The file associated with the annotations.
+   * @param cacheSize - The maximum number of history entries to retain.
    */
-  constructor(file: ImageFile, cacheSize: number) {
+  constructor(file: MultipleViewImage, cacheSize: number) {
     this._file = file;
     this.cacheSize = cacheSize;
     this._status = SaveStatus.unedited;
@@ -28,9 +28,9 @@ export class FileAnnotationHistory<T extends Point2D> {
 
   /**
    * Gets the associated file.
-   * @returns {File} - The file associated with the annotations.
+   * @returns - The file associated with the annotations.
    */
-  get file(): ImageFile {
+  get file(): MultipleViewImage {
     return this._file;
   }
 

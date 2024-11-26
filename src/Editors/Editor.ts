@@ -1,6 +1,6 @@
 import $ from 'jquery';
-import type { ImageFile } from '@/imageFile';
 import { AnnotationTool } from '@/enums/annotationTool';
+import { imageFromFile } from '@/util/imageFromFile';
 
 export abstract class Editor {
   protected static canvas: HTMLCanvasElement;
@@ -20,6 +20,26 @@ export abstract class Editor {
 
   protected constructor() {
     Editor.add(this);
+    Editor.image.onload = () => {
+      if (Editor.image.width === 0) {
+        console.log('Tried to load image with 0 width');
+        return;
+      }
+      if (Editor.image.height === 0) {
+        console.log('Tried to load image with 0 height');
+        return;
+      }
+      // on success reset global zoom and pan
+      Editor.zoomScale = 1;
+      Editor.offsetX = 0;
+      Editor.offsetY = 0;
+
+      return;
+    };
+    Editor.image.onerror = (e) => {
+      console.error('Error loading image', e);
+      return;
+    };
   }
 
   protected static add(editor: Editor) {
@@ -49,27 +69,9 @@ export abstract class Editor {
     };
   }
 
-  public static async setBackgroundSource(source: ImageFile): Promise<void> {
-    return new Promise<void>((resolve, reject) => {
-      Editor.image.src = source.html;
-      Editor.image.onload = () => {
-        if (Editor.image.width === 0) {
-          reject(new Error('Image loaded with width 0.'));
-        }
-        if (Editor.image.height === 0) {
-          reject(new Error('Image loaded with height 0.'));
-        }
-        // on success reset global zoom and pan
-        Editor.zoomScale = 1;
-        Editor.offsetX = 0;
-        Editor.offsetY = 0;
-
-        resolve();
-      };
-      Editor.image.onerror = (e) => {
-        console.error('Error loading image', e);
-        reject(new Error('Failed to load image.'));
-      };
+  public static async setBackgroundSource(source: File) {
+    imageFromFile(source).then((r) => {
+      Editor.image.src = r;
     });
   }
 

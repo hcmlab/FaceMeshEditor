@@ -1,45 +1,35 @@
 import { test, expect, beforeEach } from 'vitest';
 import { createPinia, setActivePinia } from 'pinia';
-import { Graph } from '../../graph/graph';
-import { ModelType } from '../../enums/modelType';
-import { Point2D } from '../../graph/point2d';
-import { type ModelApi } from '../../model/modelApi';
 import { useAnnotationHistoryStore } from '../annotationHistoryStore';
+import type { MultipleViewImage } from '../../components/ImageLoadModal.vue';
 
 beforeEach(() => {
   setActivePinia(createPinia());
 });
 
-class MockApi implements ModelApi<Point2D> {
-  async detect(_: File): Promise<Graph<Point2D> | null> {
-    return null;
-  }
-
-  type(): ModelType {
-    return ModelType.custom;
-  }
-
-  async uploadAnnotations(_: string): Promise<void | Response> {
-    return;
-  }
-}
-
-const mockFile = new File([''], 'mock.png', {
-  type: 'image/png'
-});
-
-const mockApi = new MockApi();
+const mockFile: MultipleViewImage = {
+  center: {
+    image: {
+      file: new File([''], 'mock.png', {
+        type: 'image/png'
+      })
+    },
+    mesh: []
+  },
+  left: null,
+  right: null
+};
 
 test('Test store is initially empty', async () => {
   const store = useAnnotationHistoryStore();
   expect(store.empty()).toEqual(true);
-  await store.add(mockFile, mockApi);
+  await store.add(mockFile);
   expect(store.empty()).toEqual(false);
 });
 
 test('Test adding', async () => {
   const store = useAnnotationHistoryStore();
-  await store.add(mockFile, mockApi);
+  await store.add(mockFile);
 
   expect(store.histories.length).toEqual(1);
   expect(store.selectedHistory).not.toBeNull();
@@ -47,12 +37,9 @@ test('Test adding', async () => {
 
 test('Test find function', async () => {
   const store = useAnnotationHistoryStore();
-  const mockFile = new File([''], 'mock.png', {
-    type: 'image/png'
-  });
-  await store.add(mockFile, mockApi);
+  await store.add(mockFile);
 
-  const found = store.find('mock.png', store.histories[0].file.sha);
+  const found = store.find('mock.png', store.histories[0].file.center.image.sha);
   expect(found).toEqual(store.selectedHistory);
 });
 

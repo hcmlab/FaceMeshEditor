@@ -1,6 +1,9 @@
+import { FaceLandmarker, type NormalizedLandmark } from '@mediapipe/tasks-vision';
 import { Point2D } from './point2d';
 import type { ModelApi } from '@/model/modelApi';
 import type { ImageFile } from '@/imageFile';
+import { findNeighbourPointIds } from '@/graph/face_landmarks_features';
+import { Point3D } from '@/graph/point3d';
 
 /**
  * Represents a graph of points in a 2D space.
@@ -55,6 +58,25 @@ export class Graph<P extends Point2D> {
         return Object.assign(point, dict);
       })
     );
+  }
+
+  static fromMesh<P extends Point2D>(mesh: NormalizedLandmark[]): Graph<P> {
+    const points: P[] = mesh
+      .map((dict, idx) => {
+        const ids = Array.from(
+          findNeighbourPointIds(idx, FaceLandmarker.FACE_LANDMARKS_TESSELATION, 1)
+        );
+        return new Point3D(idx, dict.x, dict.y, dict.z, ids);
+      })
+      .map((point) => point as unknown as P)
+      // filter out the iris markings
+      .filter((point) => {
+        return ![
+          ...FaceLandmarker.FACE_LANDMARKS_LEFT_IRIS.map((con) => con.start),
+          ...FaceLandmarker.FACE_LANDMARKS_RIGHT_IRIS.map((con) => con.start)
+        ].includes(point.id);
+      });
+    return new Graph<P>(points);
   }
 
   /**

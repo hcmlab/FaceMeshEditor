@@ -5,6 +5,7 @@
 import { Editor } from '@/Editors/Editor';
 import { AnnotationTool } from '@/enums/annotationTool';
 import { useAnnotationHistoryStore } from '@/stores/annotationHistoryStore';
+import { imageFromFile } from '@/util/imageFromFile';
 
 export class BackgroundDrawer extends Editor {
   private readonly annotationHistoryStore = useAnnotationHistoryStore();
@@ -16,7 +17,10 @@ export class BackgroundDrawer extends Editor {
       if (!this.annotationHistoryStore.selectedHistory) {
         return;
       }
-      Editor.image.src = this.annotationHistoryStore.selectedHistory.file.html;
+      if (!this.annotationHistoryStore.selectedHistory.file.center) return;
+      imageFromFile(this.annotationHistoryStore.selectedHistory.file.center.image.file).then(
+        (r) => (Editor.image.src = r)
+      );
     });
   }
 

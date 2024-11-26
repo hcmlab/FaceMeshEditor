@@ -3,6 +3,8 @@ import { ref, onMounted, watch, computed } from 'vue';
 import { SaveStatus } from '@/enums/saveStatus';
 import { FileAnnotationHistory } from '@/cache/fileAnnotationHistory';
 import { Point2D } from '@/graph/point2d';
+import { imageFromFile } from '@/util/imageFromFile';
+import type { MultipleViewImage } from '@/components/ImageLoadModal.vue';
 
 const props = defineProps({
   history: {
@@ -24,7 +26,10 @@ const image = new Image();
 
 onMounted(() => {
   image.onload = () => draw();
-  image.src = props.history.file.html;
+  if (!props.history.file.center) return;
+  imageFromFile(props.history.file.center?.image.file).then((r) => {
+    image.src = r;
+  });
 });
 
 const draw = () => {
@@ -77,9 +82,15 @@ let iconDescription = computed(() => {
 });
 
 watch(
-  () => props.history.file.html,
-  (newSrc) => {
-    image.src = newSrc;
+  () => props.history.file,
+  (newSrc: MultipleViewImage) => {
+    if (!newSrc.center) {
+      console.error('File render canceled');
+      return;
+    }
+    imageFromFile(newSrc.center?.image.file).then((r) => {
+      image.src = r;
+    });
   }
 );
 </script>

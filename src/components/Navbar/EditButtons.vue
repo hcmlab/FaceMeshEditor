@@ -25,7 +25,8 @@ function reset(): boolean {
 function runDetection() {
   const history = annotationHistoryStore.selectedHistory;
   if (!history) return;
-  modelStore.model?.detect(history.file).then((graph) => {
+  if (!history.file.center) return;
+  modelStore.model?.detect(history.file.center.image).then((graph) => {
     if (graph === null) {
       return;
     }
