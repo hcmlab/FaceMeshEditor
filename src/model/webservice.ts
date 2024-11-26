@@ -54,11 +54,11 @@ export class WebServiceModel implements ModelApi<Point2D> {
           return json['points'][0];
         })
         .then((landmarks) =>
-          landmarks.map((dict: { x: number; y: number }, idx: number) => {
+          landmarks.map((dict: { x: number; y: number; id: number }) => {
             const ids = Array.from(
-              findNeighbourPointIds(idx, FaceLandmarker.FACE_LANDMARKS_TESSELATION, 1)
+              findNeighbourPointIds(dict.id, FaceLandmarker.FACE_LANDMARKS_TESSELATION, 1)
             );
-            return new Point2D(idx, dict.x, dict.y, ids);
+            return new Point2D(dict.id, dict.x, dict.y, ids);
           })
         )
         .then((landmarks) => new Graph(landmarks))
