@@ -97,6 +97,7 @@ paths:
                 - file
       parameters:
         - name: user_id
+          required: true
           in: path
           schema:
             type: string
