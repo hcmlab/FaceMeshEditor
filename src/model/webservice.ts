@@ -27,10 +27,6 @@ export class WebServiceModel implements ModelApi<Point2D> {
     formData.append('file', imageFile.file);
 
     return getFingerprint().then(async (fingerprint) => {
-      if (typeof fingerprint !== 'string') {
-        fingerprint = fingerprint.hash.toString();
-      }
-
       const request: RequestInfo = new Request(this.url + '/detect?__id__=' + fingerprint, {
         method: 'POST',
         body: formData
@@ -76,11 +72,7 @@ export class WebServiceModel implements ModelApi<Point2D> {
 
     return getFingerprint().then(async (fingerprint) => {
       const json = JSON.parse(annotationsJson);
-      if (typeof fingerprint === 'string') {
-        json['__id__'] = fingerprint;
-      } else {
-        json['__id__'] = fingerprint.hash.toString();
-      }
+      json['__id__'] = fingerprint;
       const request: RequestInfo = new Request(this.url + '/annotations', {
         method: 'POST',
         headers: headers,
