@@ -6,21 +6,29 @@ import ThumbnailContainer from '@/components/ThumbnailContainer.vue';
 import { SaveStatus } from '@/enums/saveStatus';
 import { FileAnnotationHistory } from '@/cache/fileAnnotationHistory';
 import { Point2D } from '@/graph/point2d';
+import { useModelStore } from '@/stores/modelStore';
 
 const annotationHistoryStore = useAnnotationHistoryStore();
+const modelStore = useModelStore();
 const histories = ref(useAnnotationHistoryStore().histories);
 
 function selectThumbnail(file: ImageFile): void {
-  /* clicking to save */
   const oldHistory = annotationHistoryStore.selectedHistory;
+
+  /* clicking to save */
   if (
     oldHistory &&
     file.file.name === oldHistory.file.file.name &&
     oldHistory.status !== SaveStatus.unedited
   ) {
     oldHistory.status = SaveStatus.saved;
+    modelStore.model.uploadAnnotations({[file.file.name]: oldHistory.graphData}).catch(reason => {
+      console.error("Posting history failed: ", reason);
+    });
     return;
   }
+
+  /* other image selected */
   annotationHistoryStore.selectedHistory = annotationHistoryStore.find(file.file.name, file.sha);
 }
 </script>

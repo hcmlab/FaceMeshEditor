@@ -3,6 +3,18 @@ import { Graph } from '@/graph/graph';
 import { ImageFile } from '@/imageFile';
 import { SaveStatus } from '@/enums/saveStatus';
 
+export interface PointData {
+  deleted: boolean;
+  x: number;
+  y: number;
+  z?: number;
+  id: number;
+}
+export interface GraphData {
+  points?: PointData[][];
+  sha256?: string;
+}
+
 /**
  * Represents a history of annotations for a specific file.
  * Keeps track of changes made to a graph of points (e.g., annotations on an image).
@@ -10,17 +22,17 @@ import { SaveStatus } from '@/enums/saveStatus';
  */
 export class FileAnnotationHistory<T extends Point2D> {
   private readonly cacheSize: number;
-  private readonly history: Graph<T>[] = [];
+  private readonly _history: Graph<T>[] = [];
   private currentHistoryIndex: number = 0;
   private readonly _file: ImageFile;
   private _status: SaveStatus;
 
   /**
    * Creates a new FileAnnotationHistory instance.
-   * @param {ImageFile} file - The file associated with the annotations.
-   * @param {number} cacheSize - The maximum number of history entries to retain.
+   * @param file - The file associated with the annotations.
+   * @param cacheSize - The maximum number of history entries to retain. If 0 (default) any amount of data is kept
    */
-  constructor(file: ImageFile, cacheSize: number) {
+  constructor(file: ImageFile, cacheSize: number = 0) {
     this._file = file;
     this.cacheSize = cacheSize;
     this._status = SaveStatus.unedited;
@@ -42,6 +54,25 @@ export class FileAnnotationHistory<T extends Point2D> {
     this._status = value;
   }
 
+  protected get history() {
+    return this._history;
+  }
+
+  /**
+   * Returns the current history as a plain object.
+   * If the user used the "undo" feature, any states in the future will be ignored
+   */
+  protected get toDictArray(): PointData[][] {
+    return this._history.slice(0, this.currentHistoryIndex + 1).map((graph) => graph.toDictArray());
+  }
+
+  get graphData(): GraphData {
+    return {
+      points: this.toDictArray,
+      sha256: this.file.sha
+    };
+  }
+
   /**
    * Adds a new annotation item to the history.
    * @param {Graph<T>} item - The graph of points representing the annotation.
@@ -49,14 +80,28 @@ export class FileAnnotationHistory<T extends Point2D> {
   add(item: Graph<T>): void {
     if (this.currentHistoryIndex + 1 < this.history.length) {
       // Delete history stack when moved back and changed something
-      this.history.length = this.currentHistoryIndex + 1;
+      this._history.length = this.currentHistoryIndex + 1;
     }
-    if (this.cacheSize === this.history.length) {
+    // only act if a size is provided see Issue #70
+    if (this.cacheSize !== 0 && this.cacheSize === this._history.length) {
       // Remove the first item as it is too old and cache limit is reached
-      this.history.shift();
+      this._history.shift();
     }
-    this.history.push(item.clone());
-    this.currentHistoryIndex = this.history.length - 1;
+    this._history.push(item.clone());
+    this.currentHistoryIndex = this._history.length - 1;
+  }
+
+  /**
+   * Merges an array of Graph items into the current graph instance.
+   *
+   * @param items - An array of Graph items to be merged.
+   */
+  merge(items: Graph<T>[]) {
+    items.forEach((item) => this.add(item));
+  }
+
+  append(other: FileAnnotationHistory<T>) {
+    this.merge(other.history);
   }
 
   /**
@@ -66,8 +111,11 @@ export class FileAnnotationHistory<T extends Point2D> {
   setIndex(index: number): void {
     if (index < 0) {
       index = 0;
-    } else if (index >= this.history.length) {
-      index = this.history.length - 1;
+    } else if (index >= this._history.length) {
+      index = this._history.length - 1;
+    }
+    if (this.currentHistoryIndex !== index) {
+      this._status = SaveStatus.edited;
     }
     this.currentHistoryIndex = index;
   }
@@ -92,7 +140,7 @@ export class FileAnnotationHistory<T extends Point2D> {
    */
   get(): null | Graph<T> {
     if (!this.isEmpty()) {
-      return this.history[this.currentHistoryIndex];
+      return this._history[this.currentHistoryIndex];
     }
     return null;
   }
@@ -102,14 +150,14 @@ export class FileAnnotationHistory<T extends Point2D> {
    * @returns {boolean} - True if empty, false otherwise.
    */
   isEmpty(): boolean {
-    return this.history.length === 0;
+    return this._history.length === 0;
   }
 
   /**
    * Clears the entire history.
    */
   clear() {
-    this.history.length = 0;
+    this._history.length = 0;
     this.currentHistoryIndex = 0;
     this._status = SaveStatus.unedited;
   }
@@ -119,5 +167,31 @@ export class FileAnnotationHistory<T extends Point2D> {
    */
   markAsSent(): void {
     this._status = SaveStatus.unedited;
+  }
+
+  static fromJson<T extends Point2D>(
+    json: GraphData,
+    file: ImageFile,
+    newObject: (id: number) => T
+  ): FileAnnotationHistory<T> | null {
+    const h = new FileAnnotationHistory<T>(file);
+    // skip files without annotation
+    if (Object.keys(json).length == 0) {
+      return null;
+    }
+    const sha = json.sha256;
+    if (!sha) return null;
+    if (sha !== file.sha) return null; // Todo: notify user
+    let graphs = json.points;
+    if (!graphs) return null;
+    /* backward compatibility if the file contains the old Points2D[] format instead of Points2D[][] */
+    if (!Array.isArray(graphs[0])) {
+      graphs = [graphs as unknown as PointData[]];
+    }
+    graphs.forEach((unparsedGraph) => {
+      const graph: Graph<T> = Graph.fromJson(unparsedGraph, newObject);
+      h.add(graph);
+    });
+    return h;
   }
 }

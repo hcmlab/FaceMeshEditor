@@ -1,6 +1,7 @@
 import { Point2D } from './point2d';
 import type { ModelApi } from '@/model/modelApi';
 import type { ImageFile } from '@/imageFile';
+import type { PointData } from '@/cache/fileAnnotationHistory';
 
 /**
  * Represents a graph of points in a 2D space.
@@ -21,7 +22,6 @@ export class Graph<P extends Point2D> {
 
   /**
    * Gets the array of points in the graph.
-   * @returns {P[]} - An array of points.
    */
   get points(): P[] {
     return this._points;
@@ -41,12 +41,15 @@ export class Graph<P extends Point2D> {
   }
 
   /**
-   * Creates a Graph instance from a JSON object.
-   * @param {P[]} jsonObject - An array of point objects in JSON format.
-   * @param {() => P} newObject - A function to create a new point object.
-   * @returns {Graph<P>} - A new Graph instance.
+   * Creates a Graph instance from a JSON object. Expects to be verified
+   * @param jsonObject - An array of point objects in JSON format.
+   * @param newObject - A function to create a new point object. Should call the new constructor and load the id.
+   * @returns - A new Graph instance.
    */
-  static fromJson<P extends Point2D>(jsonObject: P[], newObject: (id: number) => P): Graph<P> {
+  static fromJson<P extends Point2D>(
+    jsonObject: PointData[],
+    newObject: (id: number) => P
+  ): Graph<P> {
     return new Graph<P>(
       jsonObject.map((dict) => {
         const point = newObject(dict['id']);
@@ -96,7 +99,7 @@ export class Graph<P extends Point2D> {
    * Converts the graph to an array of dictionaries.
    * @returns - An array of dictionaries representing the points.
    */
-  toDictArray(): { deleted: boolean; x: number; y: number; id: number }[] {
+  toDictArray(): PointData[] {
     return this.points.map((point) => point.toDict());
   }
 

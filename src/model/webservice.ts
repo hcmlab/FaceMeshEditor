@@ -1,12 +1,10 @@
-import { FaceLandmarker } from '@mediapipe/tasks-vision';
 import { getFingerprint } from '@thumbmarkjs/thumbmarkjs';
-import type { ModelApi } from './modelApi';
+import type { AnnotationData, ModelApi } from './modelApi';
 import { Point2D } from '@/graph/point2d';
-import { Graph } from '@/graph/graph';
-import { findNeighbourPointIds } from '@/graph/face_landmarks_features';
 import { ModelType } from '@/enums/modelType';
 import { urlError } from '@/enums/urlError';
 import type { ImageFile } from '@/imageFile';
+import { FileAnnotationHistory, type GraphData } from '@/cache/fileAnnotationHistory';
 
 /**
  * Represents a model using a WebService for face landmark detection.
@@ -22,7 +20,7 @@ export class WebServiceModel implements ModelApi<Point2D> {
     this.url = url;
   }
 
-  async detect(imageFile: ImageFile): Promise<Graph<Point2D> | null> {
+  async detect(imageFile: ImageFile): Promise<FileAnnotationHistory<Point2D> | null> {
     const formData: FormData = new FormData();
     formData.append('file', imageFile.file);
 
@@ -38,26 +36,9 @@ export class WebServiceModel implements ModelApi<Point2D> {
           }
           return res.json();
         })
-        .then(async (json) => {
-          if (json['sha256'] !== imageFile.sha) {
-            throw new Error(
-              `sha256 didn't match present file was ${json['sha256']},  is , ${imageFile.sha}`
-            );
-          }
-          if (!json['points']) {
-            throw new Error("The request didn't return any point data.");
-          }
-          return json['points'][0];
-        })
-        .then((landmarks) =>
-          landmarks.map((dict: { x: number; y: number; id: number }) => {
-            const ids = Array.from(
-              findNeighbourPointIds(dict.id, FaceLandmarker.FACE_LANDMARKS_TESSELATION, 1)
-            );
-            return new Point2D(dict.id, dict.x, dict.y, ids);
-          })
+        .then(async (json: GraphData) =>
+          FileAnnotationHistory.fromJson(json, imageFile, (id) => new Point2D(id, 0, 0, []))
         )
-        .then((landmarks) => new Graph(landmarks))
         .catch((err: Error) => {
           console.error(err.message);
           return null;
@@ -65,18 +46,20 @@ export class WebServiceModel implements ModelApi<Point2D> {
     });
   }
 
-  async uploadAnnotations(annotationsJson: string): Promise<Response> {
+  async uploadAnnotations(annotations: AnnotationData): Promise<Response> {
     const headers: Headers = new Headers();
     headers.set('Content-Type', 'application/json');
     headers.set('Accept', 'application/json');
 
     return getFingerprint().then(async (fingerprint) => {
-      const json = JSON.parse(annotationsJson);
-      json['__id__'] = fingerprint;
+      annotations = {
+        __id__: fingerprint,
+        ...annotations
+      };
       const request: RequestInfo = new Request(this.url + '/annotations', {
         method: 'POST',
         headers: headers,
-        body: JSON.stringify(json)
+        body: JSON.stringify(annotations)
       });
 
       return fetch(request);

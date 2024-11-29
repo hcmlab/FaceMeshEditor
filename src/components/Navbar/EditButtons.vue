@@ -25,11 +25,11 @@ function reset(): boolean {
 function runDetection() {
   const history = annotationHistoryStore.selectedHistory;
   if (!history) return;
-  modelStore.model?.detect(history.file).then((graph) => {
-    if (graph === null) {
+  modelStore.model?.detect(history.file).then((graphs) => {
+    if (graphs === null) {
       return;
     }
-    history.add(graph);
+    history.append(graphs);
   });
 }
 </script>
