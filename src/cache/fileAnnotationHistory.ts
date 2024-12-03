@@ -180,8 +180,8 @@ export class FileAnnotationHistory<T extends Point2D> {
       return null;
     }
     const sha = json.sha256;
-    if (!sha) return null;
-    if (sha !== file.sha) return null; // Todo: notify user
+    if (!sha) throw new Error('Missing from API!');
+    if (sha !== file.sha) throw new Error('Mismatching sha sent from API!');
     let graphs = json.points;
     if (!graphs) return null;
     /* backward compatibility if the file contains the old Points2D[] format instead of Points2D[][] */
