@@ -60,12 +60,15 @@ export class FileAnnotationHistory<T extends Point2D> {
 
   /**
    * Returns the current history as a plain object.
-   * If the user used the "undo" feature, any states in the future will be ignored
+   * If the user used the "undo" feature, any states in the "future" will be ignored
    */
   protected get toDictArray(): PointData[][] {
     return this._history.slice(0, this.currentHistoryIndex + 1).map((graph) => graph.toDictArray());
   }
 
+  /**
+   * returns the serialized data of the history, included file sha.
+   */
   get graphData(): GraphData {
     return {
       points: this.toDictArray,
@@ -183,7 +186,7 @@ export class FileAnnotationHistory<T extends Point2D> {
     if (!sha) throw new Error('Missing from API!');
     if (sha !== file.sha) throw new Error('Mismatching sha sent from API!');
     let graphs = json.points;
-    if (!graphs) return null;
+    if (!graphs) throw new Error("Didn't get any points from API!");
     /* backward compatibility if the file contains the old Points2D[] format instead of Points2D[][] */
     if (!Array.isArray(graphs[0])) {
       graphs = [graphs as unknown as PointData[]];

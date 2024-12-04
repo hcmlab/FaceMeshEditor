@@ -29,6 +29,7 @@ function runDetection() {
     if (graphs === null) {
       return;
     }
+    history.clear();
     history.append(graphs);
   });
 }
