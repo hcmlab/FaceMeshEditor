@@ -54,7 +54,6 @@
     "@floating-ui/vue": "^1.1.4",
     "@playwright/test": "^1.44.1",
     "@rushstack/eslint-patch": "^1.8.0",
-    "@sindresorhus/tsconfig": "^5.0.0",
     "@tsconfig/node20": "^20.1.4",
     "@types/bootstrap": "^5.2.10",
     "@types/jquery": "^3.5.32",
