@@ -6,18 +6,28 @@ import { calculateSHA } from '@/util/sha';
 import { imageFromFile } from '@/util/imageFromFile';
 
 export class ImageFile {
-  readonly file: File;
+  readonly filePointer: File;
   sha: string = '';
   html: string = '';
 
   static async create(file: File) {
-    const sha = await calculateSHA(file);
-    const html = await imageFromFile(file);
-    return new ImageFile(file, sha, html);
+    const sha = calculateSHA(file).then(
+      (sha) => sha,
+      (error) => {
+        throw new Error("Failed to calculate sha for image: '" + file.name + "': " + error);
+      }
+    );
+    const html = imageFromFile(file).then(
+      (html) => html,
+      (error) => {
+        throw new Error('Failed to parse the image to base64: ' + error);
+      }
+    );
+    return new ImageFile(file, await sha, await html);
   }
 
   private constructor(file: File, sha: string, html: string) {
-    this.file = file;
+    this.filePointer = file;
     this.sha = sha;
     this.html = html;
   }

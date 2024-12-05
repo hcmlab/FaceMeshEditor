@@ -22,8 +22,7 @@
     "deploy": "run-s deploy:*",
     "deploy:build": "vite build",
     "deploy:publish": "gh-pages -d dist -u \"github-actions-bot <support+actions@github.com>\"",
-    "prepare": "husky",
-    "postinstall": "cp ./node_modules/@mediapipe/tasks-vision/vision_bundle.mjs.map ./node_modules/@mediapipe/tasks-vision/vision_bundle_mjs.js.map"
+    "prepare": "husky"
   },
   "engines": {
     "node": "^18.18.2"

@@ -3,13 +3,14 @@ import {
   type FaceLandmarkerResult,
   FilesetResolver
 } from '@mediapipe/tasks-vision';
-import type { ModelApi } from './modelApi';
+import type { AnnotationData, ModelApi } from './modelApi';
 import { findNeighbourPointIds } from '@/graph/face_landmarks_features';
 import { Graph } from '@/graph/graph';
 import { Point2D } from '@/graph/point2d';
 import { Point3D } from '@/graph/point3d';
 import { ModelType } from '@/enums/modelType';
 import type { ImageFile } from '@/imageFile';
+import { FileAnnotationHistory } from '@/cache/fileAnnotationHistory';
 
 /**
  * Represents a model using MediaPipe for face landmark detection.
@@ -42,19 +43,23 @@ export class MediapipeModel implements ModelApi<Point2D> {
       .then((landmarker) => (this.meshLandmarker = landmarker));
   }
 
-  async detect(imageFile: ImageFile): Promise<Graph<Point2D>> {
-    return new Promise<Graph<Point2D>>((resolve, reject) => {
+  async detect(imageFile: ImageFile): Promise<FileAnnotationHistory<Point2D>> {
+    return new Promise<FileAnnotationHistory<Point2D>>((resolve, reject) => {
       const image = new Image();
       image.onload = (_) => {
         const result = this.meshLandmarker?.detect(image);
         if (!result) {
           reject(new Error('Face(s) could not be detected!'));
+          return;
         }
-        const res = MediapipeModel.processResult(result as FaceLandmarkerResult);
-        if (!res) {
+        const graph = MediapipeModel.processResult(result as FaceLandmarkerResult);
+        if (!graph) {
           reject(new Error('Face(s) could not be detected!'));
+          return;
         }
-        resolve(res as Graph<Point2D>);
+        const h = new FileAnnotationHistory<Point2D>(imageFile);
+        h.add(graph);
+        resolve(h);
       };
       image.src = imageFile.html;
     });
@@ -88,7 +93,7 @@ export class MediapipeModel implements ModelApi<Point2D> {
     return null;
   }
 
-  async uploadAnnotations(_: string): Promise<void | Response> {
+  async uploadAnnotations(_: AnnotationData): Promise<void | Response> {
     return Promise.resolve();
   }
 

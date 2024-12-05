@@ -97,34 +97,18 @@ export class FaceMeshEditor extends Editor {
   private drawPoint(point: Point2D): void {
     if (point && !point.deleted) {
       const projectedPoint = Perspective2D.project(Editor.image, point);
-      if (point.hovered) {
-        Editor.ctx.beginPath();
-        Editor.ctx.fillStyle = COLOR_POINT_HOVERED;
-        Editor.ctx.arc(
+
+      if (point.hovered || point.selected) {
+        const color = point.hovered ? COLOR_POINT_HOVERED : COLOR_POINT_SELECTED;
+        Editor.drawCircleAtPoint(
+          Editor.ctx,
+          color,
           projectedPoint.x,
           projectedPoint.y,
-          POINT_EXTENDED_WIDTH / Editor.zoomScale,
-          0,
-          Math.PI * 2
+          POINT_EXTENDED_WIDTH / Editor.zoomScale
         );
-        /* Draws the ID of the point next to it. Useful for debugging
-        Editor.ctx.font = 20 / Editor.zoomScale + 'px serif';
-        Editor.ctx.fillText(String(point.id), projectedPoint.x, projectedPoint.y);
-        */
-        Editor.ctx.fill();
       }
-      if (point.selected) {
-        Editor.ctx.beginPath();
-        Editor.ctx.fillStyle = COLOR_POINT_SELECTED;
-        Editor.ctx.arc(
-          projectedPoint.x,
-          projectedPoint.y,
-          POINT_EXTENDED_WIDTH / Editor.zoomScale,
-          0,
-          Math.PI * 2
-        );
-        Editor.ctx.fill();
-      }
+
       Editor.ctx.beginPath();
       Editor.ctx.fillStyle = COLOR_POINT_DEFAULT;
       Editor.ctx.arc(
