@@ -37,7 +37,11 @@ export class WebServiceModel implements ModelApi<Point2D> {
           return res.json();
         })
         .then((json: GraphData) =>
-          FileAnnotationHistory.fromJson(json, imageFile, (id) => new Point2D(id, 0, 0, []))
+          FileAnnotationHistory.fromJson(
+            json,
+            imageFile,
+            (id, neighbors) => new Point2D(id, 0, 0, neighbors)
+          )
         )
         .catch((err: Error) => {
           console.error(err.message);

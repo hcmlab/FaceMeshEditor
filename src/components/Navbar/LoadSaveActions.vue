@@ -78,7 +78,7 @@ onMounted(() => {
           // Todo: inform the user the data cant be parsed for this image
           return;
         }
-        let h = FileAnnotationHistory.fromJson(rawData, history.file,(id) => new Point2D(id, 0, 0, []));
+        let h = FileAnnotationHistory.fromJson(rawData, history.file,(id, neighbors) => new Point2D(id, 0, 0, neighbors));
         if (!h) {
           // Todo: error popup
           return;

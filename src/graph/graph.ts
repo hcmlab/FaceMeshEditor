@@ -1,7 +1,9 @@
+import { FaceLandmarker } from '@mediapipe/tasks-vision';
 import { Point2D } from './point2d';
 import type { ModelApi } from '@/model/modelApi';
 import type { ImageFile } from '@/imageFile';
 import type { PointData } from '@/cache/fileAnnotationHistory';
+import { findNeighbourPointIds } from '@/graph/face_landmarks_features';
 
 /**
  * Represents a graph of points in a 2D space.
@@ -48,11 +50,14 @@ export class Graph<P extends Point2D> {
    */
   static fromJson<P extends Point2D>(
     jsonObject: PointData[],
-    newObject: (id: number) => P
+    newObject: (id: number, neighbors: number[]) => P
   ): Graph<P> {
     return new Graph<P>(
       jsonObject.map((dict) => {
-        const point = newObject(dict['id']);
+        const point = newObject(
+          dict.id,
+          findNeighbourPointIds(dict.id, FaceLandmarker.FACE_LANDMARKS_TESSELATION, 1)
+        );
         // @ts-expect-error: built in method uses readonly
         delete dict['id'];
         return Object.assign(point, dict);

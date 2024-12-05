@@ -182,7 +182,7 @@ export class FileAnnotationHistory<T extends Point2D> {
   static fromJson<T extends Point2D>(
     json: GraphData,
     file: ImageFile,
-    newObject: (id: number) => T
+    newObject: (id: number, neighbors: number[]) => T
   ): FileAnnotationHistory<T> | null {
     const h = new FileAnnotationHistory<T>(file);
     // skip files without annotation
