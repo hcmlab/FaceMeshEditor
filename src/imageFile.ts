@@ -6,7 +6,7 @@ import { calculateSHA } from '@/util/sha';
 import { imageFromFile } from '@/util/imageFromFile';
 
 export class ImageFile {
-  readonly file: File;
+  readonly filePointer: File;
   sha: string = '';
   html: string = '';
 
@@ -27,7 +27,7 @@ export class ImageFile {
   }
 
   private constructor(file: File, sha: string, html: string) {
-    this.file = file;
+    this.filePointer = file;
     this.sha = sha;
     this.html = html;
   }

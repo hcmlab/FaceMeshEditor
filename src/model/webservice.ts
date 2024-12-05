@@ -22,7 +22,7 @@ export class WebServiceModel implements ModelApi<Point2D> {
 
   async detect(imageFile: ImageFile): Promise<FileAnnotationHistory<Point2D> | null> {
     const formData: FormData = new FormData();
-    formData.append('file', imageFile.file);
+    formData.append('file', imageFile.filePointer);
 
     return getFingerprint().then(async (fingerprint) => {
       const request: RequestInfo = new Request(this.url + '/detect?__id__=' + fingerprint, {

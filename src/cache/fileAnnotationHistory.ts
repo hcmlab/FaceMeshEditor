@@ -22,7 +22,7 @@ export interface GraphData {
  */
 export class FileAnnotationHistory<T extends Point2D> {
   private readonly cacheSize: number;
-  private readonly _history: Graph<T>[] = [];
+  private _history: Graph<T>[] = [];
   private currentHistoryIndex: number = 0;
   private readonly _file: ImageFile;
   private _status: SaveStatus;
@@ -96,6 +96,7 @@ export class FileAnnotationHistory<T extends Point2D> {
 
   /**
    * Merges an array of Graph items into the current graph instance.
+   * Expects the latest item at the last index (-1)
    *
    * @param items - An array of Graph items to be merged.
    */
@@ -160,7 +161,7 @@ export class FileAnnotationHistory<T extends Point2D> {
    * Clears the entire history.
    */
   clear() {
-    this._history.length = 0;
+    this._history = [];
     this.currentHistoryIndex = 0;
     this._status = SaveStatus.unedited;
   }
@@ -172,6 +173,12 @@ export class FileAnnotationHistory<T extends Point2D> {
     this._status = SaveStatus.unedited;
   }
 
+  /**
+   * Parses the provided parsed json data into a history. Expects the latest element to be at the end of the array.
+   * @param json the parsed data
+   * @param file the image file, to check the sha
+   * @param newObject a function to create a single Point, used to mitigate the templating.
+   */
   static fromJson<T extends Point2D>(
     json: GraphData,
     file: ImageFile,

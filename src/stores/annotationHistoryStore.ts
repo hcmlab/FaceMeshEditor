@@ -39,7 +39,7 @@ export const useAnnotationHistoryStore = defineStore({
     },
     find(fileName: string, sha256: string): FileAnnotationHistory<Point2D> {
       return this.histories.find(
-        (history) => history.file.file.name === fileName && history.file.sha === sha256
+        (history) => history.file.filePointer.name === fileName && history.file.sha === sha256
       ) as FileAnnotationHistory<Point2D>;
     },
     /**
@@ -68,7 +68,7 @@ export const useAnnotationHistoryStore = defineStore({
         const graph = h.graphData;
 
         if (graph) {
-          result[h.file.file.name] = graph;
+          result[h.file.filePointer.name] = graph;
         }
         h.markAsSent();
       });

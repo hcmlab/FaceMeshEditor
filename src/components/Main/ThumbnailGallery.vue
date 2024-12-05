@@ -18,18 +18,23 @@ function selectThumbnail(file: ImageFile): void {
   /* clicking to save */
   if (
     oldHistory &&
-    file.file.name === oldHistory.file.file.name &&
+    file.filePointer.name === oldHistory.file.filePointer.name &&
     oldHistory.status !== SaveStatus.unedited
   ) {
     oldHistory.status = SaveStatus.saved;
-    modelStore.model.uploadAnnotations({[file.file.name]: oldHistory.graphData}).catch(reason => {
-      console.error("Posting history failed: ", reason);
-    });
+    modelStore.model
+      .uploadAnnotations({ [file.filePointer.name]: oldHistory.graphData })
+      .catch((reason) => {
+        console.error('Posting history failed: ', reason);
+      });
     return;
   }
 
   /* other image selected */
-  annotationHistoryStore.selectedHistory = annotationHistoryStore.find(file.file.name, file.sha);
+  annotationHistoryStore.selectedHistory = annotationHistoryStore.find(
+    file.filePointer.name,
+    file.sha
+  );
 }
 </script>
 

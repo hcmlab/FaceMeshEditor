@@ -64,6 +64,7 @@ onMounted(() => {
       const parsedData: AnnotationData = JSON.parse(reader.result as string);
       Object.keys(parsedData).forEach((filename) => {
         const rawData = parsedData[filename];
+        // cancel for additional keys that don't describe graphs
         if (typeof rawData === 'string') {
           return;
         }
@@ -82,6 +83,7 @@ onMounted(() => {
           // Todo: error popup
           return;
         }
+        history.clear();
         history.append(h);
       });
     };
