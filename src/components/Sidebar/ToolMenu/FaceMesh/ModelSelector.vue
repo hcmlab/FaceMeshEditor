@@ -37,7 +37,7 @@ function setModel(model: ModelType): boolean {
     case ModelType.custom: {
       btnCustom.checked = true;
       const inputBox = $('#modelurl');
-      const url = String(inputBox.val());
+      const url = String(inputBox.val()).trim();
 
       WebServiceModel.verifyUrl(url).then((error) => {
         const errorText = $('#urlErrorText');
