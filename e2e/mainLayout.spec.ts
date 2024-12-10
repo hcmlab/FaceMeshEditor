@@ -1,5 +1,4 @@
 import { test, expect } from '@playwright/test';
-import { i } from 'vite/dist/node/types.d-aGj9QkWt.js';
 
 test.describe('check title and main page layout', () => {
   test('visits the app root url and checks elements layout', async ({ page }) => {

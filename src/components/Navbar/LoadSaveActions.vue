@@ -1,165 +1,102 @@
 <script setup lang="ts">
-import { computed, onBeforeUnmount } from 'vue';
+import { onBeforeUnmount, onMounted, ref } from 'vue';
 import { Point2D } from '@/graph/point2d';
-import { Graph } from '@/graph/graph';
-import { SaveStatus } from '@/enums/saveStatus';
 import { ModelType } from '@/enums/modelType';
 import { useModelStore } from '@/stores/modelStore';
 import { useAnnotationHistoryStore } from '@/stores/annotationHistoryStore';
 import ButtonWithIcon from '@/components/MenuItems/ButtonWithIcon.vue';
+import getFormattedTimestamp from '@/util/formattedTimestamp';
+import { FileAnnotationHistory } from '@/cache/fileAnnotationHistory';
+import type { AnnotationData } from '@/model/modelApi';
 
 const modelStore = useModelStore();
 const annotationHistoryStore = useAnnotationHistoryStore();
 
-const showSendAnno = computed(
-  () =>
-    annotationHistoryStore.getUnsaved().length > 0 && modelStore.model.type() === ModelType.custom
-);
-
-function handleSendAnno(): void {
-  sendAnnotation();
-}
+const imageInput = ref();
+const annotationInput = ref();
 
 function openImage(): void {
-  const input: HTMLInputElement = document.createElement('input');
-  input.id = 'image-input';
-  input.type = 'file';
-  input.accept = 'image/png, image/jpeg, image/jpg';
-  input.multiple = true;
-  input.onchange = () => {
-    if (input.files) {
-      const files: File[] = Array.from(input.files);
+  imageInput.value.click();
+}
+
+function openAnnotation() {
+  annotationInput.value.click();
+}
+
+function saveAnnotation(download: boolean): void {
+  if (annotationHistoryStore.empty()) {
+    return;
+  }
+
+  const result = annotationHistoryStore.collectAnnotations();
+  if (Object.keys(result).length <= 0) {
+    return;
+  }
+
+  modelStore.model.uploadAnnotations(result);
+
+  if (!download) return;
+
+  const dataStr: string = 'data:text/json;charset=utf-8,' + encodeURIComponent(JSON.stringify(result));
+  const a: HTMLAnchorElement = document.createElement('a');
+  a.id = 'download-all';
+  a.href = dataStr;
+  a.download = 'face_mesh_annotations_' + getFormattedTimestamp() + '.json';
+  a.click();
+}
+
+onMounted(() => {
+  imageInput.value.onchange = () => {
+    if (imageInput.value.files) {
+      const files: File[] = Array.from(imageInput.value.files);
       files.forEach((f) => {
         annotationHistoryStore.add(f, modelStore.model);
       });
     }
   };
-  input.click();
-}
 
-function openAnnotation(): boolean {
-  const input: HTMLInputElement = document.createElement('input');
-  input.id = 'annotation-input';
-  input.type = 'file';
-  input.accept = '.json,application/json';
-  input.onchange = () => {
-    if (!input.files) return;
-    if (input.files.length <= 0) return;
-    const annotationFile: File = input.files[0];
+  annotationInput.value.onchange = () => {
+    if (!annotationInput.value.files) return;
+    if (annotationInput.value.files.length <= 0) return;
+    const annotationFile: File = annotationInput.value.files[0];
     const reader: FileReader = new FileReader();
     reader.onload = (_) => {
-      type Point2DArray = {
-        [key: string]: {
-          points: Point2D[][];
-          sha256: string;
-        };
-      };
-      const parsedData: Point2DArray = JSON.parse(reader.result as string);
+      const parsedData: AnnotationData = JSON.parse(reader.result as string);
       Object.keys(parsedData).forEach((filename) => {
-        const workingImage = parsedData[filename];
-        // skip files without annotation
-        if (Object.keys(workingImage).length == 0) {
+        const rawData = parsedData[filename];
+        // cancel for additional keys that don't describe graphs
+        if (typeof rawData === 'string') {
           return;
         }
-        const history = annotationHistoryStore.find(filename, workingImage['sha256']);
+        const sha = rawData.sha256;
+        if (!sha) {
+          // Todo: error popup
+          return;
+        }
+        const history = annotationHistoryStore.find(filename, sha);
         if (!history) {
+          // Todo: inform the user the data cant be parsed for this image
           return;
         }
-        /* backward compatibility if the file contains the old Points2D[] format instead of Points2D[][] */
-        if (!Array.isArray(workingImage['points'][0])) {
-          workingImage['points'] = [workingImage['points'] as unknown as Point2D[]];
+        let h = FileAnnotationHistory.fromJson(rawData, history.file,(id, neighbors) => new Point2D(id, 0, 0, neighbors));
+        if (!h) {
+          // Todo: error popup
+          return;
         }
-        workingImage['points'].forEach((unparsedGraph) => {
-          const graph: Graph<Point2D> = Graph.fromJson(
-            unparsedGraph,
-            (id) => new Point2D(id, 0, 0, [])
-          );
-          history.add(graph);
-        });
+        history.clear();
+        history.append(h);
       });
     };
     reader.readAsText(annotationFile);
   };
-  input.click();
-  return false;
-}
-
-function collectAnnotation() {
-  interface FileObj {
-    points?: { deleted: boolean; x: number; y: number; id: number }[][];
-    sha256?: string;
-  }
-
-  interface ResultObj {
-    [key: string]: FileObj;
-  }
-
-  const result: ResultObj = {};
-  annotationHistoryStore.histories.forEach((h) => {
-    if (h.status !== SaveStatus.saved) {
-      return;
-    }
-    h.markAsSent();
-    const graph = h.get();
-    const fileName = h.file.file.name;
-
-    result[fileName] = {};
-    if (graph) {
-      result[fileName]['points'] = [graph.toDictArray()];
-      result[fileName]['sha256'] = h.file.sha;
-    }
-  });
-  return result;
-}
-
-function saveAnnotation(): void {
-  if (annotationHistoryStore.empty()) {
-    return;
-  }
-
-  const result = collectAnnotation();
-  if (Object.keys(result).length <= 0) {
-    return;
-  }
-
-  const jsonData: string = JSON.stringify(result);
-  modelStore.model.uploadAnnotations(jsonData);
-  const dataStr: string = 'data:text/json;charset=utf-8,' + encodeURIComponent(jsonData);
-  const a: HTMLAnchorElement = document.createElement('a');
-  a.id = 'download-all';
-  a.href = dataStr;
-  a.download = Date.now() + '_face_mesh_annotations.json';
-  a.click();
-}
-
-function sendAnnotation(): void {
-  if (annotationHistoryStore.empty()) {
-    return;
-  }
-
-  const result = collectAnnotation();
-  if (Object.keys(result).length <= 0) {
-    return;
-  }
-
-  const jsonData: string = JSON.stringify(result);
-  modelStore.model.uploadAnnotations(jsonData);
-
-  Object.keys(result).forEach((fileName) => {
-    const hash = result[fileName]['sha256'];
-    if (!hash) return;
-    const history = annotationHistoryStore.find(fileName, hash);
-    if (!history) return;
-    history.status = SaveStatus.saved;
-  });
-}
+})
 
 // @ts-expect-error the error complains that not all code paths return something.
 // This is completely intended. Since returning anything triggers a popup
 onBeforeUnmount(() => {
   if (annotationHistoryStore.getUnsaved()) {
     if (modelStore.model.type() === ModelType.custom) {
-      sendAnnotation();
+      saveAnnotation(false);
     } else {
       return '?';
     }
@@ -168,6 +105,8 @@ onBeforeUnmount(() => {
 </script>
 
 <template>
+  <input id=image-input type=file accept=image/* multiple hidden ref="imageInput">
+  <input id=annotation-input type=file accept=.json,application/json hidden ref="annotationInput">
   <BNavItemDropdown
     text="File"
     class="pt-1"
@@ -196,16 +135,7 @@ onBeforeUnmount(() => {
         text="Download all"
         icon="bi-download"
         shortcut="Control+S"
-        @click="saveAnnotation"
-      />
-    </BDropdownItem>
-    <BDropdownItem>
-      <button-with-icon
-        text="Save"
-        icon="bi-floppy"
-        shortcut="Control+Shift+S"
-        @click="handleSendAnno"
-        v-if="showSendAnno"
+        @click="saveAnnotation(true)"
       />
     </BDropdownItem>
   </BNavItemDropdown>

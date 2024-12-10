@@ -1,25 +1,26 @@
 import { test, expect, beforeEach } from 'vitest';
 import { createPinia, setActivePinia } from 'pinia';
-import { Graph } from '../../graph/graph';
 import { ModelType } from '../../enums/modelType';
 import { Point2D } from '../../graph/point2d';
-import { type ModelApi } from '../../model/modelApi';
+import { AnnotationData, type ModelApi } from '../../model/modelApi';
 import { useAnnotationHistoryStore } from '../annotationHistoryStore';
+import type { ImageFile } from '../../imageFile';
+import { FileAnnotationHistory } from '../../cache/fileAnnotationHistory';
 
 beforeEach(() => {
   setActivePinia(createPinia());
 });
 
 class MockApi implements ModelApi<Point2D> {
-  async detect(_: File): Promise<Graph<Point2D> | null> {
-    return null;
+  async detect(imageFile: ImageFile): Promise<FileAnnotationHistory<Point2D> | null> {
+    return new FileAnnotationHistory<Point2D>(imageFile);
   }
 
   type(): ModelType {
     return ModelType.custom;
   }
 
-  async uploadAnnotations(_: string): Promise<void | Response> {
+  async uploadAnnotations(_: AnnotationData): Promise<void | Response> {
     return;
   }
 }
@@ -47,12 +48,9 @@ test('Test adding', async () => {
 
 test('Test find function', async () => {
   const store = useAnnotationHistoryStore();
-  const mockFile = new File([''], 'mock.png', {
-    type: 'image/png'
-  });
   await store.add(mockFile, mockApi);
 
-  const found = store.find('mock.png', store.histories[0].file.sha);
+  const found = store.find(mockFile.name, store.histories[0].file.sha);
   expect(found).toEqual(store.selectedHistory);
 });
 
