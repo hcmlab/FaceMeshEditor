@@ -7,6 +7,8 @@ import { guessOrientation, type orientationGuessResult } from '@/util/orientatio
 import { Orientation } from '@/enums/orientation';
 import { imageFromFile } from '@/util/imageFromFile';
 import { useAnnotationHistoryStore } from '@/stores/annotationHistoryStore';
+import { ThreeDimView } from '@/enums/threeDimView';
+import type { MultipleViewImage } from '@/interface/multiple_view_image';
 
 const imageLoadStore = useImageLoadStore();
 const disableHide = ref(true);
@@ -19,16 +21,11 @@ const processing = ref(false);
 const confirmModal = ref(false);
 const result = ref<MultipleViewImage[]>([]);
 
-export interface MultipleViewImage {
-  left: orientationGuessResult | null;
-  center: orientationGuessResult | null;
-  right: orientationGuessResult | null;
-}
-
 const selectedImages = ref<MultipleViewImage>({
   left: null,
   center: null,
-  right: null
+  right: null,
+  selected: ThreeDimView.center
 });
 
 watch(orientations, (newVal) => {
@@ -141,7 +138,8 @@ function nextImage() {
   selectedImages.value = {
     left: null,
     center: null,
-    right: null
+    right: null,
+    selected: ThreeDimView.center
   };
 
   progress.value++;

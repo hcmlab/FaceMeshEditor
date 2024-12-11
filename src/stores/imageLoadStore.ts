@@ -5,7 +5,7 @@ export const useImageLoadStore = defineStore({
   state: (): {
     showLoadModal: boolean;
   } => ({
-    showLoadModal: true
+    showLoadModal: false
   }),
   actions: {}
 });

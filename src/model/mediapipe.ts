@@ -10,8 +10,8 @@ import { Point2D } from '@/graph/point2d';
 import { ModelType } from '@/enums/modelType';
 import { FileAnnotationHistory } from '@/cache/fileAnnotationHistory';
 import { Point3D } from '@/graph/point3d';
-import type { MultipleViewImage } from '@/components/ImageLoadModal.vue';
 import { imageFromFile } from '@/util/imageFromFile';
+import type { MultipleViewImage } from '@/interface/multiple_view_image';
 
 /**
  * Represents a model using MediaPipe for face landmark detection.
@@ -44,32 +44,6 @@ export class MediapipeModel implements ModelApi<Point2D> {
       .then((landmarker) => (this.meshLandmarker = landmarker));
   }
 
-  async detect(imageFile: MultipleViewImage): Promise<FileAnnotationHistory<Point2D>> {
-    return new Promise<FileAnnotationHistory<Point2D>>((resolve, reject) => {
-      if (!imageFile.center) return;
-
-      const image = new Image();
-      image.onload = (_) => {
-        const result = this.meshLandmarker?.detect(image);
-        if (!result) {
-          reject(new Error('Face(s) could not be detected!'));
-          return;
-        }
-        const graph = MediapipeModel.processResult(result as FaceLandmarkerResult);
-        if (!graph) {
-          reject(new Error('Face(s) could not be detected!'));
-          return;
-        }
-        const h = new FileAnnotationHistory<Point2D>(imageFile);
-        h.add(graph);
-        resolve(h);
-      };
-      imageFromFile(imageFile.center.image.filePointer).then((img) => {
-        image.src = img
-      });
-    });
-  }
-
   static processResult(result: FaceLandmarkerResult) {
     const graphs = result.faceLandmarks
       .map((landmarks) =>
@@ -96,6 +70,32 @@ export class MediapipeModel implements ModelApi<Point2D> {
       return graphs[0];
     }
     return null;
+  }
+
+  async detect(imageFile: MultipleViewImage): Promise<FileAnnotationHistory<Point2D>> {
+    return new Promise<FileAnnotationHistory<Point2D>>((resolve, reject) => {
+      if (!imageFile.center) return;
+
+      const image = new Image();
+      image.onload = (_) => {
+        const result = this.meshLandmarker?.detect(image);
+        if (!result) {
+          reject(new Error('Face(s) could not be detected!'));
+          return;
+        }
+        const graph = MediapipeModel.processResult(result as FaceLandmarkerResult);
+        if (!graph) {
+          reject(new Error('Face(s) could not be detected!'));
+          return;
+        }
+        const h = new FileAnnotationHistory<Point2D>(imageFile);
+        h.add(graph);
+        resolve(h);
+      };
+      imageFromFile(imageFile.center.image.filePointer).then((img) => {
+        image.src = img;
+      });
+    });
   }
 
   async uploadAnnotations(_: AnnotationData): Promise<void | Response> {

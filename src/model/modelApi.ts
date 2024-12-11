@@ -1,7 +1,8 @@
 import { Point2D } from '@/graph/point2d';
 import type { ModelType } from '@/enums/modelType';
 import { FileAnnotationHistory, type GraphData } from '@/cache/fileAnnotationHistory';
-import type { MultipleViewImage } from '@/components/ImageLoadModal.vue';
+
+import type { MultipleViewImage } from '@/interface/multiple_view_image';
 
 export interface AnnotationData {
   [key: string]: GraphData | string;

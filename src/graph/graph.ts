@@ -4,7 +4,8 @@ import type { ModelApi } from '@/model/modelApi';
 import { findNeighbourPointIds } from '@/graph/face_landmarks_features';
 import type { PointData } from '@/cache/fileAnnotationHistory';
 import { Point3D } from '@/graph/point3d';
-import type { MultipleViewImage } from '@/components/ImageLoadModal.vue';
+
+import type { MultipleViewImage } from '@/interface/multiple_view_image';
 
 /**
  * Represents a graph of points in a 2D space.
@@ -28,19 +29,6 @@ export class Graph<P extends Point2D> {
    */
   get points(): P[] {
     return this._points;
-  }
-
-  /**
-   * marks all listed points as deleted from graph
-   * @param pointIds points to delete
-   * @private
-   */
-  deletePoints(pointIds: number[]): void {
-    this.points.forEach((point) => {
-      if (pointIds.includes(point.id)) {
-        point.deleted = true;
-      }
-    });
   }
 
   /**
@@ -85,6 +73,23 @@ export class Graph<P extends Point2D> {
     return new Graph<P>(points);
   }
 
+  static detect<P extends Point2D>(api: ModelApi<P>, file: MultipleViewImage) {
+    return api.detect(file);
+  }
+
+  /**
+   * marks all listed points as deleted from graph
+   * @param pointIds points to delete
+   * @private
+   */
+  deletePoints(pointIds: number[]): void {
+    this.points.forEach((point) => {
+      if (pointIds.includes(point.id)) {
+        point.deleted = true;
+      }
+    });
+  }
+
   /**
    * Retrieves a point from the graph by its ID.
    * @param {number} id - The ID of the point.
@@ -126,9 +131,5 @@ export class Graph<P extends Point2D> {
    */
   toDictArray(): PointData[] {
     return this.points.map((point) => point.toDict());
-  }
-
-  static detect<P extends Point2D>(api: ModelApi<P>, file: MultipleViewImage) {
-    return api.detect(file);
   }
 }

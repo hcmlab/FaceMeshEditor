@@ -6,9 +6,9 @@ import { ImageFile } from '@/imageFile';
 import type { AnnotationData, ModelApi } from '@/model/modelApi';
 import { SaveStatus } from '@/enums/saveStatus';
 import { Graph } from '@/graph/graph';
-import type { MultipleViewImage } from '@/components/ImageLoadModal.vue';
 import { MediapipeModel } from '@/model/mediapipe';
 import type { orientationGuessResult } from '@/util/orientationGuesser';
+import type { MultipleViewImage } from '@/interface/multiple_view_image';
 
 export const useAnnotationHistoryStore = defineStore({
   id: 'annotationHistory',

@@ -58,7 +58,7 @@ function orientationFromMesh(mesh: NormalizedLandmark[]) {
     return Orientation.unknown;
   }
 
-  // MIDESCTION OF NOSE IS BACK OF NOSE PERPENDICULAR
+  // MIDSECTION OF NOSE IS BACK OF NOSE PERPENDICULAR
   const midpoint = {
     x: (leftNose.x + rightNose.x) / 2,
     y: (leftNose.y + rightNose.y) / 2,

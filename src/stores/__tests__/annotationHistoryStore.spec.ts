@@ -1,12 +1,13 @@
-import { test, expect, beforeEach } from 'vitest';
+import { beforeEach, expect, test } from 'vitest';
 import { createPinia, setActivePinia } from 'pinia';
 import { ModelType } from '../../enums/modelType';
 import { Point2D } from '../../graph/point2d';
 import { AnnotationData, type ModelApi } from '../../model/modelApi';
 import { useAnnotationHistoryStore } from '../annotationHistoryStore';
-import type { MultipleViewImage } from '../../components/ImageLoadModal.vue';
 import { FileAnnotationHistory } from '../../cache/fileAnnotationHistory';
 import { ImageFile } from '../../imageFile';
+import { MultipleViewImage } from '../../interface/multiple_view_image';
+import { ThreeDimView } from '../../enums/threeDimView';
 
 beforeEach(() => {
   setActivePinia(createPinia());
@@ -15,14 +16,15 @@ beforeEach(() => {
 const mockFile: MultipleViewImage = {
   center: {
     image: {
-      file: new File([''], 'mock.png', {
+      filePointer: new File([''], 'mock.png', {
         type: 'image/png'
       })
     },
     mesh: []
   },
   left: null,
-  right: null
+  right: null,
+  selected: ThreeDimView.center
 };
 
 class MockApi implements ModelApi<Point2D> {
@@ -60,7 +62,10 @@ test('Test find function', async () => {
   const store = useAnnotationHistoryStore();
   await store.add(mockFile.center.image.filePointer, mockApi);
 
-  const found = store.find(mockFile.center.image.filePointer.name, store.histories[0].file.center.image.sha);
+  const found = store.find(
+    mockFile.center.image.filePointer.name,
+    store.histories[0].file.center.image.sha
+  );
   expect(found).toEqual(store.selectedHistory);
 });
 

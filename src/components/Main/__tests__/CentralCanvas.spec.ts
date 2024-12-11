@@ -5,7 +5,8 @@ import { Editor } from '../../../Editors/Editor';
 import { useAnnotationHistoryStore } from '../../../stores/annotationHistoryStore';
 import CentralCanvas from '../CentralCanvas.vue';
 import { FileAnnotationHistory } from '../../../cache/fileAnnotationHistory';
-import { MultipleViewImage } from '../../ImageLoadModal.vue';
+
+import { MultipleViewImage } from '../../../interface/multiple_view_image';
 
 vi.mock('@/Editors/FaceMeshEditor');
 vi.mock('@/Editors/BackgroundDrawer');

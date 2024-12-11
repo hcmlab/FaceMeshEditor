@@ -1,13 +1,14 @@
 import * as fs from 'node:fs';
 import { mount } from '@vue/test-utils';
-import { describe, it, expect, beforeAll } from 'vitest';
+import { beforeAll, describe, expect, it } from 'vitest';
 import { createPinia, setActivePinia } from 'pinia';
 import ThumbnailGallery from '../ThumbnailGallery.vue';
 import { FileAnnotationHistory } from '../../../cache/fileAnnotationHistory';
 import { Point2D } from '../../../graph/point2d';
 import { useAnnotationHistoryStore } from '../../../stores/annotationHistoryStore';
 import { ImageFile } from '../../../imageFile';
-import type { MultipleViewImage } from '../../ImageLoadModal.vue';
+
+import { MultipleViewImage } from '../../../interface/multiple_view_image';
 
 // Define a function to convert ArrayBuffer to Blob
 function arrayBufferToBlob(buffer: ArrayBuffer, type: string) {
