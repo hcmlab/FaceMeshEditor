@@ -6,8 +6,10 @@ import { SaveStatus } from '@/enums/saveStatus';
 import { FileAnnotationHistory } from '@/cache/fileAnnotationHistory';
 import { Point2D } from '@/graph/point2d';
 import type { MultipleViewImage } from '@/components/ImageLoadModal.vue';
+import { useModelStore } from '@/stores/modelStore';
 
 const annotationHistoryStore = useAnnotationHistoryStore();
+const modelStore = useModelStore();
 const histories = ref(useAnnotationHistoryStore().histories);
 
 function selectThumbnail(file: MultipleViewImage): void {
@@ -17,14 +19,20 @@ function selectThumbnail(file: MultipleViewImage): void {
   if (!selected) return;
   if (
     oldHistory &&
-    selected.file.name === oldHistory.file.center?.image.file.name &&
-    oldHistory.status !== SaveStatus.unedited
+    selected.filePointer.name === oldHistory.file.center?.image.filePointer.name &&
+    oldHistory.status !== SaveStatus.unedited &&
+    file.center
   ) {
     oldHistory.status = SaveStatus.saved;
+    modelStore.model
+      .uploadAnnotations({ [file.center.image.filePointer.name]: oldHistory.graphData })
+      .catch((reason) => {
+        console.error('Posting history failed: ', reason);
+      });
     return;
   }
   annotationHistoryStore.selectedHistory = annotationHistoryStore.find(
-    selected.file.name,
+    selected.filePointer.name,
     selected.sha
   );
 }

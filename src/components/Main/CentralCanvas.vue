@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script lang="ts" setup>
 import { onMounted, onUnmounted, ref, watch } from 'vue';
 import { Editor } from '@/Editors/Editor';
 import { useAnnotationHistoryStore } from '@/stores/annotationHistoryStore';
@@ -56,7 +56,7 @@ watch(
   async (value) => {
     if (!value) return;
     if (!value.file.center) return;
-    await Editor.setBackgroundSource(value.file.center.image.file);
+    await Editor.setBackgroundSource(value.file.center.image.filePointer);
     Editor.center();
     Editor.draw();
     editors.value.forEach((editor) => {
@@ -142,16 +142,16 @@ const onResize = () => {
 <template>
   <div class="w-70 border">
     <three-dim-view-container />
-    <div class="w-100 h-100" id="canvas-div">
+    <div id="canvas-div" class="w-100 h-100">
       <canvas
         id="canvas"
         ref="canvas"
         class=""
         @mousedown="handleMouseDown"
         @mousemove="handleMouseMove"
+        @mouseout="handleMouseUp"
         @mouseup="handleMouseUp"
         @wheel="handleWheel"
-        @mouseout="handleMouseUp"
       />
     </div>
   </div>

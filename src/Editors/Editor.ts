@@ -182,4 +182,20 @@ export abstract class Editor {
    * Notifies that an editing action was finished. Handle annotation data archiving.
    */
   public abstract onPointsEdited(): void;
+
+  /** ---------- Utility functions for drawing on the canvas -------------------------------------------------------- */
+
+  protected static drawCircleAtPoint(
+    ctx: CanvasRenderingContext2D,
+    color: string,
+    x: number,
+    y: number,
+    radius: number
+  ) {
+    if (!ctx) return;
+    ctx.beginPath();
+    ctx.fillStyle = color;
+    ctx.arc(x, y, radius, 0, Math.PI * 2);
+    ctx.fill();
+  }
 }

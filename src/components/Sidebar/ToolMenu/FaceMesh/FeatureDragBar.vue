@@ -13,7 +13,7 @@ function handleWheelEvent(e: WheelEvent) {
 }
 
 onMounted(() => {
-  window.addEventListener('wheel', handleWheelEvent);
+  window.addEventListener('wheel', handleWheelEvent, { passive: true });
 });
 
 onUnmounted(() => {

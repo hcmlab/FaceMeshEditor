@@ -26,11 +26,12 @@ function runDetection() {
   const history = annotationHistoryStore.selectedHistory;
   if (!history) return;
   if (!history.file.center) return;
-  modelStore.model?.detect(history.file.center.image).then((graph) => {
-    if (graph === null) {
+  modelStore.model?.detect(history.file).then((graphs) => {
+    if (graphs === null) {
       return;
     }
-    history.add(graph);
+    history.clear();
+    history.append(graphs);
   });
 }
 </script>

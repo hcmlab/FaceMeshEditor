@@ -27,7 +27,7 @@ const image = new Image();
 onMounted(() => {
   image.onload = () => draw();
   if (!props.history.file.center) return;
-  imageFromFile(props.history.file.center?.image.file).then((r) => {
+  imageFromFile(props.history.file.center?.image.filePointer).then((r) => {
     image.src = r;
   });
 });
@@ -88,7 +88,7 @@ watch(
       console.error('File render canceled');
       return;
     }
-    imageFromFile(newSrc.center?.image.file).then((r) => {
+    imageFromFile(newSrc.center?.image.filePointer).then((r) => {
       image.src = r;
     });
   }

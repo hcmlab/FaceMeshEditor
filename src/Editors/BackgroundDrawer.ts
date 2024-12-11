@@ -18,7 +18,7 @@ export class BackgroundDrawer extends Editor {
         return;
       }
       if (!this.annotationHistoryStore.selectedHistory.file.center) return;
-      imageFromFile(this.annotationHistoryStore.selectedHistory.file.center.image.file).then(
+      imageFromFile(this.annotationHistoryStore.selectedHistory.file.center.image.filePointer).then(
         (r) => (Editor.image.src = r)
       );
     });

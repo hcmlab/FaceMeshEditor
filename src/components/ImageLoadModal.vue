@@ -1,4 +1,4 @@
-<script setup lang="ts">
+<script lang="ts" setup>
 import { nextTick, onBeforeUnmount, onMounted, ref, watch } from 'vue';
 import { BvTriggerableEvent } from 'bootstrap-vue-next';
 import { useImageLoadStore } from '@/stores/imageLoadStore';
@@ -58,7 +58,7 @@ async function drawImageToCanvas(canvas: HTMLCanvasElement, image: ImageFile) {
     return;
   }
   const img = new Image();
-  img.src = await imageFromFile(image.file);
+  img.src = await imageFromFile(image.filePointer);
   img.onload = () => {
     canvas.width = screenHeight.value * (img.width / img.height);
     canvas.height = screenHeight.value;
@@ -209,14 +209,14 @@ onBeforeUnmount(() => {
 <template>
   <BModal
     v-model="imageLoadStore.showLoadModal"
-    title="Load images"
-    @hide="handleHide"
-    size="lg"
+    centered
     hide-footer
     scrollable
-    centered
+    size="lg"
+    title="Load images"
+    @hide="handleHide"
   >
-    <input type="file" multiple accept="image/*" ref="imageInput" hidden />
+    <input ref="imageInput" accept="image/*" hidden multiple type="file" />
     <div class="d-flex flex-column h-100">
       <!-- the images to select -->
       <div>
@@ -228,16 +228,16 @@ onBeforeUnmount(() => {
               <div class="overflow-y-auto">
                 <div
                   v-for="res in orientations.filter((val) => val.orientation === Orientation.left)"
-                  :key="res.image.sha"
                   :id="res.image.sha + '-container'"
+                  :key="res.image.sha"
                   class="overflow-y-auto"
                 >
                   <BButton
-                    @click="+imageClicked(res, Orientation.left)"
                     :variant="
                       selectedImages.left?.image.sha === res.image.sha ? 'primary' : 'outline-dark'
                     "
                     class="w-100"
+                    @click="+imageClicked(res, Orientation.left)"
                   >
                     <canvas :id="res.image.sha + '-canvas'" class="w-100 rounded border border-2" />
                   </BButton>
@@ -253,18 +253,18 @@ onBeforeUnmount(() => {
                   v-for="res in orientations.filter(
                     (val) => val.orientation === Orientation.center
                   )"
-                  :key="res.image.sha"
                   :id="res.image.sha + '-container'"
+                  :key="res.image.sha"
                   class="overflow-y-auto"
                 >
                   <BButton
-                    @click="imageClicked(res, Orientation.center)"
                     :variant="
                       selectedImages.center?.image.sha === res.image.sha
                         ? 'primary'
                         : 'outline-dark'
                     "
                     class="w-100"
+                    @click="imageClicked(res, Orientation.center)"
                   >
                     <canvas :id="res.image.sha + '-canvas'" class="w-100 rounded border border-2" />
                   </BButton>
@@ -278,15 +278,15 @@ onBeforeUnmount(() => {
               <div class="overflow-y-auto">
                 <div
                   v-for="res in orientations.filter((val) => val.orientation === Orientation.right)"
-                  :key="res.image.sha"
                   :id="res.image.sha + '-container'"
+                  :key="res.image.sha"
                 >
                   <BButton
-                    @click="imageClicked(res, Orientation.right)"
                     :variant="
                       selectedImages.right?.image.sha === res.image.sha ? 'primary' : 'outline-dark'
                     "
                     class="w-100"
+                    @click="imageClicked(res, Orientation.right)"
                   >
                     <canvas :id="res.image.sha + '-canvas'" class="w-100 rounded border border-2" />
                   </BButton>
@@ -304,15 +304,15 @@ onBeforeUnmount(() => {
       <div class="mt-auto w-100">
         <hr />
         <div class="d-flex">
-          <BButton @click="loadImages" variant="outline-dark">
-            <BSpinner small v-if="processing" />
+          <BButton variant="outline-dark" @click="loadImages">
+            <BSpinner v-if="processing" small />
             Load
           </BButton>
-          <BProgress :value="progress" :max="imageCount" show-value class="w-75 mx-4" />
-          <BButton @click="nextImage" variant="primary">Next</BButton>
+          <BProgress :max="imageCount" :value="progress" class="w-75 mx-4" show-value />
+          <BButton variant="primary" @click="nextImage">Next</BButton>
         </div>
       </div>
     </div>
   </BModal>
-  <BModal v-model="confirmModal" @ok="save"> Confirm? </BModal>
+  <BModal v-model="confirmModal" @ok="save"> Confirm?</BModal>
 </template>

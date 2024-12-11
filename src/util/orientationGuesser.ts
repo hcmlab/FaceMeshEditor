@@ -13,7 +13,7 @@ export async function guessOrientation(images: ImageFile[]): Promise<orientation
 
   return await Promise.all(
     images.map(async (image) => {
-      const data = await handleFile(image.file);
+      const data = await handleFile(image.filePointer);
       const res = tool.detect(data);
       const mesh = res.faceLandmarks[0];
       const orientation = orientationFromMesh(mesh);

@@ -3,11 +3,15 @@ import {
   type FaceLandmarkerResult,
   FilesetResolver
 } from '@mediapipe/tasks-vision';
-import type { ModelApi } from './modelApi';
+import type { AnnotationData, ModelApi } from './modelApi';
+import { findNeighbourPointIds } from '@/graph/face_landmarks_features';
 import { Graph } from '@/graph/graph';
 import { Point2D } from '@/graph/point2d';
 import { ModelType } from '@/enums/modelType';
-import type { ImageFile } from '@/imageFile';
+import { FileAnnotationHistory } from '@/cache/fileAnnotationHistory';
+import { Point3D } from '@/graph/point3d';
+import type { MultipleViewImage } from '@/components/ImageLoadModal.vue';
+import { imageFromFile } from '@/util/imageFromFile';
 
 /**
  * Represents a model using MediaPipe for face landmark detection.
@@ -40,25 +44,61 @@ export class MediapipeModel implements ModelApi<Point2D> {
       .then((landmarker) => (this.meshLandmarker = landmarker));
   }
 
-  async detect(imageFile: ImageFile): Promise<Graph<Point2D>> {
-    return new Promise<Graph<Point2D>>((resolve, reject) => {
+  async detect(imageFile: MultipleViewImage): Promise<FileAnnotationHistory<Point2D>> {
+    return new Promise<FileAnnotationHistory<Point2D>>((resolve, reject) => {
+      if (!imageFile.center) return;
+
       const image = new Image();
       image.onload = (_) => {
         const result = this.meshLandmarker?.detect(image);
         if (!result) {
           reject(new Error('Face(s) could not be detected!'));
+          return;
         }
-        const res = Graph.fromMesh((result as FaceLandmarkerResult).faceLandmarks[0]);
-        if (!res) {
+        const graph = MediapipeModel.processResult(result as FaceLandmarkerResult);
+        if (!graph) {
           reject(new Error('Face(s) could not be detected!'));
+          return;
         }
-        resolve(res as Graph<Point2D>);
+        const h = new FileAnnotationHistory<Point2D>(imageFile);
+        h.add(graph);
+        resolve(h);
       };
-      image.src = imageFile.html;
+      imageFromFile(imageFile.center.image.filePointer).then((img) => {
+        image.src = img
+      });
     });
   }
 
-  async uploadAnnotations(_: string): Promise<void | Response> {
+  static processResult(result: FaceLandmarkerResult) {
+    const graphs = result.faceLandmarks
+      .map((landmarks) =>
+        landmarks
+          .map((dict, idx) => {
+            const ids = Array.from(
+              findNeighbourPointIds(idx, FaceLandmarker.FACE_LANDMARKS_TESSELATION, 1)
+            );
+            return new Point3D(idx, dict.x, dict.y, dict.z, ids);
+          })
+          .map((point) => point as Point2D)
+      )
+      // filter out the iris markings
+      .map((landmarks) => {
+        landmarks = landmarks.filter((point) => {
+          return ![
+            ...FaceLandmarker.FACE_LANDMARKS_LEFT_IRIS.map((con) => con.start),
+            ...FaceLandmarker.FACE_LANDMARKS_RIGHT_IRIS.map((con) => con.start)
+          ].includes(point.id);
+        });
+        return new Graph(landmarks);
+      });
+    if (graphs) {
+      return graphs[0];
+    }
+    return null;
+  }
+
+  async uploadAnnotations(_: AnnotationData): Promise<void | Response> {
     return Promise.resolve();
   }
 

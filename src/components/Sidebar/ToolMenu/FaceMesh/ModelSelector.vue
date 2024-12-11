@@ -8,8 +8,10 @@ import { MediapipeModel } from '@/model/mediapipe';
 import { useModelStore } from '@/stores/modelStore';
 import { urlError } from '@/enums/urlError';
 import WebserviceSelectModal from '@/components/Modals/WebserviceSelectModal.vue';
+import { useAnnotationHistoryStore } from '@/stores/annotationHistoryStore';
 
 const modelStore = useModelStore();
+const annotationHistoryStore = useAnnotationHistoryStore();
 const showModal = ref(false);
 
 function openModal(): void {
@@ -35,7 +37,7 @@ function setModel(model: ModelType): boolean {
     case ModelType.custom: {
       btnCustom.checked = true;
       const inputBox = $('#modelurl');
-      const url = String(inputBox.val());
+      const url = String(inputBox.val()).trim();
 
       WebServiceModel.verifyUrl(url).then((error) => {
         const errorText = $('#urlErrorText');
@@ -49,6 +51,15 @@ function setModel(model: ModelType): boolean {
           localStorage.setItem('apiUrl', url);
           const notificationText = $('#saveNotificationText');
           notificationText.text('Webservice url saved!');
+          annotationHistoryStore.histories.forEach((history) => {
+            modelStore.model?.detect(history.file).then((graphs) => {
+              if (graphs === null) {
+                return;
+              }
+              history.clear();
+              history.append(graphs);
+            });
+          });
           setTimeout(() => {
             toast.hide();
             notificationText.text();
