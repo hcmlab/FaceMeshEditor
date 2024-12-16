@@ -7,7 +7,7 @@ import { useAnnotationHistoryStore } from '../annotationHistoryStore';
 import { FileAnnotationHistory } from '../../cache/fileAnnotationHistory';
 import { ImageFile } from '../../imageFile';
 import { MultipleViewImage } from '../../interface/multiple_view_image';
-import { ThreeDimView } from '../../enums/threeDimView';
+import { Orientation } from '../../enums/orientation';
 
 beforeEach(() => {
   setActivePinia(createPinia());
@@ -24,8 +24,8 @@ const mockFile: MultipleViewImage = {
   },
   left: null,
   right: null,
-  selected: ThreeDimView.center
-};
+  selected: Orientation.center
+} as MultipleViewImage;
 
 class MockApi implements ModelApi<Point2D> {
   async detect(imageFile: ImageFile): Promise<FileAnnotationHistory<Point2D> | null> {

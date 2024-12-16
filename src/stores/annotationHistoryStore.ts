@@ -66,6 +66,9 @@ export const useAnnotationHistoryStore = defineStore({
         h.add(graph);
         this.histories.push(h);
       });
+      if (!this.selectedHistory) {
+        this.selectedHistory = this.histories[0];
+      }
     },
 
     /**
@@ -76,6 +79,11 @@ export const useAnnotationHistoryStore = defineStore({
         (file) => file.status === SaveStatus.saved
       ) as FileAnnotationHistory<Point2D>[];
     },
+
+    selected(): FileAnnotationHistory<Point2D> | null {
+      return this.selectedHistory as FileAnnotationHistory<Point2D> | null;
+    },
+
     /**
      * Collects and processes annotation data from the annotation history store.
      * It gathers saved annotation histories, marks them as sent, and transforms

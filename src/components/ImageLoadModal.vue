@@ -7,8 +7,7 @@ import { guessOrientation, type orientationGuessResult } from '@/util/orientatio
 import { Orientation } from '@/enums/orientation';
 import { imageFromFile } from '@/util/imageFromFile';
 import { useAnnotationHistoryStore } from '@/stores/annotationHistoryStore';
-import { ThreeDimView } from '@/enums/threeDimView';
-import type { MultipleViewImage } from '@/interface/multiple_view_image';
+import { MultipleViewImage } from '@/interface/multiple_view_image';
 
 const imageLoadStore = useImageLoadStore();
 const disableHide = ref(true);
@@ -21,12 +20,7 @@ const processing = ref(false);
 const confirmModal = ref(false);
 const result = ref<MultipleViewImage[]>([]);
 
-const selectedImages = ref<MultipleViewImage>({
-  left: null,
-  center: null,
-  right: null,
-  selected: ThreeDimView.center
-});
+const selectedImages = ref<MultipleViewImage>(new MultipleViewImage());
 
 watch(orientations, (newVal) => {
   nextTick().then(() => {
@@ -135,12 +129,7 @@ function nextImage() {
   result.value.push(selectedImages.value);
 
   // clean up
-  selectedImages.value = {
-    left: null,
-    center: null,
-    right: null,
-    selected: ThreeDimView.center
-  };
+  selectedImages.value = new MultipleViewImage();
 
   progress.value++;
   if (progress.value === imageCount.value) {
@@ -171,6 +160,19 @@ async function handleImageLoad() {
     imageCount.value = orientations.value.filter(
       (value) => value.orientation === Orientation.center
     ).length;
+
+    if (
+      orientations.value.filter((value) => value.orientation !== Orientation.center).length === 0
+    ) {
+      result.value = orientations.value.map((value) => {
+        let res = new MultipleViewImage();
+        res.selected = value.orientation;
+        res.center = value;
+        return res;
+      });
+      save();
+    }
+
     progress.value = 0;
     processing.value = false;
   }
@@ -182,14 +184,6 @@ const save = () => {
   imageLoadStore.showLoadModal = false;
 };
 
-onMounted(() => {
-  if (!imageInput.value) {
-    console.error('imageInput not found on mount');
-    return;
-  }
-  imageInput.value.addEventListener('change', handleImageLoad);
-});
-
 const updateScreenHeight = () => {
   screenHeight.value = window.innerHeight / 4;
 };
@@ -197,6 +191,12 @@ const updateScreenHeight = () => {
 onMounted(() => {
   window.addEventListener('resize', updateScreenHeight);
   updateScreenHeight();
+
+  if (!imageInput.value) {
+    console.error('imageInput not found on mount');
+    return;
+  }
+  imageInput.value.addEventListener('change', handleImageLoad);
 });
 
 onBeforeUnmount(() => {

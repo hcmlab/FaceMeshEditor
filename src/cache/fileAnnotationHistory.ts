@@ -33,6 +33,7 @@ export class FileAnnotationHistory<T extends Point2D> {
    * @param cacheSize - The maximum number of history entries to retain. If 0 (default) any amount of data is kept
    */
   constructor(file: MultipleViewImage, cacheSize: number = 0) {
+    if (!file) throw new Error('FileAnnotationHistory: File is required.');
     this._file = file;
     this.cacheSize = cacheSize;
     this._status = SaveStatus.unedited;
