@@ -1,10 +1,14 @@
 import { defineStore } from 'pinia';
+import type { FaceLandmarkerResult } from '@mediapipe/tasks-vision';
 import { FileAnnotationHistory } from '@/cache/fileAnnotationHistory';
 import { Point2D } from '@/graph/point2d';
 import { ImageFile } from '@/imageFile';
-import { Graph } from '@/graph/graph';
 import type { AnnotationData, ModelApi } from '@/model/modelApi';
 import { SaveStatus } from '@/enums/saveStatus';
+import { Graph } from '@/graph/graph';
+import { MediapipeModel } from '@/model/mediapipe';
+import type { orientationGuessResult } from '@/util/orientationGuesser';
+import type { MultipleViewImage } from '@/interface/multiple_view_image';
 
 export const useAnnotationHistoryStore = defineStore({
   id: 'annotationHistory',
@@ -24,7 +28,9 @@ export const useAnnotationHistoryStore = defineStore({
         // Todo - error message
         throw new Error('Failed to parse image data.');
       }
-      const history = await Graph.detect(api, imageFile);
+      const multipleView = {} as MultipleViewImage;
+      multipleView.center = { image: imageFile } as orientationGuessResult;
+      const history = await Graph.detect(api, multipleView);
       if (!history) {
         // Todo - error message
         throw new Error('Failed to detect history from the Graph API.');
@@ -39,9 +45,32 @@ export const useAnnotationHistoryStore = defineStore({
     },
     find(fileName: string, sha256: string): FileAnnotationHistory<Point2D> {
       return this.histories.find(
-        (history) => history.file.filePointer.name === fileName && history.file.sha === sha256
+        (history) =>
+          (history.file.left?.image.filePointer.name === fileName &&
+            history.file.left.image.sha === sha256) ||
+          (history.file.right?.image.filePointer.name === fileName &&
+            history.file.right.image.sha === sha256) ||
+          (history.file.center?.image.filePointer.name === fileName &&
+            history.file.center.image.sha === sha256)
       ) as FileAnnotationHistory<Point2D>;
     },
+
+    async merge(data: MultipleViewImage[]) {
+      data.forEach((value) => {
+        const h = new FileAnnotationHistory<Point2D>(value);
+        const mesh = {} as FaceLandmarkerResult;
+        if (!value.center?.mesh) return;
+        mesh.faceLandmarks = [value.center?.mesh];
+        const graph = MediapipeModel.processResult(mesh);
+        if (!graph) return;
+        h.add(graph);
+        this.histories.push(h);
+      });
+      if (!this.selectedHistory) {
+        this.selectedHistory = this.histories[0];
+      }
+    },
+
     /**
      * Returns any files with pending changes
      */
@@ -50,6 +79,11 @@ export const useAnnotationHistoryStore = defineStore({
         (file) => file.status === SaveStatus.saved
       ) as FileAnnotationHistory<Point2D>[];
     },
+
+    selected(): FileAnnotationHistory<Point2D> | null {
+      return this.selectedHistory as FileAnnotationHistory<Point2D> | null;
+    },
+
     /**
      * Collects and processes annotation data from the annotation history store.
      * It gathers saved annotation histories, marks them as sent, and transforms
@@ -67,9 +101,10 @@ export const useAnnotationHistoryStore = defineStore({
         }
         const graph = h.graphData;
 
-        if (graph) {
-          result[h.file.filePointer.name] = graph;
+        if (!graph || !h.file.center) {
+          return;
         }
+        result[h.file.center.image.filePointer.name] = graph;
         h.markAsSent();
       });
       return result;

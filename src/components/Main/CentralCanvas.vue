@@ -1,13 +1,12 @@
-<script setup lang="ts">
+<script lang="ts" setup>
 import { onMounted, onUnmounted, ref, watch } from 'vue';
 import { Editor } from '@/Editors/Editor';
-import { useAnnotationHistoryStore } from '@/stores/annotationHistoryStore';
 import { useAnnotationToolStore } from '@/stores/annotationToolStore';
 import { AnnotationTool } from '@/enums/annotationTool';
 import { FaceMeshEditor } from '@/Editors/FaceMeshEditor';
 import { BackgroundDrawer } from '@/Editors/BackgroundDrawer';
+import ViewPicker from '@/components/ViewPicker.vue';
 
-const annotationHistoryStore = useAnnotationHistoryStore();
 const annotationToolStore = useAnnotationToolStore();
 
 const editors = ref<Editor[]>([new BackgroundDrawer()]);
@@ -50,19 +49,6 @@ watch(
   { deep: true }
 );
 
-watch(
-  () => annotationHistoryStore.selectedHistory,
-  async (value) => {
-    if (!value) return;
-    await Editor.setBackgroundSource(value.file);
-    Editor.center();
-    Editor.draw();
-    editors.value.forEach((editor) => {
-      editor.onBackgroundLoaded();
-    });
-  }
-);
-
 function fromTool(tool: AnnotationTool): Editor {
   switch (tool) {
     case AnnotationTool.FaceMesh:
@@ -82,10 +68,9 @@ function handleMouseMove(event: MouseEvent): void {
   if (!canvas.value) return;
   Editor.prevMouseX = Editor.mouseX;
   Editor.prevMouseY = Editor.mouseY;
-  const canvasPosLeft = canvas.value.offsetLeft;
-  const canvasPosTop = canvas.value.offsetTop;
-  Editor.mouseX = event.clientX - canvasPosLeft;
-  Editor.mouseY = event.clientY - canvasPosTop;
+  const canvasRect = canvas.value.getBoundingClientRect();
+  Editor.mouseX = event.clientX - canvasRect.left;
+  Editor.mouseY = event.clientY - canvasRect.top;
   const relativeMouseX = (Editor.mouseX - Editor.offsetX) / Editor.zoomScale;
   const relativeMouseY = (Editor.mouseY - Editor.offsetY) / Editor.zoomScale;
   if (Editor.isMoving) {
@@ -100,11 +85,10 @@ function handleMouseMove(event: MouseEvent): void {
     editors.value.forEach((editor) => {
       editor.onPan(relativeMouseX, relativeMouseY);
     });
-  } else if (Editor.image) {
-    editors.value.forEach((editor) => {
-      editor.onMouseMove(event, relativeMouseX, relativeMouseY);
-    });
   }
+  editors.value.forEach((editor) => {
+    editor.onMouseMove(event, relativeMouseX, relativeMouseY);
+  });
 }
 
 function handleMouseUp(e: MouseEvent): void {
@@ -125,7 +109,7 @@ function handleMouseUp(e: MouseEvent): void {
 }
 
 function handleWheel(event: WheelEvent): void {
-  if (Editor.image && !event.shiftKey) {
+  if (Editor.hasImage && !event.shiftKey) {
     Editor.zoom(event.deltaY > 0);
     Editor.draw();
     event.preventDefault();
@@ -138,17 +122,20 @@ const onResize = () => {
 </script>
 
 <template>
-  <div class="w-70 border" id="canvas-div">
-    <canvas
-      id="canvas"
-      ref="canvas"
-      class=""
-      @mousedown="handleMouseDown"
-      @mousemove="handleMouseMove"
-      @mouseup="handleMouseUp"
-      @wheel="handleWheel"
-      @mouseout="handleMouseUp"
-    />
+  <div class="w-70 border position-relative">
+    <ViewPicker />
+    <div id="canvas-div" class="w-100 h-100">
+      <canvas
+        id="canvas"
+        ref="canvas"
+        class=""
+        @mousedown="handleMouseDown"
+        @mousemove="handleMouseMove"
+        @mouseout="handleMouseUp"
+        @mouseup="handleMouseUp"
+        @wheel="handleWheel"
+      />
+    </div>
   </div>
 </template>
 

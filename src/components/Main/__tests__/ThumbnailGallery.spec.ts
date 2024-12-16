@@ -1,12 +1,14 @@
 import * as fs from 'node:fs';
 import { mount } from '@vue/test-utils';
-import { describe, it, expect, beforeAll } from 'vitest';
+import { beforeAll, describe, expect, it } from 'vitest';
 import { createPinia, setActivePinia } from 'pinia';
 import ThumbnailGallery from '../ThumbnailGallery.vue';
 import { FileAnnotationHistory } from '../../../cache/fileAnnotationHistory';
 import { Point2D } from '../../../graph/point2d';
 import { useAnnotationHistoryStore } from '../../../stores/annotationHistoryStore';
 import { ImageFile } from '../../../imageFile';
+
+import { MultipleViewImage } from '../../../interface/multiple_view_image';
 
 // Define a function to convert ArrayBuffer to Blob
 function arrayBufferToBlob(buffer: ArrayBuffer, type: string) {
@@ -27,17 +29,26 @@ const arrayBuffer = Uint8Array.from(fileBuffer).buffer;
 const blob = arrayBufferToBlob(arrayBuffer, 'text/plain');
 
 // Mock data
-const mockData = {
-  file: null
+const mockData: MultipleViewImage = {
+  center: {
+    image: {
+      file: new File([''], 'mock.png', {
+        type: 'image/png'
+      })
+    },
+    mesh: []
+  },
+  left: null,
+  right: null
 };
 
 let store = null;
 
 beforeAll(async () => {
-  mockData.file = await ImageFile.create(blobToFile(blob, 'test.png'));
+  mockData.center.image = await ImageFile.create(blobToFile(blob, 'test.png'));
   setActivePinia(createPinia());
   store = useAnnotationHistoryStore();
-  store.histories.push(new FileAnnotationHistory<Point2D>(mockData.file, 25));
+  store.histories.push(new FileAnnotationHistory<Point2D>(mockData, 25));
 });
 
 describe('ThumbnailGallery', () => {
@@ -49,7 +60,7 @@ describe('ThumbnailGallery', () => {
     const thumbnailContainer = wrapper.find('#thumbnail-0');
     expect(thumbnailContainer.exists()).toBe(true);
 
-    await thumbnailContainer.trigger('click', mockData.file);
-    expect(store.selectedHistory.file).toEqual(mockData.file);
+    await thumbnailContainer.trigger('click', mockData);
+    expect(store.selectedHistory.file).toEqual(mockData);
   });
 });

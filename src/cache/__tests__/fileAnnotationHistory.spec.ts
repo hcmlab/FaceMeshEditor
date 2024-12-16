@@ -1,12 +1,9 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, expect, it } from 'vitest';
 import { Graph } from '../../graph/graph';
 import { Point2D } from '../../graph/point2d';
 import { SaveStatus } from '../../enums/saveStatus';
+import { MultipleViewImage } from '../../interface/multiple_view_image';
 import { FileAnnotationHistory } from '../fileAnnotationHistory';
-
-vi.mock('../../imageFile');
-
-import { ImageFile } from '../../imageFile';
 
 function generateMockedGraph() {
   const x = Math.random() * 100; // Random number between 0 and 100
@@ -17,27 +14,35 @@ function generateMockedGraph() {
   return new Graph<Point2D>([new Point2D(x, y, z, neighbors)]);
 }
 
-const mockFile = 'test';
+const mockData = {
+  center: {
+    image: {
+      mockDataPointer: new File([''], 'mock.png', {
+        type: 'image/png'
+      })
+    },
+    mesh: []
+  },
+  left: null,
+  right: null
+} as MultipleViewImage;
 
 describe('FileAnnotationHistory', () => {
   it('initializes properly', () => {
-    const file = ImageFile.create(mockFile);
-    const history = new FileAnnotationHistory(file, 10);
+    const history = new FileAnnotationHistory(mockData, 10);
 
-    expect(history.file).eq(file);
+    expect(history.file).eq(mockData);
     expect(history.status).eq(SaveStatus.unedited);
   });
 
-  it('retrieves the correct file', () => {
-    const file = ImageFile.create(mockFile);
-    const history = new FileAnnotationHistory(file, 10);
+  it('retrieves the correct mockData', () => {
+    const history = new FileAnnotationHistory(mockData, 10);
 
-    expect(history.file).eq(file);
+    expect(history.file).eq(mockData);
   });
 
   it('updates the status', () => {
-    const file = ImageFile.create(mockFile);
-    const history = new FileAnnotationHistory(file, 10);
+    const history = new FileAnnotationHistory(mockData, 10);
 
     expect(history.status).eq(SaveStatus.unedited);
     history.status = SaveStatus.saved;
@@ -45,8 +50,7 @@ describe('FileAnnotationHistory', () => {
   });
 
   it('adds new item to history', () => {
-    const file = ImageFile.create(mockFile);
-    const history = new FileAnnotationHistory(file, 10);
+    const history = new FileAnnotationHistory(mockData, 10);
     const graph = generateMockedGraph();
 
     // state before addition
@@ -60,8 +64,7 @@ describe('FileAnnotationHistory', () => {
   });
 
   it('moves history index correctly', () => {
-    const file = ImageFile.create(mockFile);
-    const history = new FileAnnotationHistory(file, 10);
+    const history = new FileAnnotationHistory(mockData, 10);
     const graph1 = generateMockedGraph();
     const graph2 = generateMockedGraph();
 
@@ -77,8 +80,7 @@ describe('FileAnnotationHistory', () => {
   });
 
   it('clears properly', () => {
-    const file = ImageFile.create(mockFile);
-    const history = new FileAnnotationHistory(file, 10);
+    const history = new FileAnnotationHistory(mockData, 10);
 
     history.add(generateMockedGraph());
     history.clear();
@@ -86,8 +88,7 @@ describe('FileAnnotationHistory', () => {
   });
 
   it('marks as sent properly', () => {
-    const file = ImageFile.create(mockFile);
-    const history = new FileAnnotationHistory(file, 10);
+    const history = new FileAnnotationHistory(mockData, 10);
 
     history.add(generateMockedGraph());
     history.markAsSent();

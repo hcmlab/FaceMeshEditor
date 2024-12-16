@@ -1,8 +1,11 @@
-<script setup lang="ts">
-import { ref, onMounted, watch, computed } from 'vue';
+<script lang="ts" setup>
+import { computed, onMounted, ref, watch } from 'vue';
 import { SaveStatus } from '@/enums/saveStatus';
 import { FileAnnotationHistory } from '@/cache/fileAnnotationHistory';
 import { Point2D } from '@/graph/point2d';
+import { imageFromFile } from '@/util/imageFromFile';
+
+import type { MultipleViewImage } from '@/interface/multiple_view_image';
 
 const props = defineProps({
   history: {
@@ -24,7 +27,10 @@ const image = new Image();
 
 onMounted(() => {
   image.onload = () => draw();
-  image.src = props.history.file.html;
+  if (!props.history.file.center) return;
+  imageFromFile(props.history.file.center?.image.filePointer).then((r) => {
+    image.src = r;
+  });
 });
 
 const draw = () => {
@@ -77,21 +83,27 @@ let iconDescription = computed(() => {
 });
 
 watch(
-  () => props.history.file.html,
-  (newSrc) => {
-    image.src = newSrc;
+  () => props.history.file,
+  (newSrc: MultipleViewImage) => {
+    if (!newSrc.center) {
+      console.error('File render canceled');
+      return;
+    }
+    imageFromFile(newSrc.center?.image.filePointer).then((r) => {
+      image.src = r;
+    });
   }
 );
 </script>
 
 <template>
   <div class="thumbnail" @click="$emit('click', props.history.file)">
-    <a class="overlap-container" :href="href">
+    <a :href="href" class="overlap-container">
       <canvas
         ref="canvas"
-        class="d-block img-thumbnail w-100 box-sizing-border-box"
-        :width="imageSize"
         :height="imageSize"
+        :width="imageSize"
+        class="d-block img-thumbnail w-100 box-sizing-border-box"
       />
       <div
         :class="[
@@ -111,9 +123,11 @@ watch(
   position: relative;
   cursor: pointer;
 }
+
 .thumbnail canvas {
   object-fit: cover;
 }
+
 .thumbnail div {
   position: absolute;
   top: 0;

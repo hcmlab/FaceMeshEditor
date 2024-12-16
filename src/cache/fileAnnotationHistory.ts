@@ -1,7 +1,8 @@
 import { Point2D } from '@/graph/point2d';
 import { Graph } from '@/graph/graph';
-import { ImageFile } from '@/imageFile';
 import { SaveStatus } from '@/enums/saveStatus';
+
+import type { MultipleViewImage } from '@/interface/multiple_view_image';
 
 export interface PointData {
   deleted: boolean;
@@ -10,6 +11,7 @@ export interface PointData {
   z?: number;
   id: number;
 }
+
 export interface GraphData {
   points?: PointData[][];
   sha256?: string;
@@ -22,29 +24,22 @@ export interface GraphData {
  */
 export class FileAnnotationHistory<T extends Point2D> {
   private readonly cacheSize: number;
-  private _history: Graph<T>[] = [];
   private currentHistoryIndex: number = 0;
-  private readonly _file: ImageFile;
-  private _status: SaveStatus;
+  private readonly _file: MultipleViewImage;
 
   /**
    * Creates a new FileAnnotationHistory instance.
    * @param file - The file associated with the annotations.
    * @param cacheSize - The maximum number of history entries to retain. If 0 (default) any amount of data is kept
    */
-  constructor(file: ImageFile, cacheSize: number = 0) {
+  constructor(file: MultipleViewImage, cacheSize: number = 0) {
+    if (!file) throw new Error('FileAnnotationHistory: File is required.');
     this._file = file;
     this.cacheSize = cacheSize;
     this._status = SaveStatus.unedited;
   }
 
-  /**
-   * Gets the associated file.
-   * @returns {File} - The file associated with the annotations.
-   */
-  get file(): ImageFile {
-    return this._file;
-  }
+  private _status: SaveStatus;
 
   get status(): SaveStatus {
     return this._status;
@@ -53,6 +48,26 @@ export class FileAnnotationHistory<T extends Point2D> {
   set status(value: SaveStatus) {
     this._status = value;
   }
+
+  /**
+   * Gets the associated file.
+   * @returns - The file associated with the annotations.
+   */
+  get file(): MultipleViewImage {
+    return this._file;
+  }
+
+  /**
+   * returns the serialized data of the history, included file sha.
+   */
+  get graphData(): GraphData {
+    return {
+      points: this.toDictArray,
+      sha256: this.file.center?.image.sha
+    };
+  }
+
+  private _history: Graph<T>[] = [];
 
   protected get history() {
     return this._history;
@@ -67,13 +82,35 @@ export class FileAnnotationHistory<T extends Point2D> {
   }
 
   /**
-   * returns the serialized data of the history, included file sha.
+   * Parses the provided parsed json data into a history. Expects the latest element to be at the end of the array.
+   * @param json the parsed data
+   * @param file the image file, to check the sha
+   * @param newObject a function to create a single Point, used to mitigate the templating.
    */
-  get graphData(): GraphData {
-    return {
-      points: this.toDictArray,
-      sha256: this.file.sha
-    };
+  static fromJson<T extends Point2D>(
+    json: GraphData,
+    file: MultipleViewImage,
+    newObject: (id: number, neighbors: number[]) => T
+  ): FileAnnotationHistory<T> | null {
+    const h = new FileAnnotationHistory<T>(file);
+    // skip files without annotation
+    if (Object.keys(json).length == 0) {
+      return null;
+    }
+    const sha = json.sha256;
+    if (!sha) throw new Error('Missing from API!');
+    if (sha !== file.center?.image.sha) throw new Error('Mismatching sha sent from API!');
+    let graphs = json.points;
+    if (!graphs) throw new Error("Didn't get any points from API!");
+    /* backward compatibility if the file contains the old Points2D[] format instead of Points2D[][] */
+    if (!Array.isArray(graphs[0])) {
+      graphs = [graphs as unknown as PointData[]];
+    }
+    graphs.forEach((unparsedGraph) => {
+      const graph: Graph<T> = Graph.fromJson(unparsedGraph, newObject);
+      h.add(graph);
+    });
+    return h;
   }
 
   /**
@@ -171,37 +208,5 @@ export class FileAnnotationHistory<T extends Point2D> {
    */
   markAsSent(): void {
     this._status = SaveStatus.unedited;
-  }
-
-  /**
-   * Parses the provided parsed json data into a history. Expects the latest element to be at the end of the array.
-   * @param json the parsed data
-   * @param file the image file, to check the sha
-   * @param newObject a function to create a single Point, used to mitigate the templating.
-   */
-  static fromJson<T extends Point2D>(
-    json: GraphData,
-    file: ImageFile,
-    newObject: (id: number, neighbors: number[]) => T
-  ): FileAnnotationHistory<T> | null {
-    const h = new FileAnnotationHistory<T>(file);
-    // skip files without annotation
-    if (Object.keys(json).length == 0) {
-      return null;
-    }
-    const sha = json.sha256;
-    if (!sha) throw new Error('Missing from API!');
-    if (sha !== file.sha) throw new Error('Mismatching sha sent from API!');
-    let graphs = json.points;
-    if (!graphs) throw new Error("Didn't get any points from API!");
-    /* backward compatibility if the file contains the old Points2D[] format instead of Points2D[][] */
-    if (!Array.isArray(graphs[0])) {
-      graphs = [graphs as unknown as PointData[]];
-    }
-    graphs.forEach((unparsedGraph) => {
-      const graph: Graph<T> = Graph.fromJson(unparsedGraph, newObject);
-      h.add(graph);
-    });
-    return h;
   }
 }

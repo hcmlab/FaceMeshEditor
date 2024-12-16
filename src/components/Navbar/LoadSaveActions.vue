@@ -8,15 +8,17 @@ import ButtonWithIcon from '@/components/MenuItems/ButtonWithIcon.vue';
 import getFormattedTimestamp from '@/util/formattedTimestamp';
 import { FileAnnotationHistory } from '@/cache/fileAnnotationHistory';
 import type { AnnotationData } from '@/model/modelApi';
+import { useImageLoadStore } from '@/stores/imageLoadStore';
 
 const modelStore = useModelStore();
 const annotationHistoryStore = useAnnotationHistoryStore();
+const imageLoadStore = useImageLoadStore();
 
 const imageInput = ref();
 const annotationInput = ref();
 
 function openImage(): void {
-  imageInput.value.click();
+  imageLoadStore.showLoadModal = true;
 }
 
 function openAnnotation() {
