@@ -1,6 +1,6 @@
 import { getFingerprint } from '@thumbmarkjs/thumbmarkjs';
 import type { AnnotationData, ModelApi } from './modelApi';
-import { Point2D } from '@/graph/point2d';
+import { Point3D } from '@/graph/point3d';
 import { ModelType } from '@/enums/modelType';
 import { urlError } from '@/enums/urlError';
 import type { ImageFile } from '@/imageFile';
@@ -8,9 +8,9 @@ import { FileAnnotationHistory, type GraphData } from '@/cache/fileAnnotationHis
 
 /**
  * Represents a model using a WebService for face landmark detection.
- * Implements the ModelApi interface for working with Point2D graphs.
+ * Implements the ModelApi interface for working with Point3D graphs.
  */
-export class WebServiceModel implements ModelApi<Point2D> {
+export class WebServiceModel implements ModelApi<Point3D> {
   private readonly url: string;
 
   /**
@@ -20,7 +20,7 @@ export class WebServiceModel implements ModelApi<Point2D> {
     this.url = url;
   }
 
-  async detect(imageFile: ImageFile): Promise<FileAnnotationHistory<Point2D> | null> {
+  async detect(imageFile: ImageFile): Promise<FileAnnotationHistory<Point3D> | null> {
     const formData: FormData = new FormData();
     formData.append('file', imageFile.filePointer);
 
@@ -40,7 +40,7 @@ export class WebServiceModel implements ModelApi<Point2D> {
           FileAnnotationHistory.fromJson(
             json,
             imageFile,
-            (id, neighbors) => new Point2D(id, 0, 0, neighbors)
+            (id, neighbors) => new Point3D(id, 0, 0, 0, neighbors)
           )
         )
         .catch((err: Error) => {
